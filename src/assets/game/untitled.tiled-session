@@ -8,12 +8,22 @@
     ],
     "fileStates": {
     },
+    "last.exportedFilePath": "/home/odin/Dungeon/Github/aws-game-dev/src/assets/game",
+    "last.imagePath": "/home/odin/Dungeon/Github/aws-game-dev/src/assets/game/Tilesets",
     "map.height": 30,
+    "map.lastUsedExportFilter": "All Files (*)",
+    "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
+    "map.width": 30,
     "openFiles": [
     ],
     "project": "untitled.tiled-project",
     "recentFiles": [
-    ]
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
 }
