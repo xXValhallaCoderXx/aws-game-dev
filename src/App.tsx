@@ -7,7 +7,7 @@
 // import { decrement, increment } from "./slices/game/game.slice";
 
 import Phaser from "phaser";
-import { PhaserGame } from "./game/PhaserGame";
+import { PhaserGame } from "./PhaserGame";
 import { useRef, useState } from "react";
 
 function App() {
@@ -68,20 +68,18 @@ function App() {
     }
   };
 
-  console.log("CURRENT SCENE: ", phaserRef?.current?.scene);
-
   return (
     <div id="app">
       <div id="phaser-overlay" style={{ position: "relative" }}>
         <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-        <button
+        {/* <button
           onClick={changeScene}
           style={{ position: "absolute", top: 0, right: 0 }}
         >
           Change Scene
-        </button>
+        </button> */}
       </div>
-      <div>
+      {/* <div>
         <div>
           <button
             disabled={canMoveSprite}
@@ -100,7 +98,7 @@ function App() {
             Add New Sprite
           </button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

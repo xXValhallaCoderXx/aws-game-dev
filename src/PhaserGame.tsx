@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
-import StartGame from "./main";
-import { EventBus } from "./EventBus";
+import StartGame from "./PhaserRoot";
+import { EventBus } from "./game/EventBus";
 
 interface PhaserGameProps {
   currentActiveScene?: (scene: any) => void; // Adjust type `any` to match the actual type of the scene
