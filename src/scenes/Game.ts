@@ -113,6 +113,12 @@ export class Game extends Scene {
     console.log("Update: DT ", dt);
     if (!this.cursors || !this.player) return;
 
+
+
+    if (!this.player.body || !this.player.anims.currentAnim) {
+      throw new Error("Failed to load player object");
+    }
+
     const speed = 100;
     if (this.cursors.left?.isDown) {
       this.player.anims.play("player-move-side", true);
