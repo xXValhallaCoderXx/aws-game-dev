@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scene } from "phaser";
-import debugDrawer from "../shared/services/utils/phaser-debug.util";
+import { ESCENE_KEYS } from "../shared/scene-keys";
+// import debugDrawer from "../shared/services/utils/phaser-debug.util";
 
 export class Game extends Scene {
   // So we don't need non null assertion operator (!) in the code
@@ -8,13 +9,16 @@ export class Game extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
 
   constructor() {
-    super("Game");
+    super(ESCENE_KEYS.GAME);
   }
 
   init() {}
 
   preload() {
-    this.cursors = this.input.keyboard.createCursorKeys();
+    const cursors = this.input.keyboard?.createCursorKeys();
+    if (cursors) {
+      this.cursors = cursors;
+    }
   }
 
   create() {
@@ -22,14 +26,28 @@ export class Game extends Scene {
     const tileset = map.addTilesetImage("grass", "grass");
     const tileset2 = map.addTilesetImage("hills", "hills");
 
+    if (!tileset || !tileset2) {
+      throw new Error("Failed to load tilesets");
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const grassLayer = map.createLayer("GrassLayer", tileset, 0, 0);
     const hillsLayer = map.createLayer("HillsLayer", tileset2, 0, 0);
+
+    if (!hillsLayer) {
+      throw new Error("Failed to create hills layer");
+    }
 
     hillsLayer.setCollisionByProperty({ collides: true });
 
     // debugDrawer(hillsLayer, this);
 
     this.player = this.physics.add.sprite(20, 20, "player", "walk-1");
+
+    if (!this.player) {
+      throw new Error("Failed to create player sprite");
+    }
+
     this.player.body?.setSize(
       this.player.width * 1.2,
       this.player.height * 1.2
@@ -91,6 +109,8 @@ export class Game extends Scene {
   }
 
   update(t: number, dt: number) {
+    console.log("Update: T ", t);
+    console.log("Update: DT ", dt);
     if (!this.cursors || !this.player) return;
 
     const speed = 100;

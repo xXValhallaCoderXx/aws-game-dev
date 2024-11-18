@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scene } from "phaser";
+import { ESCENE_KEYS } from "../shared/scene-keys";
 
 export class Preloader extends Scene {
   constructor() {
-    super("Preloader");
+    super(ESCENE_KEYS.PRELOADER);
   }
 
   init() {}
@@ -20,6 +21,6 @@ export class Preloader extends Scene {
   }
 
   create() {
-    this.scene.start("Game");
+    this.scene.start(ESCENE_KEYS.GAME);
   }
 }

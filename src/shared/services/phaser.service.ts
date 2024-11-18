@@ -1,14 +1,26 @@
 import Phaser from "phaser";
+import { Preloader } from "../../scenes/Preloader";
+import { Game } from "../../scenes/Game";
 
-const phaserConfig: Phaser.Types.Core.GameConfig = {
+export const phaserConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  parent: "phaser-container", // exactly equal to the div id in html
+  width: 480,
+  height: 480,
   scale: {
-    mode: Phaser.Scale.ScaleModes.RESIZE,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    zoom: 2,
   },
-  scene: [], // put scences into the array
+  // zoom: 3, // Since we're wor
+  parent: "game-container",
+  backgroundColor: "#028af8",
+  physics: {
+    default: "arcade",
+    arcade: {
+      debug: true,
+    },
+  },
+  scene: [Preloader, Game],
 };
 
-export default phaserConfig;
+// Used to emit events between React components and Phaser scenes
+// https://newdocs.phaser.io/docs/3.70.0/Phaser.Events.EventEmitter
+export const PhaserEventBus = new Phaser.Events.EventEmitter();

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
-import StartGame from "./PhaserRoot";
-import { EventBus } from "./game/EventBus";
+import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
+import { phaserConfig, PhaserEventBus } from "../../services/phaser.service";
 
 interface PhaserGameProps {
   currentActiveScene?: (scene: any) => void; // Adjust type `any` to match the actual type of the scene
@@ -11,6 +10,10 @@ export interface PhaserGameRef {
   game: any; // Replace `any` with the specific type returned by `StartGame` if possible
   scene: any; // Replace `any` with the actual type of the scene
 }
+
+const StartGame = (parent: any) => {
+  return new Phaser.Game({ ...phaserConfig, parent });
+};
 
 export const PhaserGame = forwardRef<PhaserGameRef, PhaserGameProps>(
   ({ currentActiveScene }, ref) => {
@@ -45,10 +48,10 @@ export const PhaserGame = forwardRef<PhaserGameRef, PhaserGameProps>(
         }
       };
 
-      EventBus.on("current-scene-ready", handleSceneReady);
+      PhaserEventBus.on("current-scene-ready", handleSceneReady);
 
       return () => {
-        EventBus.removeListener("current-scene-ready", handleSceneReady);
+        PhaserEventBus.removeListener("current-scene-ready", handleSceneReady);
       };
     }, [currentActiveScene, ref]);
 

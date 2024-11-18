@@ -1,4 +1,4 @@
-import { EventBus } from "../EventBus";
+import { PhaserEventBus as EventBus } from "../../shared/services/phaser.service";
 import { Scene, Tweens } from "phaser";
 
 export class MainMenu extends Scene {
