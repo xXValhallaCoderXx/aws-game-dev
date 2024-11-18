@@ -7,21 +7,40 @@ export class Game extends Scene {
   // So we don't need non null assertion operator (!) in the code
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private player!: Phaser.Physics.Arcade.Sprite;
+  private hillsLayer: Phaser.Tilemaps.TilemapLayer | null = null;
+  private facingDirection: string = "down";
 
   constructor() {
     super(ESCENE_KEYS.GAME);
   }
 
-  init() {}
+  init() {
+    const cursors = this.input.keyboard!.createCursorKeys();
+    this.cursors = cursors;
+  }
 
-  preload() {
-    const cursors = this.input.keyboard?.createCursorKeys();
-    if (cursors) {
-      this.cursors = cursors;
+  preload() {}
+
+  create() {
+    this.createMap();
+    this.createPlayer();
+    this.createAnimations();
+    // debugDrawer(hillsLayer, this);
+
+    this.player.anims.play("player-idle-down");
+
+    if (this.hillsLayer) {
+      this.physics.add.collider(this.player, this.hillsLayer);
     }
   }
 
-  create() {
+  update() {
+    if (!this.cursors || !this.player) return;
+
+    this.handlePlayerMovement();
+  }
+
+  private createMap() {
     const map = this.make.tilemap({ key: "main-map" });
     const tileset = map.addTilesetImage("grass", "grass");
     const tileset2 = map.addTilesetImage("hills", "hills");
@@ -30,29 +49,89 @@ export class Game extends Scene {
       throw new Error("Failed to load tilesets");
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const grassLayer = map.createLayer("GrassLayer", tileset, 0, 0);
-    const hillsLayer = map.createLayer("HillsLayer", tileset2, 0, 0);
+    map.createLayer("GrassLayer", tileset, 0, 0);
+    this.hillsLayer = map.createLayer("HillsLayer", tileset2, 0, 0);
 
-    if (!hillsLayer) {
-      throw new Error("Failed to create hills layer");
+    if (!this.hillsLayer) {
+      throw new Error("Failed to load hills layer");
     }
 
-    hillsLayer.setCollisionByProperty({ collides: true });
+    this.hillsLayer.setCollisionByProperty({ collides: true });
+  }
 
-    // debugDrawer(hillsLayer, this);
-
+  private createPlayer(): void {
     this.player = this.physics.add.sprite(20, 20, "player", "walk-1");
-
-    if (!this.player) {
-      throw new Error("Failed to create player sprite");
-    }
 
     this.player.body?.setSize(
       this.player.width * 1.2,
       this.player.height * 1.2
     );
 
+    this.player.setCollideWorldBounds(true); // Prevent the player from moving off the screen
+  }
+
+  private handlePlayerMovement(): void {
+    if (!this.player.body || !this.player.anims.currentAnim) {
+      throw new Error("Failed to load player object");
+    }
+
+    const speed = 100;
+    let velocityX = 0;
+    let velocityY = 0;
+    let moving = false;
+
+    // Reset velocity
+    this.player.setVelocity(0);
+
+    // Horizontal movement
+    if (this.cursors.left.isDown) {
+      velocityX = -speed;
+      this.player.setFlipX(false);
+      moving = true;
+    }
+    if (this.cursors.right.isDown) {
+      velocityX = speed;
+      this.player.setFlipX(true);
+      moving = true;
+    }
+
+    // Vertical movement
+    if (this.cursors.up.isDown) {
+      velocityY = -speed;
+      moving = true;
+    }
+    if (this.cursors.down.isDown) {
+      velocityY = speed;
+      moving = true;
+    }
+
+    // Normalize speed if moving diagonally
+    if (velocityX !== 0 && velocityY !== 0) {
+      velocityX *= Math.SQRT1_2;
+      velocityY *= Math.SQRT1_2;
+    }
+
+    // Set the player's velocity
+    this.player.setVelocity(velocityX, velocityY);
+
+    // Determine facing direction for animation
+    if (velocityY < 0) {
+      this.facingDirection = "up";
+    } else if (velocityY > 0) {
+      this.facingDirection = "down";
+    } else if (velocityX !== 0) {
+      this.facingDirection = "side";
+    }
+
+    // Play animations
+    if (moving) {
+      this.player.anims.play(`player-move-${this.facingDirection}`, true);
+    } else {
+      this.player.anims.play(`player-idle-${this.facingDirection}`, true);
+    }
+  }
+
+  private createAnimations(): void {
     this.anims.create({
       key: "player-idle-down",
       frames: [{ key: "player", frame: "walk-1.png" }],
@@ -103,44 +182,5 @@ export class Game extends Scene {
       repeat: -1,
       frameRate: 5,
     });
-
-    this.player.anims.play("player-idle-down");
-    this.physics.add.collider(this.player, hillsLayer);
-  }
-
-  update(t: number, dt: number) {
-    console.log("Update: T ", t);
-    console.log("Update: DT ", dt);
-    if (!this.cursors || !this.player) return;
-
-
-
-    if (!this.player.body || !this.player.anims.currentAnim) {
-      throw new Error("Failed to load player object");
-    }
-
-    const speed = 100;
-    if (this.cursors.left?.isDown) {
-      this.player.anims.play("player-move-side", true);
-      this.player.setVelocity(-speed, 0);
-      this.player.scaleX = 1;
-      this.player.body.offset.x = -2;
-    } else if (this.cursors.right?.isDown) {
-      this.player.anims.play("player-move-side", true);
-      this.player.setVelocity(speed, 0);
-      this.player.scaleX = -1;
-      this.player.body.offset.x = 18;
-    } else if (this.cursors.up?.isDown) {
-      this.player.anims.play("player-move-up", true);
-      this.player.setVelocity(0, -speed);
-    } else if (this.cursors.down?.isDown) {
-      this.player.anims.play("player-move-down", true);
-      this.player.setVelocity(0, speed);
-    } else {
-      const parts = this.player.anims.currentAnim.key.split("-");
-      parts[1] = "idle";
-      this.player.play(parts.join("-"));
-      this.player.setVelocity(0);
-    }
   }
 }
