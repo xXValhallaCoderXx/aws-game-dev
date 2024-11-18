@@ -44,6 +44,7 @@ export class Game extends Scene {
     const map = this.make.tilemap({ key: "main-map" });
     const tileset = map.addTilesetImage("grass", "grass");
     const tileset2 = map.addTilesetImage("hills", "hills");
+    const tileset3 = map.addTilesetImage("tilled_dirt", "tilled_dirt");
 
     if (!tileset || !tileset2) {
       throw new Error("Failed to load tilesets");
@@ -51,6 +52,7 @@ export class Game extends Scene {
 
     map.createLayer("GrassLayer", tileset, 0, 0);
     this.hillsLayer = map.createLayer("HillsLayer", tileset2, 0, 0);
+    map.createLayer("GardenPlotLayer", tileset3, 0, 0);
 
     if (!this.hillsLayer) {
       throw new Error("Failed to load hills layer");

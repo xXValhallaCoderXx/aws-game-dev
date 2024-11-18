@@ -12,6 +12,7 @@ export class Preloader extends Scene {
   preload() {
     this.load.image("grass", "tiles/grass.png");
     this.load.image("hills", "tiles/hills.png");
+    this.load.image("tilled_dirt", "tiles/tilled_dirt.png");
     this.load.tilemapTiledJSON("main-map", "tiles/main-map.json");
     this.load.atlas(
       "player",
