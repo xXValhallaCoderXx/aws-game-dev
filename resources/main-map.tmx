@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="1">
+<map version="1.11" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="6">
  <editorsettings>
   <export target="../public/tiles/main-map.json" format="json"/>
  </editorsettings>
@@ -234,4 +234,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="4" name="GardenPlots">
+  <object id="4" x="225.71" y="32.0888" width="13.0531" height="15.2286"/>
+  <object id="5" x="241.482" y="33.1766" width="11.9653" height="15.2286"/>
+ </objectgroup>
 </map>
