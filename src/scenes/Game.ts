@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
+import { PlayerCharacter } from "../slices/character/PlayerCharacter";
+import { CharacterConfig } from "../slices/character/CharacterClass";
 // import debugDrawer from "../shared/services/utils/phaser-debug.util";
-
-
 
 export class Game extends Scene {
   // So we don't need non null assertion operator (!) in the code
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-  private player!: Phaser.Physics.Arcade.Sprite;
+  private player!: PlayerCharacter;
   private hillsLayer: Phaser.Tilemaps.TilemapLayer | null = null;
-  private facingDirection: string = "down";
   private map: Phaser.Tilemaps.Tilemap | null = null;
   private gardenPlots: any = null;
   private seeds: number = 5; // Starting with 5 seeds
@@ -38,7 +37,6 @@ export class Game extends Scene {
   create() {
     this.createMap();
     this.createPlayer();
-    this.createAnimations();
     // debugDrawer(hillsLayer, this);
     this.createGardenPlots();
 
@@ -66,7 +64,7 @@ export class Game extends Scene {
   update() {
     if (!this.cursors || !this.player) return;
 
-    this.handlePlayerMovement();
+    this.player.handleMovement();
   }
 
   private createMap() {
@@ -92,128 +90,26 @@ export class Game extends Scene {
   }
 
   private createPlayer(): void {
-    this.player = this.physics.add.sprite(20, 20, "player", "walk-1");
-
-    this.player.body?.setSize(
-      this.player.width * 1.2,
-      this.player.height * 1.2
-    );
-
-    this.player.setCollideWorldBounds(true); // Prevent the player from moving off the screen
-  }
-
-  private handlePlayerMovement(): void {
-    if (!this.player.body || !this.player.anims.currentAnim) {
-      throw new Error("Failed to load player object");
-    }
-
-    const speed = 100;
-    let velocityX = 0;
-    let velocityY = 0;
-    let moving = false;
-
-    // Reset velocity
-    this.player.setVelocity(0);
-
-    // Horizontal movement
-    if (this.cursors.left.isDown) {
-      velocityX = -speed;
-      this.player.setFlipX(false);
-      moving = true;
-    }
-    if (this.cursors.right.isDown) {
-      velocityX = speed;
-      this.player.setFlipX(true);
-      moving = true;
-    }
-
-    // Vertical movement
-    if (this.cursors.up.isDown) {
-      velocityY = -speed;
-      moving = true;
-    }
-    if (this.cursors.down.isDown) {
-      velocityY = speed;
-      moving = true;
-    }
-
-    // Normalize speed if moving diagonally
-    if (velocityX !== 0 && velocityY !== 0) {
-      velocityX *= Math.SQRT1_2;
-      velocityY *= Math.SQRT1_2;
-    }
-
-    // Set the player's velocity
-    this.player.setVelocity(velocityX, velocityY);
-
-    // Determine facing direction for animation
-    if (velocityY < 0) {
-      this.facingDirection = "up";
-    } else if (velocityY > 0) {
-      this.facingDirection = "down";
-    } else if (velocityX !== 0) {
-      this.facingDirection = "side";
-    }
-
-    // Play animations
-    if (moving) {
-      this.player.anims.play(`player-move-${this.facingDirection}`, true);
-    } else {
-      this.player.anims.play(`player-idle-${this.facingDirection}`, true);
-    }
-  }
-
-  private createAnimations(): void {
-    this.anims.create({
-      key: "player-idle-down",
-      frames: [{ key: "player", frame: "walk-1.png" }],
-    });
-
-    this.anims.create({
-      key: "player-idle-up",
-      frames: [{ key: "player", frame: "walk-up-1.png" }],
-    });
-
-    this.anims.create({
-      key: "player-idle-side",
-      frames: [{ key: "player", frame: "walk-side-1.png" }],
-    });
-
-    this.anims.create({
-      key: "player-move-down",
-      frames: this.anims.generateFrameNames("player", {
-        prefix: "walk-",
-        start: 1,
-        end: 4,
-        suffix: ".png",
-      }),
-      repeat: -1,
-      frameRate: 5,
-    });
-
-    this.anims.create({
-      key: "player-move-up",
-      frames: this.anims.generateFrameNames("player", {
-        prefix: "walk-up-",
-        start: 1,
-        end: 4,
-        suffix: ".png",
-      }),
-      repeat: -1,
-      frameRate: 5,
-    });
-
-    this.anims.create({
-      key: "player-move-side",
-      frames: this.anims.generateFrameNames("player", {
-        prefix: "walk-side-",
-        start: 1,
-        end: 4,
-        suffix: ".png",
-      }),
-      repeat: -1,
-      frameRate: 5,
-    });
+    const playerConfig: CharacterConfig = {
+      scene: this,
+      x: 20,
+      y: 20,
+      texture: "player",
+      frame: "walk-1",
+      speed: 100,
+      animations: {
+        idleDown: "player-idle-down",
+        idleUp: "player-idle-up",
+        idleSide: "player-idle-side",
+        moveDown: "player-move-down",
+        moveUp: "player-move-up",
+        moveSide: "player-move-side",
+      },
+    };
+    this.player = new PlayerCharacter(playerConfig);
+    this.player.setCursors(this.cursors);
+    this.player.setupAnimations();
+    this.player.anims.play(this.player.animations.idleDown);
   }
 
   private createGardenPlots(): void {
@@ -234,14 +130,7 @@ export class Game extends Scene {
       const y = obj.y + obj.height / 2;
 
       // Create a rectangle to represent the garden plot
-      const plot = this.add.rectangle(
-        x,
-        y,
-        obj.width,
-        obj.height,
-        0x00ff00,
-        0.5
-      );
+      const plot = this.add.rectangle(x, y, obj.width, obj.height, 0x00ff00, 0);
       plot.setOrigin(0.5, 0.5);
       plot.setDepth(1);
       // Enable physics on the plot
