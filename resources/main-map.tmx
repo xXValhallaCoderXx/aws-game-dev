@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.11" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="6">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="15">
  <editorsettings>
   <export target="../public/tiles/main-map.json" format="json"/>
  </editorsettings>
@@ -235,7 +235,15 @@
 </data>
  </layer>
  <objectgroup id="4" name="GardenPlots">
-  <object id="4" x="225.71" y="32.0888" width="13.0531" height="15.2286"/>
-  <object id="5" x="241.482" y="33.1766" width="11.9653" height="15.2286"/>
+  <object id="4" x="224.195" y="32.1191" width="15.5683" height="15.9559"/>
+  <object id="6" x="240.125" y="32.0221" width="15.5683" height="15.9559"/>
+  <object id="7" x="224.307" y="48.2948" width="15.5683" height="15.9559"/>
+  <object id="8" x="240.125" y="48.2039" width="15.5683" height="15.9559"/>
+  <object id="9" x="224.125" y="79.9311" width="15.5683" height="15.9559"/>
+  <object id="10" x="224.307" y="64.2039" width="15.5683" height="15.9559"/>
+  <object id="11" x="224.216" y="96.113" width="15.5683" height="15.9559"/>
+  <object id="12" x="240.125" y="64.2948" width="15.5683" height="15.9559"/>
+  <object id="13" x="240.125" y="80.022" width="15.5683" height="15.9559"/>
+  <object id="14" x="239.943" y="96.113" width="15.5683" height="15.9559"/>
  </objectgroup>
 </map>

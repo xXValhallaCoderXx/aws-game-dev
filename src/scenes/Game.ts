@@ -3,6 +3,8 @@ import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
 // import debugDrawer from "../shared/services/utils/phaser-debug.util";
 
+
+
 export class Game extends Scene {
   // So we don't need non null assertion operator (!) in the code
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -13,6 +15,14 @@ export class Game extends Scene {
   private gardenPlots: any = null;
   private seeds: number = 5; // Starting with 5 seeds
   private plantKey!: Phaser.Input.Keyboard.Key;
+
+  private growthStages = [
+    { stage: "seed", duration: 2500 }, // 5 seconds
+    { stage: "sprout", duration: 2500 }, // 10 seconds
+    { stage: "young", duration: 2500 }, // 15 seconds
+    { stage: "mature", duration: 2500 }, // 20 seconds
+    { stage: "grown", duration: 0 }, // Fully grown, no further growth
+  ];
 
   constructor() {
     super(ESCENE_KEYS.GAME);
@@ -262,8 +272,10 @@ export class Game extends Scene {
         } else {
           console.log("You have no seeds to plant.");
         }
+      } else if (plotData.isHarvestable) {
+        this.harvestPlant(plotData);
       } else {
-        console.log("This plot is already planted.");
+        console.log("This plot is already planted and growing.");
       }
     }
   }
@@ -276,16 +288,59 @@ export class Game extends Scene {
     plot.isPlanted = true;
 
     // Create the plant sprite at the plot's position
-    // const plant = this.add.sprite(plot.x, plot.y, 'plant', 'seed.png');
-    // plant.setOrigin(0.5, 0.5);
-    // plant.setDepth(1); // Ensure it appears above other elements
+    const plant = this.add.sprite(plot.x, plot.y, "plant", "seed.png");
+    plant.setOrigin(0.5, 0.5);
+    plant.setDepth(1); // Ensure it appears above other elements
 
     // Store the plant in the plot data
-    // plot.plant = plant;
+    plot.plant = plant;
 
     // Start plant growth
-    // this.startPlantGrowth(plot, plant);
+    this.startPlantGrowth(plot);
 
     console.log("Seed planted!");
+  }
+
+  private startPlantGrowth(plot: any): void {
+    let currentStageIndex = 0;
+    const totalStages = this.growthStages.length;
+
+    const grow = () => {
+      const stageData = this.growthStages[currentStageIndex];
+      const frameName = `carrot-${currentStageIndex}.png`;
+
+      // Update the plant sprite's texture to reflect the current stage
+      plot.plant.setTexture("carrot-farming", frameName);
+
+      // Check if there are more stages
+      if (currentStageIndex < totalStages - 1) {
+        // Schedule the next growth stage
+        this.time.delayedCall(stageData.duration, () => {
+          currentStageIndex++;
+          grow();
+        });
+      } else {
+        // Plant is fully grown
+        plot.isHarvestable = true;
+        console.log("Plant has fully grown!");
+      }
+    };
+
+    // Start the growth process
+    grow();
+  }
+
+  private harvestPlant(plot: any): void {
+    // Remove the plant sprite
+    plot.plant.destroy();
+
+    // Reset plot state
+    plot.isPlanted = false;
+    plot.isHarvestable = false;
+    plot.plant = null;
+
+    // Reward the player
+    this.seeds += 2; // Gain 2 seeds upon harvesting
+    console.log("Plant harvested! You now have " + this.seeds + " seeds.");
   }
 }

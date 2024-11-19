@@ -19,6 +19,14 @@ export class Preloader extends Scene {
       "characters/main/main-character.png",
       "characters/main/main-character.json"
     );
+
+    this.load.atlas(
+      "carrot-farming",
+      "sprites/crops/carrot/carrot-seed-atlas.png",
+      "sprites/crops/carrot/carrot-seed-atlas.json"
+    );
+
+    this.load.image("seed", "sprites/crops/carrot/carrot-0.png");
   }
 
   create() {
