@@ -1,4 +1,7 @@
 export enum ESCENE_KEYS {
   GAME = "GAME",
   PRELOADER = "PRELOADER",
+  HOME_MAP = "HOME_MAP",
+  HOME_HOUSE = "HOME_HOUSE",
+  VILLAGE = "VILLAGE",
 }

@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
@@ -13,11 +13,11 @@
             "scaleInEditor": 1
         },
         "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 2,
+            "scale": 0.5,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 260.66666666666663,
-                "y": 128.33333333333334
+                "x": -42,
+                "y": 89
             }
         },
         "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx#Dungeon": {
@@ -51,8 +51,9 @@
             "scaleInDock": 1.5
         }
     },
-    "last.exportedFilePath": "/home/odin/Dungeon/Github/aws-game-dev/public/tiles",
-    "last.imagePath": "/home/odin/Dungeon/Github/aws-game-dev/public/tiles",
+    "frame.defaultDuration": 200,
+    "last.exportedFilePath": "/home/odin/Dungeon/Github/aws-game-dev/public/maps",
+    "last.imagePath": "/home/odin/Dungeon/Github/aws-game-dev/public/tilesets",
     "map.height": 30,
     "map.lastUsedExportFilter": "All Files (*)",
     "map.lastUsedFormat": "tmx",
@@ -60,6 +61,7 @@
     "map.tileWidth": 16,
     "map.width": 30,
     "openFiles": [
+        "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx"
     ],
     "project": "untitled.tiled-project",
     "property.type": "bool",

@@ -32,7 +32,15 @@ export class Game extends Scene {
     this.cursors = cursors;
   }
 
-  preload() {}
+  preload() {
+    this.load.atlas(
+      "carrot-farming",
+      "sprites/crops/carrot/carrot-seed-atlas.png",
+      "sprites/crops/carrot/carrot-seed-atlas.json"
+    );
+
+    this.load.image("seed", "sprites/crops/carrot/carrot-0.png");
+  }
 
   create() {
     this.createMap();
