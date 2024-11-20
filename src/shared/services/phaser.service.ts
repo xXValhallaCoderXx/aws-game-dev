@@ -8,7 +8,7 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
   width: 480,
   height: 480,
   scale: {
-    zoom: 2,
+    zoom: 3,
   },
   // zoom: 3, // Since we're wor
   parent: "game-container",
