@@ -12,6 +12,12 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#water-blank": {
+            "scaleInEditor": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#water-main-animated": {
+            "scaleInEditor": 1
+        },
         "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx": {
             "scale": 0.5,
             "selectedLayer": 3,
@@ -51,7 +57,7 @@
             "scaleInDock": 1.5
         }
     },
-    "frame.defaultDuration": 200,
+    "frame.defaultDuration": 300,
     "last.exportedFilePath": "/home/odin/Dungeon/Github/aws-game-dev/public/maps",
     "last.imagePath": "/home/odin/Dungeon/Github/aws-game-dev/public/tilesets",
     "map.height": 30,

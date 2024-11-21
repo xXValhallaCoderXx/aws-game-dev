@@ -5,7 +5,7 @@ import { ESCENE_KEYS } from "../shared/scene-keys";
 export class HomeMap extends Scene {
   private hillsLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private map: Phaser.Tilemaps.Tilemap | null = null;
-  private animatedTiles: any | null = null;
+  private animatedTiles: any | null = [];
   private waterAnimatedLayer: any | null = null;
 
   constructor() {
@@ -16,8 +16,9 @@ export class HomeMap extends Scene {
 
   preload() {
     this.load.tilemapTiledJSON("home-map", "maps/home-map.json");
-    this.load.image("water-base", "tilesets/water-edges-animated.png");
-    this.load.image("water-animated", "tilesets/water-main-animated.png");
+    this.load.image("water-base", "tilesets/water-blank.png");
+    // this.load.image("water-animated", "tilesets/water-main-animated.png");
+    // this.load.image("buildings", "tilesets/buildings-main.png");
   }
 
   create() {
@@ -44,7 +45,8 @@ export class HomeMap extends Scene {
 
         // Get the next frame
         const nextFrame = tile.animation[tile.frameIndex];
-
+        console.log("NEXT FRAME: ", nextFrame);
+        console.log("CURRENT FRAME: ", currentFrame);
         // Replace the tile on the map
         this.waterAnimatedLayer.replaceByIndex(
           currentFrame.tileid + 1,
@@ -56,23 +58,18 @@ export class HomeMap extends Scene {
 
   private createMap() {
     const map = this.make.tilemap({ key: "home-map" });
-
-    const waterTileset = map.addTilesetImage(
-      "water-edges-animated",
-      "water-base"
-    );
-
-    const animatedWaterTileset = map.addTilesetImage(
-      "water-main-animated",
-      "water-animated"
-    );
-
+    const waterTileset = map.addTilesetImage("water-blank", "water-base");
+    // const animatedWaterTileset = map.addTilesetImage(
+    //   "water-main-animated",
+    //   "water-animated"
+    // );
+    // // const buildingsTileset = map.addTilesetImage("buildings-main", "buildings");
     this.animatedTiles = [];
-
     const tileData: any = map.tilesets[0]?.tileData;
     if (tileData) {
       for (const key in tileData) {
         const tile = tileData[key];
+
         if (tile.animation) {
           this.animatedTiles.push({
             tileId: tile.id,
@@ -84,31 +81,14 @@ export class HomeMap extends Scene {
       }
     }
 
-    if (!waterTileset || !animatedWaterTileset) {
+    if (!waterTileset) {
       throw new Error("Failed to load water tileset");
     }
-
-    const waterBase = map.createLayer("WaterBase", waterTileset, 0, 0);
     this.waterAnimatedLayer = map.createLayer(
-      "WaterAnimated",
-      animatedWaterTileset,
+      "WaterBaseLayer",
+      waterTileset,
       0,
       0
     );
-    // map.createLayer("WaterBase", waterTileset, 0, 0);
-    // const tileset = map.addTilesetImage("grass", "grass");
-    // const tileset2 = map.addTilesetImage("hills", "hills");
-    // const tileset3 = map.addTilesetImage("tilled_dirt", "tilled_dirt");
-    // if (!tileset || !tileset2 || !tileset3) {
-    //   throw new Error("Failed to load tilesets");
-    // }
-    // map.createLayer("GrassLayer", tileset, 0, 0);
-    // this.hillsLayer = map.createLayer("HillsLayer", tileset2, 0, 0);
-    // map.createLayer("GardenPlotLayer", tileset3, 0, 0);
-    // if (!this.hillsLayer) {
-    //   throw new Error("Failed to load hills layer");
-    // }
-    // this.hillsLayer.setCollisionByProperty({ collides: true });
-    // this.map = map;
   }
 }
