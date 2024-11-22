@@ -22,6 +22,6 @@ export class Preloader extends Scene {
   }
 
   create() {
-    this.scene.start(ESCENE_KEYS.HOME_MAP);
+    this.scene.start(ESCENE_KEYS.CAMERA);
   }
 }

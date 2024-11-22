@@ -2,26 +2,23 @@ import Phaser from "phaser";
 import { Preloader } from "../../scenes/Preloader";
 import { Game } from "../../scenes/Game";
 import { HomeMap } from "../../scenes/HomeMap";
+import { CameraMap } from "../../scenes/Camera";
 
 export const phaserConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 1024,
   height: 768,
-  scale: {
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 1920,
-    height: 1080,
-  },
 
   parent: "game-container",
   // backgroundColor: "#028af8",
+  pixelArt: true,
   physics: {
     default: "arcade",
     arcade: {
       debug: false,
     },
   },
-  scene: [Preloader, HomeMap, Game],
+  scene: [Preloader, CameraMap, HomeMap, Game],
 };
 
 // Used to emit events between React components and Phaser scenes
