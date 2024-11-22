@@ -35,7 +35,7 @@ export class CameraMap extends Scene {
     this.createPlayer();
 
     // Set up camera to follow the player
-    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
 
     // Set camera bounds to prevent it from moving outside the map
     this.cameras.main.setBounds(
