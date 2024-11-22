@@ -5,12 +5,14 @@ import { HomeMap } from "../../scenes/HomeMap";
 
 export const phaserConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 800,
+  width: 1024,
+  height: 768,
   scale: {
-    zoom: 2,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 1920,
+    height: 1080,
   },
-  // zoom: 3, // Since we're wor
+
   parent: "game-container",
   // backgroundColor: "#028af8",
   physics: {
