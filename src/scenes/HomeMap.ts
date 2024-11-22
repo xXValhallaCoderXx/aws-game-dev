@@ -1,94 +1,86 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
+import { PlayerCharacter } from "../slices/character/PlayerCharacter";
+import { CharacterConfig } from "../slices/character/CharacterClass";
 
 export class HomeMap extends Scene {
-  private hillsLayer: Phaser.Tilemaps.TilemapLayer | null = null;
-  private map: Phaser.Tilemaps.Tilemap | null = null;
-  private animatedTiles: any | null = [];
-  private waterAnimatedLayer: any | null = null;
-
+  private player!: PlayerCharacter;
+  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   constructor() {
     super(ESCENE_KEYS.HOME_MAP);
   }
 
-  init() {}
+  init() {
+    this.cursors = this.input.keyboard!.createCursorKeys();
+  }
 
   preload() {
     this.load.tilemapTiledJSON("home-map", "maps/home-map.json");
-    this.load.image("water-base", "tilesets/water-blank.png");
-    // this.load.image("water-animated", "tilesets/water-main-animated.png");
-    // this.load.image("buildings", "tilesets/buildings-main.png");
+    this.load.image("terrain-village-1", "tilesets/terrain-village-1.png");
   }
 
   create() {
     this.createMap();
-
-    // Store animation data
+    this.createPlayer();
   }
 
-  update(time: any, delta: any) {
-    this.animatedTiles.forEach((tile: any) => {
-      // Increment elapsed time
-      tile.elapsedTime += delta;
+  update() {
+    if (!this.cursors || !this.player) return;
 
-      // Get the current frame from the animation
-      const currentFrame = tile.animation[tile.frameIndex];
-
-      // Check if it's time to switch to the next frame
-      if (tile.elapsedTime >= currentFrame.duration) {
-        // Move to the next frame
-        tile.frameIndex = (tile.frameIndex + 1) % tile.animation.length;
-
-        // Reset elapsed time for the next frame
-        tile.elapsedTime -= currentFrame.duration;
-
-        // Get the next frame
-        const nextFrame = tile.animation[tile.frameIndex];
-        console.log("NEXT FRAME: ", nextFrame);
-        console.log("CURRENT FRAME: ", currentFrame);
-        // Replace the tile on the map
-        this.waterAnimatedLayer.replaceByIndex(
-          currentFrame.tileid + 1,
-          nextFrame.tileid + 1
-        );
-      }
-    });
+    this.player.handleMovement();
   }
 
   private createMap() {
     const map = this.make.tilemap({ key: "home-map" });
-    const waterTileset = map.addTilesetImage("water-blank", "water-base");
-    // const animatedWaterTileset = map.addTilesetImage(
-    //   "water-main-animated",
-    //   "water-animated"
-    // );
-    // // const buildingsTileset = map.addTilesetImage("buildings-main", "buildings");
-    this.animatedTiles = [];
-    const tileData: any = map.tilesets[0]?.tileData;
-    if (tileData) {
-      for (const key in tileData) {
-        const tile = tileData[key];
 
-        if (tile.animation) {
-          this.animatedTiles.push({
-            tileId: tile.id,
-            animation: tile.animation,
-            frameIndex: 0,
-            elapsedTime: 0,
-          });
-        }
-      }
-    }
+    // Add tilesets
+    const terrainVillage1Tileset = map.addTilesetImage(
+      "terrain-village-1",
+      "terrain-village-1"
+    );
+    // this.waterMainTileset = map.addTilesetImage("water-main", "water-main");
 
-    if (!waterTileset) {
+    if (!terrainVillage1Tileset) {
       throw new Error("Failed to load water tileset");
     }
-    this.waterAnimatedLayer = map.createLayer(
-      "WaterBaseLayer",
-      waterTileset,
+
+    // Create static layers
+    const grassBaseLayer = map.createLayer(
+      "GrassBaseLayer",
+      terrainVillage1Tileset,
       0,
       0
     );
+
+    const grassAccessoriesLayer = map.createLayer(
+      "GrassAccessoriesLayer",
+      terrainVillage1Tileset,
+      0,
+      0
+    );
+  }
+
+  private createPlayer(): void {
+    const playerConfig: CharacterConfig = {
+      scene: this,
+      x: 20,
+      y: 20,
+      texture: "player",
+      frame: "walk-1",
+      speed: 100,
+      animations: {
+        idleDown: "player-idle-down",
+        idleUp: "player-idle-up",
+        idleSide: "player-idle-side",
+        moveDown: "player-move-down",
+        moveUp: "player-move-up",
+        moveSide: "player-move-side",
+      },
+    };
+    this.player = new PlayerCharacter(playerConfig);
+    this.player.setCursors(this.cursors);
+    this.player.setupAnimations();
+    this.player.anims.play(this.player.animations.idleDown);
   }
 }
