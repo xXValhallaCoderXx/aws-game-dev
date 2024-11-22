@@ -7,12 +7,11 @@ import { CameraMap } from "../../scenes/Camera";
 export const phaserConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.RESIZE, // Allow the canvas to resize with the window
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: 800, // Fixed game width
+    height: 600, // Fixed game height
   },
-
   parent: "game-container",
   // backgroundColor: "#028af8",
   pixelArt: true,
