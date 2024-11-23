@@ -1,66 +1,65 @@
-// Character.ts
-import Phaser from "phaser";
+// CharacterClass.ts
+export interface AnimationKeys {
+  walkUp: string;
+  walkDown: string;
+  walkLeft: string;
+  walkRight: string;
+  idleUp: string;
+  idleDown: string;
+  idleLeft: string;
+  idleRight: string;
+}
 
 export interface CharacterConfig {
   scene: Phaser.Scene;
   x: number;
   y: number;
-  texture: string;
-  frame?: string;
-  speed?: number;
-  animations?: CharacterAnimations;
-}
-
-export interface CharacterAnimations {
-  idleDown: string;
-  idleUp: string;
-  idleSide: string;
-  moveDown: string;
-  moveUp: string;
-  moveSide: string;
+  texture: {
+    key: string;
+    walkSheet: string;
+    idleSheet: string;
+  };
+  animations: AnimationKeys;
+  speed: number;
 }
 
 export class Character extends Phaser.Physics.Arcade.Sprite {
-  public scene: Phaser.Scene;
-  protected cursors: Phaser.Types.Input.Keyboard.CursorKeys | null = null;
-  protected speed: number = 100;
-  protected facingDirection: "up" | "down" | "side" = "down";
-  public animations: CharacterAnimations;
+  protected speed: number;
+  protected cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
+  public animations: AnimationKeys;
+  protected textureConfig: CharacterConfig["texture"]; // Add this line
+  protected facingDirection: "up" | "down" | "left" | "right" = "down";
 
   constructor(config: CharacterConfig) {
-    super(config.scene, config.x, config.y, config.texture, config.frame);
+    // Call the parent class constructor with texture key and initial position
+    super(config.scene, config.x, config.y, config.texture.key);
 
-    this.scene = config.scene;
-    this.speed = config.speed || 100;
-    this.animations = config.animations || {
-      idleDown: "idle-down",
-      idleUp: "idle-up",
-      idleSide: "idle-side",
-      moveDown: "move-down",
-      moveUp: "move-up",
-      moveSide: "move-side",
-    };
+    this.speed = config.speed;
+    this.animations = config.animations;
+    this.textureConfig = config.texture; // Store the texture config
+
+    // Add sprite to scene
+    config.scene.add.existing(this);
+    config.scene.physics.add.existing(this);
+
+    // **Set the origin to the center**
+    this.setOrigin(0.5, 0.5);
+
+    if (this.body) {
+      // **Adjust the physics body to match the sprite**
+      this.body.setSize(16, 16);
+      this.body.setOffset(this.width, this.height);
+    }
 
     // Enable physics
-    this.scene.physics.world.enable(this);
-    this.scene.add.existing(this);
-
-    this.setOrigin(0.5, 0.5);
     this.setCollideWorldBounds(true);
   }
 
-  // Method to set up animations if needed
   public setupAnimations(): void {
-    // Implement animation setup if needed
+    // This will be overridden by child classes
   }
 
-  // Method to handle movement
   public handleMovement(): void {
-    // Implement in subclasses
-  }
-
-  // Optional method to assign input controls
-  public setCursors(cursors: Phaser.Types.Input.Keyboard.CursorKeys): void {
-    this.cursors = cursors;
+    // This will be overridden by child classes
   }
 }

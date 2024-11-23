@@ -1,67 +1,130 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Character, CharacterConfig } from "./CharacterClass";
 
+// PlayerCharacter.ts
 export class PlayerCharacter extends Character {
   constructor(config: CharacterConfig) {
     super(config);
+    if (this.scene) {
+      // Add null check
+      this.cursors = this.scene.input.keyboard?.createCursorKeys();
+    }
+    
+   
   }
 
-  // Override to set up player-specific animations
   public setupAnimations(): void {
-    // Create animations using this.animations keys
+    // Walking animations
     this.scene.anims.create({
-      key: this.animations.idleDown,
-      frames: [{ key: this.texture.key, frame: "walk-1.png" }],
+      key: this.animations.walkUp,
+      frames: this.scene.anims.generateFrameNumbers(
+        this.textureConfig.walkSheet,
+        {
+          start: 0,
+          end: 5, // Frames for walking up
+        }
+      ),
+      frameRate: 10,
+      repeat: -1,
     });
 
+    this.scene.anims.create({
+      key: this.animations.walkDown,
+      frames: this.scene.anims.generateFrameNumbers(
+        this.textureConfig.walkSheet,
+        {
+          start: 6,
+          end: 11, // Frames for walking down
+        }
+      ),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    // Walking left and right remain the same
+    this.scene.anims.create({
+      key: this.animations.walkLeft,
+      frames: this.scene.anims.generateFrameNumbers(
+        this.textureConfig.walkSheet,
+        {
+          start: 12,
+          end: 17,
+        }
+      ),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    this.scene.anims.create({
+      key: this.animations.walkRight,
+      frames: this.scene.anims.generateFrameNumbers(
+        this.textureConfig.walkSheet,
+        {
+          start: 18,
+          end: 23,
+        }
+      ),
+      frameRate: 10,
+      repeat: -1,
+    });
+
+    // Idle animations
     this.scene.anims.create({
       key: this.animations.idleUp,
-      frames: [{ key: this.texture.key, frame: "walk-up-1.png" }],
-    });
-
-    this.scene.anims.create({
-      key: this.animations.idleSide,
-      frames: [{ key: this.texture.key, frame: "walk-side-1.png" }],
-    });
-
-    this.scene.anims.create({
-      key: this.animations.moveDown,
-      frames: this.scene.anims.generateFrameNames(this.texture.key, {
-        prefix: "walk-",
-        start: 1,
-        end: 4,
-        suffix: ".png",
-      }),
+      frames: this.scene.anims.generateFrameNumbers(
+        this.textureConfig.idleSheet,
+        {
+          start: 0,
+          end: 5, // Frames for idle up
+        }
+      ),
+      frameRate: 8,
       repeat: -1,
-      frameRate: 5,
     });
 
     this.scene.anims.create({
-      key: this.animations.moveUp,
-      frames: this.scene.anims.generateFrameNames(this.texture.key, {
-        prefix: "walk-up-",
-        start: 1,
-        end: 4,
-        suffix: ".png",
-      }),
+      key: this.animations.idleDown,
+      frames: this.scene.anims.generateFrameNumbers(
+        this.textureConfig.idleSheet,
+        {
+          start: 6,
+          end: 11, // Frames for idle down
+        }
+      ),
+      frameRate: 8,
       repeat: -1,
-      frameRate: 5,
+    });
+
+    // Idle left and right remain the same
+    this.scene.anims.create({
+      key: this.animations.idleLeft,
+      frames: this.scene.anims.generateFrameNumbers(
+        this.textureConfig.idleSheet,
+        {
+          start: 12,
+          end: 17,
+        }
+      ),
+      frameRate: 8,
+      repeat: -1,
     });
 
     this.scene.anims.create({
-      key: this.animations.moveSide,
-      frames: this.scene.anims.generateFrameNames(this.texture.key, {
-        prefix: "walk-side-",
-        start: 1,
-        end: 4,
-        suffix: ".png",
-      }),
+      key: this.animations.idleRight,
+      frames: this.scene.anims.generateFrameNumbers(
+        this.textureConfig.idleSheet,
+        {
+          start: 18,
+          end: 23,
+        }
+      ),
+      frameRate: 8,
       repeat: -1,
-      frameRate: 5,
     });
   }
+  
 
-  // Override to implement player movement
+
   public handleMovement(): void {
     if (!this.cursors) return;
 
@@ -75,46 +138,39 @@ export class PlayerCharacter extends Character {
     // Horizontal movement
     if (this.cursors.left.isDown) {
       velocityX = -this.speed;
-      this.setFlipX(false);
+      this.facingDirection = "left";
       moving = true;
     } else if (this.cursors.right.isDown) {
       velocityX = this.speed;
-      this.setFlipX(true);
+      this.facingDirection = "right";
       moving = true;
     }
 
     // Vertical movement
     if (this.cursors.up.isDown) {
       velocityY = -this.speed;
+      this.facingDirection = "up";
       moving = true;
     } else if (this.cursors.down.isDown) {
       velocityY = this.speed;
+      this.facingDirection = "down";
       moving = true;
     }
 
-    // Normalize speed if moving diagonally
+    // Normalize diagonal movement
     if (velocityX !== 0 && velocityY !== 0) {
       velocityX *= Math.SQRT1_2;
       velocityY *= Math.SQRT1_2;
     }
 
-    // Set the character's velocity
+    // Set velocity
     this.setVelocity(velocityX, velocityY);
 
-    // Determine facing direction for animation
-    if (velocityY < 0) {
-      this.facingDirection = "up";
-    } else if (velocityY > 0) {
-      this.facingDirection = "down";
-    } else if (velocityX !== 0) {
-      this.facingDirection = "side";
-    }
-
-    // Play animations
+    // Play appropriate animation
     if (moving) {
       this.anims.play(
         // @ts-ignore
-        this.animations[`move${this.capitalize(this.facingDirection)}`],
+        this.animations[`walk${this.capitalize(this.facingDirection)}`],
         true
       );
     } else {
@@ -126,7 +182,7 @@ export class PlayerCharacter extends Character {
     }
   }
 
-  private capitalize(direction: string): string {
-    return direction.charAt(0).toUpperCase() + direction.slice(1);
+  private capitalize(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 }

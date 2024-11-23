@@ -24,8 +24,7 @@ export class CameraMap extends Scene {
   create() {
     this.createMap();
     // Set world bounds to match the map size
-    console.log("WIDTH: ", this.map.widthInPixels);
-    console.log("HEIGHT: ", this.map.heightInPixels);
+
     this.physics.world.setBounds(
       0,
       0,
@@ -56,7 +55,7 @@ export class CameraMap extends Scene {
   }
   private adjustCameraZoom() {
     // Desired size of the player on screen (in pixels)
-    const desiredPlayerSize = 64;
+    const desiredPlayerSize = 256;
 
     // Calculate the zoom factor
     const zoomFactor = desiredPlayerSize / this.player.height;
@@ -100,22 +99,26 @@ export class CameraMap extends Scene {
       scene: this,
       x: this.map.widthInPixels / 2,
       y: this.map.heightInPixels / 2,
-      texture: "player",
-      frame: "walk-1",
+      texture: {
+        key: "player",
+        walkSheet: "player-walk", // matches the key used in preload for walk spritesheet
+        idleSheet: "player-idle", // matches the key used in preload for idle spritesheet
+      },
       speed: 100,
       animations: {
-        idleDown: "player-idle-down",
+        walkUp: "player-walk-up",
+        walkDown: "player-walk-down",
+        walkLeft: "player-walk-left",
+        walkRight: "player-walk-right",
         idleUp: "player-idle-up",
-        idleSide: "player-idle-side",
-        moveDown: "player-move-down",
-        moveUp: "player-move-up",
-        moveSide: "player-move-side",
+        idleDown: "player-idle-down",
+        idleLeft: "player-idle-left",
+        idleRight: "player-idle-right",
       },
     };
+
     this.player = new PlayerCharacter(playerConfig);
-    this.player.setCursors(this.cursors);
     this.player.setupAnimations();
     this.player.anims.play(this.player.animations.idleDown);
-    this.player.setCollideWorldBounds(true); // Prevents the player from going outside the world bounds
   }
 }
