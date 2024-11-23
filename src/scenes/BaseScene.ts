@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // BaseScene.ts
 import { Scene } from "phaser";
 import { PlayerCharacter } from "../slices/character/PlayerCharacter";
@@ -56,7 +58,7 @@ export abstract class BaseScene extends Scene {
     this.adjustCameraZoom();
   }
 
-  update() {
+  update(time: any, delta: any) {
     if (!this.cursors || !this.player) return;
     this.player.handleMovement();
   }
