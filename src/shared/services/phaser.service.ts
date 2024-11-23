@@ -1,8 +1,6 @@
 import Phaser from "phaser";
 import { Preloader } from "../../scenes/Preloader";
-import { Game } from "../../scenes/Game";
 import { HomeMap } from "../../scenes/HomeMap";
-import { CameraMap } from "../../scenes/Camera";
 
 export const phaserConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -18,10 +16,10 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
   physics: {
     default: "arcade",
     arcade: {
-      debug: false,
+      debug: true,
     },
   },
-  scene: [Preloader, CameraMap, HomeMap, Game],
+  scene: [Preloader, HomeMap],
 };
 
 // Used to emit events between React components and Phaser scenes
