@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="35" height="35" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="1">
+<map version="1.11" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="35" height="35" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="1">
  <editorsettings>
   <export target="home-map.json" format="json"/>
  </editorsettings>
@@ -22,6 +22,9 @@
    </animation>
   </tile>
   <tile id="24">
+   <properties>
+    <property name="collides" type="bool" value="true"/>
+   </properties>
    <animation>
     <frame tileid="24" duration="300"/>
     <frame tileid="27" duration="300"/>
@@ -30,6 +33,9 @@
    </animation>
   </tile>
   <tile id="26">
+   <properties>
+    <property name="collides" type="bool" value="true"/>
+   </properties>
    <animation>
     <frame tileid="26" duration="300"/>
     <frame tileid="29" duration="300"/>
@@ -38,6 +44,9 @@
    </animation>
   </tile>
   <tile id="48">
+   <properties>
+    <property name="collides" type="bool" value="true"/>
+   </properties>
    <animation>
     <frame tileid="48" duration="300"/>
     <frame tileid="51" duration="300"/>
@@ -46,6 +55,9 @@
    </animation>
   </tile>
   <tile id="49">
+   <properties>
+    <property name="collides" type="bool" value="true"/>
+   </properties>
    <animation>
     <frame tileid="49" duration="300"/>
     <frame tileid="52" duration="300"/>
@@ -54,6 +66,9 @@
    </animation>
   </tile>
   <tile id="50">
+   <properties>
+    <property name="collides" type="bool" value="true"/>
+   </properties>
    <animation>
     <frame tileid="50" duration="300"/>
     <frame tileid="53" duration="300"/>
@@ -62,6 +77,9 @@
    </animation>
   </tile>
   <tile id="72">
+   <properties>
+    <property name="collides" type="bool" value="true"/>
+   </properties>
    <animation>
     <frame tileid="72" duration="300"/>
     <frame tileid="74" duration="300"/>
@@ -70,6 +88,9 @@
    </animation>
   </tile>
   <tile id="73">
+   <properties>
+    <property name="collides" type="bool" value="true"/>
+   </properties>
    <animation>
     <frame tileid="73" duration="300"/>
     <frame tileid="75" duration="300"/>
@@ -341,18 +362,18 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1009,1010,1011,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1027,1028,1029,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1045,1046,1047,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,73,50,50,50,50,50,50,50,50,50,50,50,74,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,73,50,50,51,0,0,0,0,0,0,0,0,0,0,0,25,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,73,50,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,49,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,73,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,73,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,73,51,0,0,0,1009,1010,1011,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,73,51,0,0,0,0,1027,1028,1029,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,1045,1046,1047,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,73,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
 </map>

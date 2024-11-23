@@ -16,6 +16,7 @@ export class HomeMap extends BaseScene {
     this.load.tilemapTiledJSON("home-map", "maps/home-map.json");
     this.load.image("terrain-village-1", "tilesets/terrain-village-1.png");
     this.load.image("water-blank", "tilesets/water-blank.png");
+    this.load.image("water-main-animated", "tilesets/water-main-animated.png"); // Add this line
   }
 
   protected createMap(): void {
@@ -31,7 +32,16 @@ export class HomeMap extends BaseScene {
       "water-blank"
     );
 
-    if (!terrainVillage1Tileset || !waterBlankTileset) {
+    const waterAnimatedTileset = this.map.addTilesetImage(
+      "water-main-animated",
+      "water-main-animated"
+    );
+
+    if (
+      !terrainVillage1Tileset ||
+      !waterBlankTileset ||
+      !waterAnimatedTileset
+    ) {
       throw new Error("Failed to load terrain tileset");
     }
 
@@ -47,7 +57,7 @@ export class HomeMap extends BaseScene {
 
     this.waterAnimatedLayer = this.map.createLayer(
       "WaterAnimatedLayer",
-      waterBlankTileset,
+      [waterBlankTileset, waterAnimatedTileset],
       0,
       0
     );
@@ -79,6 +89,10 @@ export class HomeMap extends BaseScene {
 
     if (this.waterLayer) {
       this.waterLayer.setCollisionByProperty({ collides: true });
+    }
+
+    if (this.waterAnimatedLayer) {
+      this.waterAnimatedLayer.setCollisionByProperty({ collides: true });
     }
   }
 
@@ -122,6 +136,10 @@ export class HomeMap extends BaseScene {
   private setupCollisions(): void {
     if (this.waterLayer && this.player) {
       this.physics.add.collider(this.player, this.waterLayer);
+    }
+  
+    if (this.waterAnimatedLayer && this.player) {
+      this.physics.add.collider(this.player, this.waterAnimatedLayer);
     }
   }
 }
