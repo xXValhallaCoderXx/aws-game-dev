@@ -42,6 +42,8 @@ export class HomeMap extends BaseScene {
       0
     );
 
+    this.map.createLayer("WaterAnimatedLayer", waterBlankTileset, 0, 0);
+
     if (this.waterLayer) {
       this.waterLayer.setCollisionByProperty({ collides: true });
     }

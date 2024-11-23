@@ -74,7 +74,7 @@
         }
     },
     "frame.defaultDuration": 300,
-    "last.exportedFilePath": "/home/odin/Dungeon/Github/aws-game-dev/public/maps",
+    "last.exportedFilePath": "/Users/nate/Dungeon/Github/aws-game-dev/public/maps",
     "last.imagePath": "/home/odin/Dungeon/Github/aws-game-dev/public/tilesets",
     "map.height": 30,
     "map.lastUsedExportFilter": "All Files (*)",
