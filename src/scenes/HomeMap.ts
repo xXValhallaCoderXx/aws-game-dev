@@ -14,6 +14,15 @@ export class HomeMap extends BaseScene {
   private plantSeedSound: Phaser.Sound.BaseSound | null = null;
   private backgroundMusic: Phaser.Sound.BaseSound | null = null;
 
+  private seedPacketSprite?: Phaser.GameObjects.Sprite;
+  private readonly SEED_PACKET_OFFSET_Y = 8; // Adjust based on your character's size
+  private readonly SEED_PACKET_FRAME_INDEX: { [key: string]: number } = {
+    carrot: 0,
+    raddish: 1,
+    cauliflower: 2,
+    // Add more seeds as needed
+  };
+
   constructor() {
     super(ESCENE_KEYS.CAMERA);
   }
@@ -148,6 +157,9 @@ export class HomeMap extends BaseScene {
       this.input.keyboard.on("keydown-THREE", () => {
         this.changeSelectedSeed("cauliflower");
       });
+      this.input.keyboard.on("keydown-ZERO", () => {
+        this.clearSelectedSeed();
+      });
     }
 
     // First create the map
@@ -203,12 +215,25 @@ export class HomeMap extends BaseScene {
         tile.index = animatedTile.tilesetFirstGid + nextFrame.tileid;
       }
     });
+
+    if (this.seedPacketSprite) {
+      this.seedPacketSprite.setPosition(
+        this.player.x,
+        this.player.y - this.SEED_PACKET_OFFSET_Y
+      );
+    }
   }
 
-  private changeSelectedSeed(seedType: string) {
-    this.selectedSeedType = seedType;
-    // Provide feedback to the player, e.g., update UI or console log
-    console.log(`Selected seed: ${seedType}`);
+  private clearSelectedSeed() {
+    this.selectedSeedType = "";
+    this.player.isCarrying = false;
+    this.player.carriedItem = undefined;
+
+    // Remove the seed packet sprite
+    if (this.seedPacketSprite) {
+      this.seedPacketSprite.destroy();
+      this.seedPacketSprite = undefined;
+    }
   }
 
   private handlePlayerAction() {
@@ -296,5 +321,28 @@ export class HomeMap extends BaseScene {
     if (this.waterAnimatedLayer && this.player) {
       this.physics.add.collider(this.player, this.waterAnimatedLayer);
     }
+  }
+
+  private changeSelectedSeed(seedType: string) {
+    this.selectedSeedType = seedType;
+
+    // Update the player's carrying state
+    this.player.isCarrying = true;
+    this.player.carriedItem = seedType;
+
+    // Remove existing seed packet sprite if it exists
+    if (this.seedPacketSprite) {
+      this.seedPacketSprite.destroy();
+    }
+
+    // Create a new seed packet sprite
+    this.seedPacketSprite = this.add.sprite(
+      this.player.x,
+      this.player.y - this.SEED_PACKET_OFFSET_Y,
+      "seed-packets",
+      this.SEED_PACKET_FRAME_INDEX[seedType]
+    );
+    this.seedPacketSprite.setOrigin(0.5, 1);
+    this.seedPacketSprite.setDepth(this.player.depth + 1);
   }
 }

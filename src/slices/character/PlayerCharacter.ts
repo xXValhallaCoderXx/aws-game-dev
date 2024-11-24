@@ -3,6 +3,20 @@ import { Character, CharacterConfig } from "./CharacterClass";
 
 // PlayerCharacter.ts
 export class PlayerCharacter extends Character {
+  private carryAnimations = {
+    walkUp: "player-carry-walk-up",
+    walkDown: "player-carry-walk-down",
+    walkLeft: "player-carry-walk-left",
+    walkRight: "player-carry-walk-right",
+    idleUp: "player-carry-idle-up",
+    idleDown: "player-carry-idle-down",
+    idleLeft: "player-carry-idle-left",
+    idleRight: "player-carry-idle-right",
+  };
+  // Add properties for carrying items
+  public isCarrying: boolean = false;
+  public carriedItem?: string; // The type of seed being carried
+
   public inventory: { [itemName: string]: number } = {
     carrotSeeds: 5,
     raddishSeeds: 3,
@@ -18,112 +32,74 @@ export class PlayerCharacter extends Character {
   }
 
   public setupAnimations(): void {
-    // Walking animations
-    this.scene.anims.create({
-      key: this.animations.walkUp,
-      frames: this.scene.anims.generateFrameNumbers(
-        this.textureConfig.walkSheet,
-        {
-          start: 0,
-          end: 5, // Frames for walking up
-        }
-      ),
-      frameRate: 10,
-      repeat: -1,
-    });
+    const directions = ["Up", "Down", "Left", "Right"];
+    const actions = ["walk", "idle"];
 
-    this.scene.anims.create({
-      key: this.animations.walkDown,
-      frames: this.scene.anims.generateFrameNumbers(
-        this.textureConfig.walkSheet,
-        {
-          start: 6,
-          end: 11, // Frames for walking down
-        }
-      ),
-      frameRate: 10,
-      repeat: -1,
-    });
+    const normalFrames = {
+      walkUp: { start: 0, end: 5 },
+      walkDown: { start: 6, end: 11 },
+      walkLeft: { start: 12, end: 17 },
+      walkRight: { start: 18, end: 23 },
+      idleUp: { start: 0, end: 5 },
+      idleDown: { start: 6, end: 11 },
+      idleLeft: { start: 12, end: 17 },
+      idleRight: { start: 18, end: 23 },
+    };
 
-    // Walking left and right remain the same
-    this.scene.anims.create({
-      key: this.animations.walkLeft,
-      frames: this.scene.anims.generateFrameNumbers(
-        this.textureConfig.walkSheet,
-        {
-          start: 12,
-          end: 17,
-        }
-      ),
-      frameRate: 10,
-      repeat: -1,
-    });
+    const frameRates = {
+      walk: 10,
+      idle: 8,
+    };
 
-    this.scene.anims.create({
-      key: this.animations.walkRight,
-      frames: this.scene.anims.generateFrameNumbers(
-        this.textureConfig.walkSheet,
-        {
-          start: 18,
-          end: 23,
-        }
-      ),
-      frameRate: 10,
-      repeat: -1,
-    });
+    // Create normal animations
+    this.createCharacterAnimations(
+      this.animations,
+      {
+        walk: this.textureConfig.walkSheet,
+        idle: this.textureConfig.idleSheet,
+      },
+      normalFrames,
+      frameRates
+    );
 
-    // Idle animations
-    this.scene.anims.create({
-      key: this.animations.idleUp,
-      frames: this.scene.anims.generateFrameNumbers(
-        this.textureConfig.idleSheet,
-        {
-          start: 0,
-          end: 5, // Frames for idle up
-        }
-      ),
-      frameRate: 8,
-      repeat: -1,
-    });
+    // Create carry animations
+    this.createCharacterAnimations(
+      this.carryAnimations,
+      {
+        walk: "player-carry-walk",
+        idle: "player-carry-idle",
+      },
+      normalFrames, // Assuming frames are the same
+      frameRates
+    );
+  }
 
-    this.scene.anims.create({
-      key: this.animations.idleDown,
-      frames: this.scene.anims.generateFrameNumbers(
-        this.textureConfig.idleSheet,
-        {
-          start: 6,
-          end: 11, // Frames for idle down
-        }
-      ),
-      frameRate: 8,
-      repeat: -1,
-    });
+  private createCharacterAnimations(
+    animationKeys: { [key: string]: string },
+    textureKeys: { [key: string]: string },
+    frames: { [key: string]: { start: number; end: number } },
+    frameRates: { [key: string]: number }
+  ) {
+    const directions = ["Up", "Down", "Left", "Right"];
+    const actions = ["walk", "idle"];
 
-    // Idle left and right remain the same
-    this.scene.anims.create({
-      key: this.animations.idleLeft,
-      frames: this.scene.anims.generateFrameNumbers(
-        this.textureConfig.idleSheet,
-        {
-          start: 12,
-          end: 17,
-        }
-      ),
-      frameRate: 8,
-      repeat: -1,
-    });
+    actions.forEach((action) => {
+      directions.forEach((direction) => {
+        const animKey = animationKeys[`${action}${direction}`];
+        const textureKey = textureKeys[action];
+        const frameConfig = frames[`${action}${direction}`];
+        const frameRate = frameRates[action];
 
-    this.scene.anims.create({
-      key: this.animations.idleRight,
-      frames: this.scene.anims.generateFrameNumbers(
-        this.textureConfig.idleSheet,
-        {
-          start: 18,
-          end: 23,
-        }
-      ),
-      frameRate: 8,
-      repeat: -1,
+        this.scene.anims.create({
+          key: animKey,
+          frames: this.scene.anims.generateFrameNumbers(
+            textureKey,
+            frameConfig
+          ),
+          frameRate: frameRate,
+          repeat: -1,
+        });
+      });
     });
   }
 
@@ -168,19 +144,22 @@ export class PlayerCharacter extends Character {
     // Set velocity
     this.setVelocity(velocityX, velocityY);
 
-    // Play appropriate animation
-    if (moving) {
-      this.anims.play(
-        // @ts-ignore
-        this.animations[`walk${this.capitalize(this.facingDirection)}`],
-        true
-      );
+    // Determine the appropriate animation key
+    const action = moving ? "walk" : "idle";
+    const directionCapitalized = this.capitalize(this.facingDirection);
+    let animationKey: string;
+
+    if (this.isCarrying) {
+      // Use carry animations
+      animationKey = this.carryAnimations[`${action}${directionCapitalized}`];
     } else {
-      this.anims.play(
-        // @ts-ignore
-        this.animations[`idle${this.capitalize(this.facingDirection)}`],
-        true
-      );
+      // Use normal animations
+      animationKey = this.animations[`${action}${directionCapitalized}`];
+    }
+
+    // Play the animation if it's not already playing
+    if (this.anims.currentAnim?.key !== animationKey) {
+      this.anims.play(animationKey, true);
     }
   }
 
