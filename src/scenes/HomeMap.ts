@@ -1,11 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "../shared/scene-keys";
+import { Crop } from "../slices/crops/Crop";
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
+  private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private animatedTiles: any | [] = [];
   private waterAnimatedLayer: Phaser.Tilemaps.TilemapLayer | null = null;
+  private actionKey: Phaser.Input.Keyboard.Key | null = null;
+  private crops: { [key: string]: Crop } = {};
+  private selectedSeedType: string = "carrot"; // Default seed type
 
   constructor() {
     super(ESCENE_KEYS.CAMERA);
@@ -17,6 +22,15 @@ export class HomeMap extends BaseScene {
     this.load.image("terrain-village-1", "tilesets/terrain-village-1.png");
     this.load.image("water-blank", "tilesets/water-blank.png");
     this.load.image("water-main-animated", "tilesets/water-main-animated.png"); // Add this line
+    this.load.image("crops-tiles-main", "tilesets/crops-tiles-main.png");
+    this.load.spritesheet(
+      "crops-objects",
+      "sprites/crops/crops-harvest-stages.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
   }
 
   protected createMap(): void {
@@ -37,10 +51,16 @@ export class HomeMap extends BaseScene {
       "water-main-animated"
     );
 
+    const cropsTileset = this.map.addTilesetImage(
+      "crops-tiles-main",
+      "crops-tiles-main"
+    );
+
     if (
       !terrainVillage1Tileset ||
       !waterBlankTileset ||
-      !waterAnimatedTileset
+      !waterAnimatedTileset ||
+      !cropsTileset
     ) {
       throw new Error("Failed to load terrain tileset");
     }
@@ -61,6 +81,19 @@ export class HomeMap extends BaseScene {
       0,
       0
     );
+
+    this.farmableLayer = this.map.createLayer(
+      "FarmableLayer",
+      [cropsTileset],
+      0,
+      0
+    );
+
+    if (this.farmableLayer) {
+      this.farmableLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
+        tile.properties.farmable = true;
+      });
+    }
 
     this.animatedTiles = [];
 
@@ -97,6 +130,22 @@ export class HomeMap extends BaseScene {
   }
 
   create() {
+    if (this.input.keyboard) {
+      this.actionKey = this.input.keyboard.addKey(
+        Phaser.Input.Keyboard.KeyCodes.SPACE
+      );
+
+      this.input.keyboard.on("keydown-ONE", () => {
+        this.changeSelectedSeed("carrot");
+      });
+      this.input.keyboard.on("keydown-TWO", () => {
+        this.changeSelectedSeed("raddish");
+      });
+      this.input.keyboard.on("keydown-THREE", () => {
+        this.changeSelectedSeed("cauliflower");
+      });
+    }
+
     // First create the map
     this.createMap();
 
@@ -109,6 +158,16 @@ export class HomeMap extends BaseScene {
 
   update(time: number, delta: number) {
     super.update(time, delta);
+
+    if (this.actionKey && Phaser.Input.Keyboard.JustDown(this.actionKey)) {
+      console.log("GOOOO");
+      this.handlePlayerAction();
+    }
+
+    // Update all crops
+    Object.values(this.crops).forEach((crop) => {
+      crop.update(delta);
+    });
 
     this.animatedTiles.forEach((animatedTile: any) => {
       const tile = animatedTile.tile;
@@ -133,11 +192,91 @@ export class HomeMap extends BaseScene {
     });
   }
 
+  private changeSelectedSeed(seedType: string) {
+    this.selectedSeedType = seedType;
+    // Provide feedback to the player, e.g., update UI or console log
+    console.log(`Selected seed: ${seedType}`);
+  }
+
+  private handlePlayerAction() {
+    // Get the tile the player is facing
+
+    const facingTile = this.getFacingTile();
+    console.log("PLAYER ACTION: ", facingTile);
+
+    if (facingTile && facingTile.properties.farmable) {
+      // Handle farming interaction
+      this.handleFarming(facingTile);
+    }
+  }
+
+  private handleFarming(tile: Phaser.Tilemaps.Tile) {
+    const tileKey = `${tile.x},${tile.y}`;
+    console.log("SEED ITEM: ", tileKey);
+    if (!this.crops[tileKey]) {
+      const seedItem = `${this.selectedSeedType}Seeds`;
+
+      if (this.player.inventory[seedItem] > 0) {
+        // Plant a new crop
+        this.player.inventory[seedItem]--;
+        const worldX = tile.getCenterX();
+        const worldY = tile.getCenterY();
+        const crop = new Crop(this, worldX, worldY, this.selectedSeedType);
+        this.crops[tileKey] = crop;
+      } else {
+        // Notify player they have no seeds of this type
+        console.log(`No ${this.selectedSeedType} seeds left!`);
+      }
+    } else {
+      const crop = this.crops[tileKey];
+      if (crop.growthStage === crop.maxGrowthStage) {
+        // Harvest the crop
+        crop.sprite.destroy();
+        delete this.crops[tileKey];
+        // Add crop to inventory
+        const cropItem = `${crop.cropType}`;
+        if (!this.player.inventory[cropItem]) {
+          this.player.inventory[cropItem] = 0;
+        }
+        this.player.inventory[cropItem]++;
+        console.log(`Harvested ${crop.cropType}!`);
+      } else {
+        console.log(`${crop.cropType} is still growing.`);
+      }
+    }
+  }
+
+  private getFacingTile(): Phaser.Tilemaps.Tile | null {
+    // Calculate the tile in front of the player based on their facing direction
+    const { x, y } = this.player;
+    const facingOffset = { x: 0, y: 0 };
+
+    switch (this.player.facingDirection) {
+      case "up":
+        facingOffset.y = -this.map.tileHeight;
+        break;
+      case "down":
+        facingOffset.y = this.map.tileHeight;
+        break;
+      case "left":
+        facingOffset.x = -this.map.tileWidth;
+        break;
+      case "right":
+        facingOffset.x = this.map.tileWidth;
+        break;
+    }
+
+    const tileX = this.map.worldToTileX(x + facingOffset.x);
+    const tileY = this.map.worldToTileY(y + facingOffset.y);
+
+    return this.farmableLayer.getTileAt(tileX, tileY);
+  }
+
   private setupCollisions(): void {
     if (this.waterLayer && this.player) {
       this.physics.add.collider(this.player, this.waterLayer);
     }
-  
+
     if (this.waterAnimatedLayer && this.player) {
       this.physics.add.collider(this.player, this.waterAnimatedLayer);
     }

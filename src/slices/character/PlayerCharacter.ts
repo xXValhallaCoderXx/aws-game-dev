@@ -3,14 +3,18 @@ import { Character, CharacterConfig } from "./CharacterClass";
 
 // PlayerCharacter.ts
 export class PlayerCharacter extends Character {
+  public inventory: { [itemName: string]: number } = {
+    carrotSeeds: 5,
+    raddishSeeds: 3,
+    cauliflowerSeeds: 2,
+  };
+
   constructor(config: CharacterConfig) {
     super(config);
     if (this.scene) {
       // Add null check
       this.cursors = this.scene.input.keyboard?.createCursorKeys();
     }
-    
-   
   }
 
   public setupAnimations(): void {
@@ -122,8 +126,6 @@ export class PlayerCharacter extends Character {
       repeat: -1,
     });
   }
-  
-
 
   public handleMovement(): void {
     if (!this.cursors) return;
