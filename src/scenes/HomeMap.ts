@@ -11,6 +11,7 @@ export class HomeMap extends BaseScene {
   private actionKey: Phaser.Input.Keyboard.Key | null = null;
   private crops: { [key: string]: Crop } = {};
   private selectedSeedType: string = "carrot"; // Default seed type
+  private plantSeedSound: Phaser.Sound.BaseSound | null = null;
 
   constructor() {
     super(ESCENE_KEYS.CAMERA);
@@ -31,6 +32,7 @@ export class HomeMap extends BaseScene {
         frameHeight: 16,
       }
     );
+    this.load.audio("plantSeedSound", "sounds/seed-place.wav");
   }
 
   protected createMap(): void {
@@ -154,6 +156,8 @@ export class HomeMap extends BaseScene {
 
     // Finally set up the water collisions
     this.setupCollisions();
+
+    this.plantSeedSound = this.sound.add("plantSeedSound");
   }
 
   update(time: number, delta: number) {
@@ -223,6 +227,9 @@ export class HomeMap extends BaseScene {
         const worldY = tile.getCenterY();
         const crop = new Crop(this, worldX, worldY, this.selectedSeedType);
         this.crops[tileKey] = crop;
+        if (this.plantSeedSound) {
+          this.plantSeedSound.play();
+        }
       } else {
         // Notify player they have no seeds of this type
         console.log(`No ${this.selectedSeedType} seeds left!`);
