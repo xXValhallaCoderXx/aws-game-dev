@@ -12,6 +12,7 @@ export class HomeMap extends BaseScene {
   private crops: { [key: string]: Crop } = {};
   private selectedSeedType: string = "carrot"; // Default seed type
   private plantSeedSound: Phaser.Sound.BaseSound | null = null;
+  private backgroundMusic: Phaser.Sound.BaseSound | null = null;
 
   constructor() {
     super(ESCENE_KEYS.CAMERA);
@@ -33,6 +34,7 @@ export class HomeMap extends BaseScene {
       }
     );
     this.load.audio("plantSeedSound", "sounds/seed-place.wav");
+    this.load.audio("backgroundMusic", "sounds/main-bgm.mp3");
   }
 
   protected createMap(): void {
@@ -158,6 +160,13 @@ export class HomeMap extends BaseScene {
     this.setupCollisions();
 
     this.plantSeedSound = this.sound.add("plantSeedSound");
+    this.backgroundMusic = this.sound.add("backgroundMusic", {
+      volume: 0.2, // Set lower volume (0 to 1)
+      loop: true, // Loop the music
+    });
+
+    // Play the background music
+    this.backgroundMusic.play();
   }
 
   update(time: number, delta: number) {
