@@ -50,6 +50,16 @@ export class Preloader extends Scene {
         frameHeight: 80,
       }
     );
+
+    // Load Crop pull
+    this.load.spritesheet(
+      "player-harvest",
+      "sprites/characters/Charlie/charlie-crop-pull.png",
+      {
+        frameWidth: 80,
+        frameHeight: 80,
+      }
+    );
     this.load.spritesheet("seed-packets", "sprites/crops/seed-packets.png", {
       frameWidth: 16,
       frameHeight: 16,

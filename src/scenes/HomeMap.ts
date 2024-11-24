@@ -239,10 +239,11 @@ export class HomeMap extends BaseScene {
   }
 
   private handlePlayerAction() {
+    if (this.player.isHarvesting) return;
     // Get the tile the player is facing
 
     const facingTile = this.getFacingTile();
-    console.log("PLAYER ACTION: ", facingTile);
+
 
     if (facingTile && facingTile.properties.farmable) {
       // Handle farming interaction
@@ -252,7 +253,7 @@ export class HomeMap extends BaseScene {
 
   private handleFarming(tile: Phaser.Tilemaps.Tile) {
     const tileKey = `${tile.x},${tile.y}`;
-    console.log("SEED ITEM: ", tileKey);
+
     if (!this.crops[tileKey]) {
       const seedItem = `${this.selectedSeedType}Seeds`;
 
@@ -274,14 +275,35 @@ export class HomeMap extends BaseScene {
       const crop = this.crops[tileKey];
       if (crop.growthStage === crop.maxGrowthStage) {
         // Harvest the crop
-        crop.sprite.destroy();
-        delete this.crops[tileKey];
-        // Add crop to inventory
-        const cropItem = `${crop.cropType}`;
-        if (!this.player.inventory[cropItem]) {
-          this.player.inventory[cropItem] = 0;
-        }
-        this.player.inventory[cropItem]++;
+        // crop.sprite.destroy();
+        // delete this.crops[tileKey];
+        // // Add crop to inventory
+        // const cropItem = `${crop.cropType}`;
+        // if (!this.player.inventory[cropItem]) {
+        //   this.player.inventory[cropItem] = 0;
+        // }
+        // this.player.inventory[cropItem]++;
+
+        // Initiate harvesting
+        this.player.startHarvesting(() => {
+          // Callback after harvesting animation completes
+
+          // Harvest the crop
+          crop.sprite.destroy();
+          delete this.crops[tileKey];
+
+          // Add crop to inventory
+          const cropItem = `${crop.cropType}`;
+          if (!this.player.inventory[cropItem]) {
+            this.player.inventory[cropItem] = 0;
+          }
+          this.player.inventory[cropItem]++;
+
+          // Play harvesting sound effect if you have one
+          this.plantSeedSound?.play();
+
+          console.log(`Harvested ${crop.cropType}!`);
+        });
         console.log(`Harvested ${crop.cropType}!`);
       } else {
         console.log(`${crop.cropType} is still growing.`);

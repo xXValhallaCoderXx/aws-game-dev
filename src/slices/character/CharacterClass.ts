@@ -8,6 +8,10 @@ export interface AnimationKeys {
   idleDown: string;
   idleLeft: string;
   idleRight: string;
+  harvestUp: string;
+  harvestDown: string;
+  harvestLeft: string;
+  harvestRight: string;
 }
 
 export interface CharacterConfig {
@@ -18,6 +22,7 @@ export interface CharacterConfig {
     key: string;
     walkSheet: string;
     idleSheet: string;
+    harvestSheet: string;
   };
   animations: AnimationKeys;
   speed: number;
