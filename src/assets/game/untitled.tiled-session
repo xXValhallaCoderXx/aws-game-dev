@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx",
+    "activeFile": "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
@@ -14,13 +14,22 @@
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx": {
             "scale": 2,
-            "selectedLayer": 0,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 470,
-                "y": 625.25
+                "x": 331.5,
+                "y": 325.25
             }
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#buildings-main": {
+            "scaleInDock": 1.5
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#crops-tiles-main": {
+            "scaleInDock": 1.5
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#terrain-village-1": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#terrain-village-2": {
             "scaleInDock": 1
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#water-blank": {
@@ -83,11 +92,12 @@
     "map.tileWidth": 16,
     "map.width": 30,
     "openFiles": [
-        "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx"
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx"
     ],
     "project": "untitled.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
         "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx",
         "main-map.tmx"
     ],

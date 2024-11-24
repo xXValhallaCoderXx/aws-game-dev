@@ -28,7 +28,7 @@ export class Character extends Phaser.Physics.Arcade.Sprite {
   protected cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   public animations: AnimationKeys;
   protected textureConfig: CharacterConfig["texture"]; // Add this line
-  protected facingDirection: "up" | "down" | "left" | "right" = "down";
+  public facingDirection: "up" | "down" | "left" | "right" = "down";
 
   constructor(config: CharacterConfig) {
     // Call the parent class constructor with texture key and initial position
