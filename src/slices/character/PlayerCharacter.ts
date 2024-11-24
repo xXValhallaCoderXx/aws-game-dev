@@ -1,18 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Character, CharacterConfig } from "./CharacterClass";
 
+type Action = "walk" | "idle";
+type Direction = "up" | "down" | "left" | "right";
+type DirectionCapitalized = "Up" | "Down" | "Left" | "Right";
+type AnimationKey = `${Action}${DirectionCapitalized}`;
+
 // PlayerCharacter.ts
 export class PlayerCharacter extends Character {
-  private carryAnimations = {
-    walkUp: "player-carry-walk-up",
-    walkDown: "player-carry-walk-down",
-    walkLeft: "player-carry-walk-left",
-    walkRight: "player-carry-walk-right",
-    idleUp: "player-carry-idle-up",
-    idleDown: "player-carry-idle-down",
-    idleLeft: "player-carry-idle-left",
-    idleRight: "player-carry-idle-right",
-  };
   // Add properties for carrying items
   public isCarrying: boolean = false;
   public carriedItem?: string; // The type of seed being carried
@@ -21,6 +16,27 @@ export class PlayerCharacter extends Character {
     carrotSeeds: 5,
     raddishSeeds: 3,
     cauliflowerSeeds: 2,
+  };
+  public animations: Record<AnimationKey, string> = {
+    walkUp: "player-walk-up",
+    walkDown: "player-walk-down",
+    walkLeft: "player-walk-left",
+    walkRight: "player-walk-right",
+    idleUp: "player-idle-up",
+    idleDown: "player-idle-down",
+    idleLeft: "player-idle-left",
+    idleRight: "player-idle-right",
+  };
+
+  public carryAnimations: Record<AnimationKey, string> = {
+    walkUp: "player-carry-walk-up",
+    walkDown: "player-carry-walk-down",
+    walkLeft: "player-carry-walk-left",
+    walkRight: "player-carry-walk-right",
+    idleUp: "player-carry-idle-up",
+    idleDown: "player-carry-idle-down",
+    idleLeft: "player-carry-idle-left",
+    idleRight: "player-carry-idle-right",
   };
 
   constructor(config: CharacterConfig) {
@@ -32,9 +48,6 @@ export class PlayerCharacter extends Character {
   }
 
   public setupAnimations(): void {
-    const directions = ["Up", "Down", "Left", "Right"];
-    const actions = ["walk", "idle"];
-
     const normalFrames = {
       walkUp: { start: 0, end: 5 },
       walkDown: { start: 6, end: 11 },
@@ -163,7 +176,7 @@ export class PlayerCharacter extends Character {
     }
   }
 
-  private capitalize(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+  private capitalize(str: Direction): DirectionCapitalized {
+    return (str.charAt(0).toUpperCase() + str.slice(1)) as DirectionCapitalized;
   }
 }
