@@ -13,6 +13,7 @@ export class HomeMap extends BaseScene {
   private crops: { [key: string]: Crop } = {};
   private selectedSeedType: string = "carrot"; // Default seed type
   private plantSeedSound: Phaser.Sound.BaseSound | null = null;
+  private harvestCropSound: Phaser.Sound.BaseSound | null = null;
   private backgroundMusic: Phaser.Sound.BaseSound | null = null;
 
   private seedPacketSprite?: Phaser.GameObjects.Sprite;
@@ -45,6 +46,7 @@ export class HomeMap extends BaseScene {
     );
     this.load.audio("plantSeedSound", "sounds/seed-place.wav");
     this.load.audio("backgroundMusic", "sounds/main-bgm.mp3");
+    this.load.audio("harvestCropSound", "sounds/harvest-crop-sound.wav");
   }
 
   protected createMap(): void {
@@ -174,6 +176,7 @@ export class HomeMap extends BaseScene {
     this.setupCollisions();
 
     this.plantSeedSound = this.sound.add("plantSeedSound");
+    this.harvestCropSound = this.sound.add("harvestCropSound");
     this.backgroundMusic = this.sound.add("backgroundMusic", {
       volume: 0.2, // Set lower volume (0 to 1)
       loop: true, // Loop the music
@@ -244,7 +247,6 @@ export class HomeMap extends BaseScene {
 
     const facingTile = this.getFacingTile();
 
-
     if (facingTile && facingTile.properties.farmable) {
       // Handle farming interaction
       this.handleFarming(facingTile);
@@ -275,19 +277,18 @@ export class HomeMap extends BaseScene {
       const crop = this.crops[tileKey];
       if (crop.growthStage === crop.maxGrowthStage) {
         // Harvest the crop
-        // crop.sprite.destroy();
-        // delete this.crops[tileKey];
-        // // Add crop to inventory
-        // const cropItem = `${crop.cropType}`;
-        // if (!this.player.inventory[cropItem]) {
-        //   this.player.inventory[cropItem] = 0;
-        // }
-        // this.player.inventory[cropItem]++;
 
         // Initiate harvesting
         this.player.startHarvesting(() => {
           // Callback after harvesting animation completes
-
+          const frameIndex = this.getHarvestedCropFrame(crop.cropType);
+          // Animate the harvested crop
+          this.animateHarvestedCrop(
+            crop.sprite.x,
+            crop.sprite.y,
+            this.player.facingDirection,
+            frameIndex
+          );
           // Harvest the crop
           crop.sprite.destroy();
           delete this.crops[tileKey];
@@ -300,7 +301,7 @@ export class HomeMap extends BaseScene {
           this.player.inventory[cropItem]++;
 
           // Play harvesting sound effect if you have one
-          this.plantSeedSound?.play();
+          this.harvestCropSound?.play();
 
           console.log(`Harvested ${crop.cropType}!`);
         });
@@ -309,6 +310,87 @@ export class HomeMap extends BaseScene {
         console.log(`${crop.cropType} is still growing.`);
       }
     }
+  }
+
+  private animateHarvestedCrop(
+    x: number,
+    y: number,
+    facingDirection: any,
+    frameIndex: number
+  ): void {
+    // Create a new sprite for the harvested crop
+    // Implement this method based on your logic
+
+    const harvestedCrop = this.add.sprite(x, y, "harvested-crop", frameIndex);
+
+    harvestedCrop.setOrigin(0.5, 0.5);
+
+    // Determine the target position based on the facing direction
+    let targetX = x;
+    let targetY = y;
+
+    const arcDistance = 60; // Adjust as needed
+    const arcHeight = 40; // Adjust as needed
+
+    switch (facingDirection) {
+      case "up":
+        targetY -= arcDistance;
+        break;
+      case "down":
+        targetY += arcDistance;
+        break;
+      case "left":
+        targetX -= arcDistance;
+        break;
+      case "right":
+        targetX += arcDistance;
+        break;
+    }
+
+    // First Tween: Move to the peak of the arc
+    const tweenUp = this.tweens.add({
+      targets: harvestedCrop,
+      y: harvestedCrop.y - arcHeight,
+      duration: 300,
+      ease: "Sine.easeOut",
+      onUpdate: () => {
+        harvestedCrop.rotation += 0.05; // Optional rotation during first tween
+      },
+      onComplete: () => {
+        // Start the second tween after the first completes
+        tweenOut.play();
+      },
+    });
+
+    // Second Tween: Move to the target position
+    const tweenOut = this.tweens.add({
+      targets: harvestedCrop,
+      x: targetX,
+      y: targetY,
+      duration: 500,
+      ease: "Sine.easeIn",
+      onUpdate: () => {
+        harvestedCrop.rotation += 0.05; // Optional rotation during second tween
+        harvestedCrop.setScale(Math.max(0, harvestedCrop.scaleX - 0.005)); // Optional scaling
+      },
+      onComplete: () => {
+        harvestedCrop.destroy(); // Remove the sprite after the animation
+      },
+      paused: true, // Start this tween manually after the first tween completes
+    });
+
+    // Start the first tween
+    tweenUp.play();
+  }
+
+  private getHarvestedCropFrame(cropType: string): number {
+    const frameMapping: { [key: string]: number } = {
+      carrot: 0,
+      radish: 1,
+      cauliflower: 2,
+    };
+
+    return frameMapping[cropType] !== undefined ? frameMapping[cropType] : 0; // Default to frame 0
   }
 
   private getFacingTile(): Phaser.Tilemaps.Tile | null {

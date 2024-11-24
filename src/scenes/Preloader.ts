@@ -64,6 +64,16 @@ export class Preloader extends Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
+
+
+    this.load.spritesheet(
+      "harvested-crop",
+      "sprites/crops/crops-harvested.png",
+      {
+        frameWidth: 16, // Width of each frame
+        frameHeight: 16, // Height of each frame
+      }
+    );
   }
 
   create() {
