@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "../shared/scene-keys";
@@ -119,6 +120,7 @@ export class HomeMap extends BaseScene {
 
         const tileset = tile.tileset;
         const localTileId = tile.index - tileset.firstgid;
+        // @ts-ignore
         const tileData = tileset.tileData[localTileId];
 
         if (tileData && tileData.animation) {
@@ -307,10 +309,13 @@ export class HomeMap extends BaseScene {
         break;
     }
 
-    const tileX = this.map.worldToTileX(x + facingOffset.x);
-    const tileY = this.map.worldToTileY(y + facingOffset.y);
+    const tileX = this.map.worldToTileX(x! + facingOffset.x!);
+    const tileY = this.map.worldToTileY(y! + facingOffset.y!);
 
-    return this.farmableLayer.getTileAt(tileX, tileY);
+    if (tileX && tileY) {
+      return this.farmableLayer?.getTileAt(tileX, tileY) ?? null;
+    }
+    return null;
   }
 
   private setupCollisions(): void {
