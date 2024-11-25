@@ -29,6 +29,7 @@ export class HomeMap extends BaseScene {
     this.load.image("water-blank", "tilesets/water-blank.png");
     this.load.image("water-main-animated", "tilesets/water-main-animated.png"); // Add this line
     this.load.image("crops-tiles-main", "tilesets/crops-tiles-main.png");
+    this.load.image("buildings-main", "tilesets/buildings-main.png");
     this.load.spritesheet(
       "crops-objects",
       "sprites/crops/crops-harvest-stages.png",
@@ -65,17 +66,27 @@ export class HomeMap extends BaseScene {
       "crops-tiles-main"
     );
 
+    const buildingTileset = this.map.addTilesetImage(
+      "buildings-main",
+      "buildings-main"
+    );
+
     if (
       !terrainVillage1Tileset ||
       !waterBlankTileset ||
       !waterAnimatedTileset ||
-      !cropsTileset
+      !cropsTileset ||
+      !buildingTileset
     ) {
       throw new Error("Failed to load terrain tileset");
     }
 
     this.map.createLayer("GrassBaseLayer", terrainVillage1Tileset, 0, 0);
     this.map.createLayer("GrassAccessoriesLayer", terrainVillage1Tileset, 0, 0);
+
+    this.map.createLayer("BuildingBaseLayer", buildingTileset, 0, 0);
+    this.map.createLayer("BuildingRoofLayer", buildingTileset, 0, 0);
+    this.map.createLayer("BuildingRoofAccessoriesLayer", buildingTileset, 0, 0);
 
     this.waterLayer = this.map.createLayer(
       "WaterBaseLayer",
