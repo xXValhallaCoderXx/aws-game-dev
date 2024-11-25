@@ -2,28 +2,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "../shared/scene-keys";
-import { Crop } from "../slices/crops/Crop";
+import { FarmingSystem } from "../slices/farming/farming-system.service";
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private animatedTiles: any | [] = [];
   private waterAnimatedLayer: Phaser.Tilemaps.TilemapLayer | null = null;
-  private actionKey: Phaser.Input.Keyboard.Key | null = null;
-  private crops: { [key: string]: Crop } = {};
-  private selectedSeedType: string = "carrot"; // Default seed type
+
+  // Sound Assets
   private plantSeedSound: Phaser.Sound.BaseSound | null = null;
   private harvestCropSound: Phaser.Sound.BaseSound | null = null;
   private backgroundMusic: Phaser.Sound.BaseSound | null = null;
 
-  private seedPacketSprite?: Phaser.GameObjects.Sprite;
-  private readonly SEED_PACKET_OFFSET_Y = 8; // Adjust based on your character's size
-  private readonly SEED_PACKET_FRAME_INDEX: { [key: string]: number } = {
-    carrot: 0,
-    raddish: 1,
-    cauliflower: 2,
-    // Add more seeds as needed
-  };
+  private farmingSystem!: FarmingSystem;
 
   constructor() {
     super(ESCENE_KEYS.CAMERA);
@@ -147,25 +139,6 @@ export class HomeMap extends BaseScene {
   }
 
   create() {
-    if (this.input.keyboard) {
-      this.actionKey = this.input.keyboard.addKey(
-        Phaser.Input.Keyboard.KeyCodes.SPACE
-      );
-
-      this.input.keyboard.on("keydown-ONE", () => {
-        this.changeSelectedSeed("carrot");
-      });
-      this.input.keyboard.on("keydown-TWO", () => {
-        this.changeSelectedSeed("raddish");
-      });
-      this.input.keyboard.on("keydown-THREE", () => {
-        this.changeSelectedSeed("cauliflower");
-      });
-      this.input.keyboard.on("keydown-ZERO", () => {
-        this.clearSelectedSeed();
-      });
-    }
-
     // First create the map
     this.createMap();
 
@@ -184,21 +157,25 @@ export class HomeMap extends BaseScene {
 
     // Play the background music
     this.backgroundMusic.play();
+
+    // Initialize the Farming System
+    this.farmingSystem = new FarmingSystem({
+      scene: this,
+      map: this.map,
+      farmableLayer: this.farmableLayer!,
+      player: this.player,
+      plantSeedSound: this.plantSeedSound,
+      harvestCropSound: this.harvestCropSound,
+    });
   }
 
   update(time: number, delta: number) {
     super.update(time, delta);
 
-    if (this.actionKey && Phaser.Input.Keyboard.JustDown(this.actionKey)) {
-      console.log("GOOOO");
-      this.handlePlayerAction();
-    }
+    // Update the farming system
+    this.farmingSystem.update(delta);
 
-    // Update all crops
-    Object.values(this.crops).forEach((crop) => {
-      crop.update(delta);
-    });
-
+    // Update all animated tiles (water animations)
     this.animatedTiles.forEach((animatedTile: any) => {
       const tile = animatedTile.tile;
       const animation = animatedTile.animation;
@@ -221,205 +198,14 @@ export class HomeMap extends BaseScene {
       }
     });
 
-    if (this.seedPacketSprite) {
-      this.seedPacketSprite.setPosition(
+    // Update seed packet sprite position if it exists
+    if (this.farmingSystem["seedPacketSprite"]) {
+      // Accessing private property; consider adding a getter
+      this.farmingSystem["seedPacketSprite"].setPosition(
         this.player.x,
-        this.player.y - this.SEED_PACKET_OFFSET_Y
+        this.player.y - this.farmingSystem["SEED_PACKET_OFFSET_Y"]
       );
     }
-  }
-
-  private clearSelectedSeed() {
-    this.selectedSeedType = "";
-    this.player.isCarrying = false;
-    this.player.carriedItem = undefined;
-
-    // Remove the seed packet sprite
-    if (this.seedPacketSprite) {
-      this.seedPacketSprite.destroy();
-      this.seedPacketSprite = undefined;
-    }
-  }
-
-  private handlePlayerAction() {
-    if (this.player.isHarvesting) return;
-    // Get the tile the player is facing
-
-    const facingTile = this.getFacingTile();
-
-    if (facingTile && facingTile.properties.farmable) {
-      // Handle farming interaction
-      this.handleFarming(facingTile);
-    }
-  }
-
-  private handleFarming(tile: Phaser.Tilemaps.Tile) {
-    const tileKey = `${tile.x},${tile.y}`;
-
-    if (!this.crops[tileKey]) {
-      const seedItem = `${this.selectedSeedType}Seeds`;
-
-      if (this.player.inventory[seedItem] > 0) {
-        // Plant a new crop
-        this.player.inventory[seedItem]--;
-        const worldX = tile.getCenterX();
-        const worldY = tile.getCenterY();
-        const crop = new Crop(this, worldX, worldY, this.selectedSeedType);
-        this.crops[tileKey] = crop;
-        if (this.plantSeedSound) {
-          this.plantSeedSound.play();
-        }
-      } else {
-        // Notify player they have no seeds of this type
-        console.log(`No ${this.selectedSeedType} seeds left!`);
-      }
-    } else {
-      const crop = this.crops[tileKey];
-      if (crop.growthStage === crop.maxGrowthStage) {
-        // Harvest the crop
-
-        // Initiate harvesting
-        this.player.startHarvesting(() => {
-          // Callback after harvesting animation completes
-          const frameIndex = this.getHarvestedCropFrame(crop.cropType);
-          // Animate the harvested crop
-          this.animateHarvestedCrop(
-            crop.sprite.x,
-            crop.sprite.y,
-            this.player.facingDirection,
-            frameIndex
-          );
-          // Harvest the crop
-          crop.sprite.destroy();
-          delete this.crops[tileKey];
-
-          // Add crop to inventory
-          const cropItem = `${crop.cropType}`;
-          if (!this.player.inventory[cropItem]) {
-            this.player.inventory[cropItem] = 0;
-          }
-          this.player.inventory[cropItem]++;
-
-          // Play harvesting sound effect if you have one
-          this.harvestCropSound?.play();
-
-          console.log(`Harvested ${crop.cropType}!`);
-        });
-        console.log(`Harvested ${crop.cropType}!`);
-      } else {
-        console.log(`${crop.cropType} is still growing.`);
-      }
-    }
-  }
-
-  private animateHarvestedCrop(
-    x: number,
-    y: number,
-    facingDirection: any,
-    frameIndex: number
-  ): void {
-    // Create a new sprite for the harvested crop
-    // Implement this method based on your logic
-
-    const harvestedCrop = this.add.sprite(x, y, "harvested-crop", frameIndex);
-
-    harvestedCrop.setOrigin(0.5, 0.5);
-
-    // Determine the target position based on the facing direction
-    let targetX = x;
-    let targetY = y;
-
-    const arcDistance = 60; // Adjust as needed
-    const arcHeight = 40; // Adjust as needed
-
-    switch (facingDirection) {
-      case "up":
-        targetY -= arcDistance;
-        break;
-      case "down":
-        targetY += arcDistance;
-        break;
-      case "left":
-        targetX -= arcDistance;
-        break;
-      case "right":
-        targetX += arcDistance;
-        break;
-    }
-
-    // First Tween: Move to the peak of the arc
-    const tweenUp = this.tweens.add({
-      targets: harvestedCrop,
-      y: harvestedCrop.y - arcHeight,
-      duration: 300,
-      ease: "Sine.easeOut",
-      onUpdate: () => {
-        harvestedCrop.rotation += 0.05; // Optional rotation during first tween
-      },
-      onComplete: () => {
-        // Start the second tween after the first completes
-        tweenOut.play();
-      },
-    });
-
-    // Second Tween: Move to the target position
-    const tweenOut = this.tweens.add({
-      targets: harvestedCrop,
-      x: targetX,
-      y: targetY,
-      duration: 500,
-      ease: "Sine.easeIn",
-      onUpdate: () => {
-        harvestedCrop.rotation += 0.05; // Optional rotation during second tween
-        harvestedCrop.setScale(Math.max(0, harvestedCrop.scaleX - 0.005)); // Optional scaling
-      },
-      onComplete: () => {
-        harvestedCrop.destroy(); // Remove the sprite after the animation
-      },
-      paused: true, // Start this tween manually after the first tween completes
-    });
-
-    // Start the first tween
-    tweenUp.play();
-  }
-
-  private getHarvestedCropFrame(cropType: string): number {
-    const frameMapping: { [key: string]: number } = {
-      carrot: 0,
-      radish: 1,
-      cauliflower: 2,
-    };
-
-    return frameMapping[cropType] !== undefined ? frameMapping[cropType] : 0; // Default to frame 0
-  }
-
-  private getFacingTile(): Phaser.Tilemaps.Tile | null {
-    // Calculate the tile in front of the player based on their facing direction
-    const { x, y } = this.player;
-    const facingOffset = { x: 0, y: 0 };
-
-    switch (this.player.facingDirection) {
-      case "up":
-        facingOffset.y = -this.map.tileHeight;
-        break;
-      case "down":
-        facingOffset.y = this.map.tileHeight;
-        break;
-      case "left":
-        facingOffset.x = -this.map.tileWidth;
-        break;
-      case "right":
-        facingOffset.x = this.map.tileWidth;
-        break;
-    }
-
-    const tileX = this.map.worldToTileX(x! + facingOffset.x!);
-    const tileY = this.map.worldToTileY(y! + facingOffset.y!);
-
-    if (tileX && tileY) {
-      return this.farmableLayer?.getTileAt(tileX, tileY) ?? null;
-    }
-    return null;
   }
 
   private setupCollisions(): void {
@@ -430,28 +216,5 @@ export class HomeMap extends BaseScene {
     if (this.waterAnimatedLayer && this.player) {
       this.physics.add.collider(this.player, this.waterAnimatedLayer);
     }
-  }
-
-  private changeSelectedSeed(seedType: string) {
-    this.selectedSeedType = seedType;
-
-    // Update the player's carrying state
-    this.player.isCarrying = true;
-    this.player.carriedItem = seedType;
-
-    // Remove existing seed packet sprite if it exists
-    if (this.seedPacketSprite) {
-      this.seedPacketSprite.destroy();
-    }
-
-    // Create a new seed packet sprite
-    this.seedPacketSprite = this.add.sprite(
-      this.player.x,
-      this.player.y - this.SEED_PACKET_OFFSET_Y,
-      "seed-packets",
-      this.SEED_PACKET_FRAME_INDEX[seedType]
-    );
-    this.seedPacketSprite.setOrigin(0.5, 1);
-    this.seedPacketSprite.setDepth(this.player.depth + 1);
   }
 }
