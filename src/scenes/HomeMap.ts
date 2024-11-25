@@ -1,27 +1,22 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "../shared/scene-keys";
-import { Crop } from "../slices/crops/Crop";
+import { FarmingSystem } from "../slices/farming/farming-system.service";
+import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
-  private animatedTiles: any | [] = [];
   private waterAnimatedLayer: Phaser.Tilemaps.TilemapLayer | null = null;
-  private actionKey: Phaser.Input.Keyboard.Key | null = null;
-  private crops: { [key: string]: Crop } = {};
-  private selectedSeedType: string = "carrot"; // Default seed type
+
+  // Sound Assets
   private plantSeedSound: Phaser.Sound.BaseSound | null = null;
+  private harvestCropSound: Phaser.Sound.BaseSound | null = null;
   private backgroundMusic: Phaser.Sound.BaseSound | null = null;
 
-  private seedPacketSprite?: Phaser.GameObjects.Sprite;
-  private readonly SEED_PACKET_OFFSET_Y = 8; // Adjust based on your character's size
-  private readonly SEED_PACKET_FRAME_INDEX: { [key: string]: number } = {
-    carrot: 0,
-    raddish: 1,
-    cauliflower: 2,
-    // Add more seeds as needed
-  };
+  private farmingSystem!: FarmingSystem;
+  private animatedTileSystem!: AnimatedTileSystem;
 
   constructor() {
     super(ESCENE_KEYS.CAMERA);
@@ -44,6 +39,7 @@ export class HomeMap extends BaseScene {
     );
     this.load.audio("plantSeedSound", "sounds/seed-place.wav");
     this.load.audio("backgroundMusic", "sounds/main-bgm.mp3");
+    this.load.audio("harvestCropSound", "sounds/harvest-crop-sound.wav");
   }
 
   protected createMap(): void {
@@ -108,31 +104,6 @@ export class HomeMap extends BaseScene {
       });
     }
 
-    this.animatedTiles = [];
-
-    if (this.waterAnimatedLayer) {
-      this.waterAnimatedLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
-        // **Skip empty tiles and tiles without a tileset**
-        if (tile.index < 0 || !tile.tileset) {
-          return;
-        }
-
-        const tileset = tile.tileset;
-        const localTileId = tile.index - tileset.firstgid;
-        const tileData = tileset.tileData[localTileId];
-
-        if (tileData && tileData.animation) {
-          this.animatedTiles.push({
-            tile: tile,
-            animation: tileData.animation,
-            frameIndex: 0,
-            elapsedTime: 0,
-            tilesetFirstGid: tileset.firstgid,
-          });
-        }
-      });
-    }
-
     if (this.waterLayer) {
       this.waterLayer.setCollisionByProperty({ collides: true });
     }
@@ -143,25 +114,6 @@ export class HomeMap extends BaseScene {
   }
 
   create() {
-    if (this.input.keyboard) {
-      this.actionKey = this.input.keyboard.addKey(
-        Phaser.Input.Keyboard.KeyCodes.SPACE
-      );
-
-      this.input.keyboard.on("keydown-ONE", () => {
-        this.changeSelectedSeed("carrot");
-      });
-      this.input.keyboard.on("keydown-TWO", () => {
-        this.changeSelectedSeed("raddish");
-      });
-      this.input.keyboard.on("keydown-THREE", () => {
-        this.changeSelectedSeed("cauliflower");
-      });
-      this.input.keyboard.on("keydown-ZERO", () => {
-        this.clearSelectedSeed();
-      });
-    }
-
     // First create the map
     this.createMap();
 
@@ -172,6 +124,7 @@ export class HomeMap extends BaseScene {
     this.setupCollisions();
 
     this.plantSeedSound = this.sound.add("plantSeedSound");
+    this.harvestCropSound = this.sound.add("harvestCropSound");
     this.backgroundMusic = this.sound.add("backgroundMusic", {
       volume: 0.2, // Set lower volume (0 to 1)
       loop: true, // Loop the music
@@ -179,138 +132,35 @@ export class HomeMap extends BaseScene {
 
     // Play the background music
     this.backgroundMusic.play();
+
+    // Initialize the Farming System
+    this.farmingSystem = new FarmingSystem({
+      scene: this,
+      map: this.map,
+      farmableLayer: this.farmableLayer!,
+      player: this.player,
+      plantSeedSound: this.plantSeedSound,
+      harvestCropSound: this.harvestCropSound,
+    });
+
+    // Initialize the Animated Tile System with all animated layers
+    this.animatedTileSystem = new AnimatedTileSystem(this, this.map, [
+      this.waterAnimatedLayer!,
+    ]);
   }
 
   update(time: number, delta: number) {
     super.update(time, delta);
 
-    if (this.actionKey && Phaser.Input.Keyboard.JustDown(this.actionKey)) {
-      console.log("GOOOO");
-      this.handlePlayerAction();
-    }
+    // Update the farming system
+    this.farmingSystem.update(delta);
 
-    // Update all crops
-    Object.values(this.crops).forEach((crop) => {
-      crop.update(delta);
-    });
+    // Update the animated tile system
+    this.animatedTileSystem.update(delta);
 
-    this.animatedTiles.forEach((animatedTile: any) => {
-      const tile = animatedTile.tile;
-      const animation = animatedTile.animation;
-
-      animatedTile.elapsedTime += delta;
-
-      const currentFrame = animation[animatedTile.frameIndex];
-
-      if (animatedTile.elapsedTime >= currentFrame.duration) {
-        // Move to the next frame
-        animatedTile.frameIndex =
-          (animatedTile.frameIndex + 1) % animation.length;
-        animatedTile.elapsedTime -= currentFrame.duration;
-
-        // Get the next frame
-        const nextFrame = animation[animatedTile.frameIndex];
-
-        // Update tile index to the global tile index
-        tile.index = animatedTile.tilesetFirstGid + nextFrame.tileid;
-      }
-    });
-
-    if (this.seedPacketSprite) {
-      this.seedPacketSprite.setPosition(
-        this.player.x,
-        this.player.y - this.SEED_PACKET_OFFSET_Y
-      );
-    }
-  }
-
-  private clearSelectedSeed() {
-    this.selectedSeedType = "";
-    this.player.isCarrying = false;
-    this.player.carriedItem = undefined;
-
-    // Remove the seed packet sprite
-    if (this.seedPacketSprite) {
-      this.seedPacketSprite.destroy();
-      this.seedPacketSprite = undefined;
-    }
-  }
-
-  private handlePlayerAction() {
-    // Get the tile the player is facing
-
-    const facingTile = this.getFacingTile();
-    console.log("PLAYER ACTION: ", facingTile);
-
-    if (facingTile && facingTile.properties.farmable) {
-      // Handle farming interaction
-      this.handleFarming(facingTile);
-    }
-  }
-
-  private handleFarming(tile: Phaser.Tilemaps.Tile) {
-    const tileKey = `${tile.x},${tile.y}`;
-    console.log("SEED ITEM: ", tileKey);
-    if (!this.crops[tileKey]) {
-      const seedItem = `${this.selectedSeedType}Seeds`;
-
-      if (this.player.inventory[seedItem] > 0) {
-        // Plant a new crop
-        this.player.inventory[seedItem]--;
-        const worldX = tile.getCenterX();
-        const worldY = tile.getCenterY();
-        const crop = new Crop(this, worldX, worldY, this.selectedSeedType);
-        this.crops[tileKey] = crop;
-        if (this.plantSeedSound) {
-          this.plantSeedSound.play();
-        }
-      } else {
-        // Notify player they have no seeds of this type
-        console.log(`No ${this.selectedSeedType} seeds left!`);
-      }
-    } else {
-      const crop = this.crops[tileKey];
-      if (crop.growthStage === crop.maxGrowthStage) {
-        // Harvest the crop
-        crop.sprite.destroy();
-        delete this.crops[tileKey];
-        // Add crop to inventory
-        const cropItem = `${crop.cropType}`;
-        if (!this.player.inventory[cropItem]) {
-          this.player.inventory[cropItem] = 0;
-        }
-        this.player.inventory[cropItem]++;
-        console.log(`Harvested ${crop.cropType}!`);
-      } else {
-        console.log(`${crop.cropType} is still growing.`);
-      }
-    }
-  }
-
-  private getFacingTile(): Phaser.Tilemaps.Tile | null {
-    // Calculate the tile in front of the player based on their facing direction
-    const { x, y } = this.player;
-    const facingOffset = { x: 0, y: 0 };
-
-    switch (this.player.facingDirection) {
-      case "up":
-        facingOffset.y = -this.map.tileHeight;
-        break;
-      case "down":
-        facingOffset.y = this.map.tileHeight;
-        break;
-      case "left":
-        facingOffset.x = -this.map.tileWidth;
-        break;
-      case "right":
-        facingOffset.x = this.map.tileWidth;
-        break;
-    }
-
-    const tileX = this.map.worldToTileX(x + facingOffset.x);
-    const tileY = this.map.worldToTileY(y + facingOffset.y);
-
-    return this.farmableLayer.getTileAt(tileX, tileY);
+     // Update seed packet sprite position if it exists
+    // Instead of accessing private properties, expose a method in FarmingSystem to handle seed packet updates
+    this.farmingSystem.updateSeedPacketPosition(this.player.x, this.player.y);
   }
 
   private setupCollisions(): void {
@@ -321,28 +171,5 @@ export class HomeMap extends BaseScene {
     if (this.waterAnimatedLayer && this.player) {
       this.physics.add.collider(this.player, this.waterAnimatedLayer);
     }
-  }
-
-  private changeSelectedSeed(seedType: string) {
-    this.selectedSeedType = seedType;
-
-    // Update the player's carrying state
-    this.player.isCarrying = true;
-    this.player.carriedItem = seedType;
-
-    // Remove existing seed packet sprite if it exists
-    if (this.seedPacketSprite) {
-      this.seedPacketSprite.destroy();
-    }
-
-    // Create a new seed packet sprite
-    this.seedPacketSprite = this.add.sprite(
-      this.player.x,
-      this.player.y - this.SEED_PACKET_OFFSET_Y,
-      "seed-packets",
-      this.SEED_PACKET_FRAME_INDEX[seedType]
-    );
-    this.seedPacketSprite.setOrigin(0.5, 1);
-    this.seedPacketSprite.setDepth(this.player.depth + 1);
   }
 }

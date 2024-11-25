@@ -88,6 +88,7 @@ export abstract class BaseScene extends Scene {
         key: "player",
         walkSheet: "player-walk",
         idleSheet: "player-idle",
+        harvestSheet: "player-harvest",
       },
       speed: 100,
       animations: {
@@ -99,6 +100,10 @@ export abstract class BaseScene extends Scene {
         idleDown: "player-idle-down",
         idleLeft: "player-idle-left",
         idleRight: "player-idle-right",
+        harvestUp: "player-harvest-up",
+        harvestDown: "player-harvest-down",
+        harvestLeft: "player-harvest-left",
+        harvestRight: "player-harvest-right",
       },
     };
   }
