@@ -3,6 +3,8 @@
 import Phaser from "phaser";
 import { Crop } from "./Crop";
 import { PlayerCharacter } from "../character/PlayerCharacter";
+import { EFarmingCropTypes } from "./farming.interface";
+import { InventoryItem } from "../character/player-character.interface";
 
 interface FarmingConfig {
   scene: Phaser.Scene;
@@ -22,17 +24,18 @@ export class FarmingSystem {
   private harvestCropSound: Phaser.Sound.BaseSound;
 
   private crops: { [key: string]: Crop } = {};
-  private selectedSeedType: string = "carrot"; // Default seed type
+  private selectedSeedType: EFarmingCropTypes | "" = EFarmingCropTypes.CARROT; // Default seed type
 
   // Seed packet sprite
   private seedPacketSprite?: Phaser.GameObjects.Sprite;
   private readonly SEED_PACKET_OFFSET_Y = 8; // Adjust based on your character's size
-  private readonly SEED_PACKET_FRAME_INDEX: { [key: string]: number } = {
-    carrot: 0,
-    radish: 1,
-    cauliflower: 2,
-    // Add more seeds as needed
-  };
+  private readonly SEED_PACKET_FRAME_INDEX: Record<EFarmingCropTypes, number> =
+    {
+      [EFarmingCropTypes.CARROT]: 0,
+      [EFarmingCropTypes.RADISH]: 1,
+      [EFarmingCropTypes.CAULIFLOWER]: 2,
+      // Add more seeds as needed
+    };
 
   constructor(config: FarmingConfig) {
     this.scene = config.scene;
@@ -49,13 +52,13 @@ export class FarmingSystem {
     if (this.scene.input.keyboard) {
       // Define keys for selecting seeds
       this.scene.input.keyboard.on("keydown-ONE", () => {
-        this.changeSelectedSeed("carrot");
+        this.changeSelectedSeed(EFarmingCropTypes.CARROT);
       });
       this.scene.input.keyboard.on("keydown-TWO", () => {
-        this.changeSelectedSeed("radish");
+        this.changeSelectedSeed(EFarmingCropTypes.RADISH);
       });
       this.scene.input.keyboard.on("keydown-THREE", () => {
-        this.changeSelectedSeed("cauliflower");
+        this.changeSelectedSeed(EFarmingCropTypes.CAULIFLOWER);
       });
       this.scene.input.keyboard.on("keydown-ZERO", () => {
         this.clearSelectedSeed();
@@ -89,8 +92,8 @@ export class FarmingSystem {
 
     if (!this.crops[tileKey]) {
       // Plant a new crop if the tile is farmable and player has seeds
-      const seedItem = `${this.selectedSeedType}Seeds`;
-
+      const seedItem = `${this.selectedSeedType}Seeds` as InventoryItem;
+      console.log("SEED ITEM: ", seedItem);
       if (this.player.inventory[seedItem] > 0) {
         this.player.inventory[seedItem]--;
         const worldX = tile.getCenterX();
@@ -99,13 +102,13 @@ export class FarmingSystem {
           this.scene,
           worldX,
           worldY,
-          this.selectedSeedType
+          this.selectedSeedType as EFarmingCropTypes
         );
         this.crops[tileKey] = crop;
         this.plantSeedSound.play();
       } else {
         // Notify player they have no seeds of this type
-        this.scene.sound.play("errorSound"); // Optionally, play an error sound
+        // this.scene.sound.play("errorSound"); // Optionally, play an error sound
         console.log(`No ${this.selectedSeedType} seeds left!`);
       }
     } else {
@@ -113,7 +116,9 @@ export class FarmingSystem {
       if (crop.growthStage === crop.maxGrowthStage) {
         // Harvest the crop
         this.player.startHarvesting(() => {
-          const frameIndex = this.getHarvestedCropFrame(crop.cropType);
+          const frameIndex = this.getHarvestedCropFrame(
+            crop.cropType as EFarmingCropTypes
+          );
           this.animateHarvestedCrop(
             crop.sprite.x,
             crop.sprite.y,
@@ -124,7 +129,8 @@ export class FarmingSystem {
           delete this.crops[tileKey];
 
           // Add crop to inventory
-          const cropItem = `${crop.cropType}`;
+          const cropItem =
+            `${crop.cropType}` as keyof typeof this.player.inventory;
           if (!this.player.inventory[cropItem]) {
             this.player.inventory[cropItem] = 0;
           }
@@ -170,7 +176,7 @@ export class FarmingSystem {
     return null;
   }
 
-  private changeSelectedSeed(seedType: string) {
+  private changeSelectedSeed(seedType: EFarmingCropTypes) {
     this.selectedSeedType = seedType;
 
     // Update the player's carrying state
@@ -242,40 +248,6 @@ export class FarmingSystem {
         targetX += arcDistance;
         break;
     }
-
-    // // First Tween: Move to the peak of the arc
-    // const tweenUp = this.scene.tweens.add({
-    //   targets: harvestedCrop,
-    //   y: harvestedCrop.y - arcHeight,
-    //   duration: 300,
-    //   ease: 'Sine.easeOut',
-    //   onUpdate: () => {
-    //     harvestedCrop.rotation += 0.05; // Optional rotation during first tween
-    //   }
-    // });
-
-    // // Second Tween: Move to the target position
-    // const tweenOut = this.scene.tweens.add({
-    //   targets: harvestedCrop,
-    //   x: targetX,
-    //   y: targetY,
-    //   duration: 500,
-    //   ease: 'Sine.easeIn',
-    //   onUpdate: () => {
-    //     harvestedCrop.rotation += 0.05; // Optional rotation during second tween
-    //     harvestedCrop.setScale(Math.max(0, harvestedCrop.scaleX - 0.005)); // Optional scaling
-    //   },
-    //   onComplete: () => {
-    //     harvestedCrop.destroy(); // Remove the sprite after the animation
-    //   },
-    //   paused: true // Start this tween manually after the first tween completes
-    // });
-
-    // // Chain the second tween to start after the first tween completes
-    // tweenUp.chain(tweenOut);
-
-    // // Start the first tween
-    // tweenUp.play();
 
     // First Tween: Move to the peak of the arc
     const tweenUp = this.scene.tweens.add({

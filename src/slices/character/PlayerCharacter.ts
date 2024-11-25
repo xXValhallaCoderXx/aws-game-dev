@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Character, CharacterConfig } from "./CharacterClass";
+import { Inventory } from "./player-character.interface";
 
 type Action = "walk" | "idle" | "harvest";
 type Direction = "up" | "down" | "left" | "right";
@@ -14,9 +15,9 @@ export class PlayerCharacter extends Character {
 
   public isHarvesting: boolean = false;
 
-  public inventory: { [itemName: string]: number } = {
+  public inventory: Inventory = {
     carrotSeeds: 5,
-    raddishSeeds: 3,
+    radishSeeds: 3,
     cauliflowerSeeds: 2,
   };
   public animations: Record<AnimationKey, string> = {
