@@ -3,11 +3,13 @@ import { Character, CharacterConfig } from "./CharacterClass";
 import { Inventory } from "./player-character.interface";
 
 type Action = "walk" | "idle" | "harvest";
+type CarryActions = "walk" | "idle";
 type Direction = "up" | "down" | "left" | "right";
 type DirectionCapitalized = "Up" | "Down" | "Left" | "Right";
 type AnimationKey = `${Action}${DirectionCapitalized}`;
+type AnimationKeyCarry = `${CarryActions}${DirectionCapitalized}`;
 
-// PlayerCharacter.ts
+// NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends Character {
   // Add properties for carrying items
   public isCarrying: boolean = false;
@@ -35,7 +37,7 @@ export class PlayerCharacter extends Character {
     harvestRight: "player-harvest-right",
   };
 
-  public carryAnimations: Record<AnimationKey, string> = {
+  public carryAnimations: Record<AnimationKeyCarry, string> = {
     walkUp: "player-carry-walk-up",
     walkDown: "player-carry-walk-down",
     walkLeft: "player-carry-walk-left",
@@ -44,10 +46,6 @@ export class PlayerCharacter extends Character {
     idleDown: "player-carry-idle-down",
     idleLeft: "player-carry-idle-left",
     idleRight: "player-carry-idle-right",
-    harvestUp: "player-harvest-up",
-    harvestDown: "player-harvest-down",
-    harvestLeft: "player-harvest-left",
-    harvestRight: "player-harvest-right",
   };
 
   constructor(config: CharacterConfig) {
@@ -59,6 +57,7 @@ export class PlayerCharacter extends Character {
   }
 
   public setupAnimations(): void {
+    console.log("SETUSUSUS");
     const normalFrames = {
       walkUp: { start: 0, end: 5 },
       walkDown: { start: 6, end: 11 },
@@ -121,15 +120,20 @@ export class PlayerCharacter extends Character {
         const frameConfig = frames[`${action}${direction}`];
         const frameRate = frameRates[action];
 
-        this.scene.anims.create({
-          key: animKey,
-          frames: this.scene.anims.generateFrameNumbers(
-            textureKey,
-            frameConfig
-          ),
-          frameRate: frameRate,
-          repeat: action === "harvest" ? 1 : -1,
-        });
+        // **Check if animation already exists before creating**
+        if (!this.scene.anims.exists(animKey)) {
+          this.scene.anims.create({
+            key: animKey,
+            frames: this.scene.anims.generateFrameNumbers(
+              textureKey,
+              frameConfig
+            ),
+            frameRate: frameRate,
+            repeat: action === "harvest" ? 1 : -1,
+          });
+        } else {
+          console.warn(`Animation key already exists: ${animKey}`);
+        }
       });
     });
   }
