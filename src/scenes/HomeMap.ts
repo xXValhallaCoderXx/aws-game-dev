@@ -3,11 +3,11 @@
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "../shared/scene-keys";
 import { FarmingSystem } from "../slices/farming/farming-system.service";
+import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
-  private animatedTiles: any | [] = [];
   private waterAnimatedLayer: Phaser.Tilemaps.TilemapLayer | null = null;
 
   // Sound Assets
@@ -16,6 +16,7 @@ export class HomeMap extends BaseScene {
   private backgroundMusic: Phaser.Sound.BaseSound | null = null;
 
   private farmingSystem!: FarmingSystem;
+  private animatedTileSystem!: AnimatedTileSystem;
 
   constructor() {
     super(ESCENE_KEYS.CAMERA);
@@ -103,32 +104,6 @@ export class HomeMap extends BaseScene {
       });
     }
 
-    this.animatedTiles = [];
-
-    if (this.waterAnimatedLayer) {
-      this.waterAnimatedLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
-        // **Skip empty tiles and tiles without a tileset**
-        if (tile.index < 0 || !tile.tileset) {
-          return;
-        }
-
-        const tileset = tile.tileset;
-        const localTileId = tile.index - tileset.firstgid;
-        // @ts-ignore
-        const tileData = tileset.tileData[localTileId];
-
-        if (tileData && tileData.animation) {
-          this.animatedTiles.push({
-            tile: tile,
-            animation: tileData.animation,
-            frameIndex: 0,
-            elapsedTime: 0,
-            tilesetFirstGid: tileset.firstgid,
-          });
-        }
-      });
-    }
-
     if (this.waterLayer) {
       this.waterLayer.setCollisionByProperty({ collides: true });
     }
@@ -167,6 +142,11 @@ export class HomeMap extends BaseScene {
       plantSeedSound: this.plantSeedSound,
       harvestCropSound: this.harvestCropSound,
     });
+
+    // Initialize the Animated Tile System with all animated layers
+    this.animatedTileSystem = new AnimatedTileSystem(this, this.map, [
+      this.waterAnimatedLayer!,
+    ]);
   }
 
   update(time: number, delta: number) {
@@ -175,37 +155,12 @@ export class HomeMap extends BaseScene {
     // Update the farming system
     this.farmingSystem.update(delta);
 
-    // Update all animated tiles (water animations)
-    this.animatedTiles.forEach((animatedTile: any) => {
-      const tile = animatedTile.tile;
-      const animation = animatedTile.animation;
+    // Update the animated tile system
+    this.animatedTileSystem.update(delta);
 
-      animatedTile.elapsedTime += delta;
-
-      const currentFrame = animation[animatedTile.frameIndex];
-
-      if (animatedTile.elapsedTime >= currentFrame.duration) {
-        // Move to the next frame
-        animatedTile.frameIndex =
-          (animatedTile.frameIndex + 1) % animation.length;
-        animatedTile.elapsedTime -= currentFrame.duration;
-
-        // Get the next frame
-        const nextFrame = animation[animatedTile.frameIndex];
-
-        // Update tile index to the global tile index
-        tile.index = animatedTile.tilesetFirstGid + nextFrame.tileid;
-      }
-    });
-
-    // Update seed packet sprite position if it exists
-    if (this.farmingSystem["seedPacketSprite"]) {
-      // Accessing private property; consider adding a getter
-      this.farmingSystem["seedPacketSprite"].setPosition(
-        this.player.x,
-        this.player.y - this.farmingSystem["SEED_PACKET_OFFSET_Y"]
-      );
-    }
+     // Update seed packet sprite position if it exists
+    // Instead of accessing private properties, expose a method in FarmingSystem to handle seed packet updates
+    this.farmingSystem.updateSeedPacketPosition(this.player.x, this.player.y);
   }
 
   private setupCollisions(): void {

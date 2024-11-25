@@ -303,4 +303,14 @@ export class FarmingSystem {
       crop.update(delta);
     });
   }
+
+  // New method to update seed packet position
+  public updateSeedPacketPosition(playerX: number, playerY: number): void {
+    if (this.seedPacketSprite) {
+      this.seedPacketSprite.setPosition(
+        playerX,
+        playerY - this.SEED_PACKET_OFFSET_Y
+      );
+    }
+  }
 }
