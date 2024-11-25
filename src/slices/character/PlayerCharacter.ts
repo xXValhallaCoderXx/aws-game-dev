@@ -53,11 +53,12 @@ export class PlayerCharacter extends Character {
     if (this.scene) {
       // Add null check
       this.cursors = this.scene.input.keyboard?.createCursorKeys();
+      this.setDepth(10); // Arbitrary high value
     }
   }
 
   public setupAnimations(): void {
-    console.log("SETUSUSUS");
+
     const normalFrames = {
       walkUp: { start: 0, end: 5 },
       walkDown: { start: 6, end: 11 },
