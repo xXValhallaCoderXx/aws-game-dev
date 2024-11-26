@@ -3,13 +3,16 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
+    "activeFile": "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
             "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "/Users/nate/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx#building-interior-walls": {
             "scaleInEditor": 1
         },
         "/Users/nate/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx": {
