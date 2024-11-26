@@ -18,10 +18,7 @@ export class HomeBuilding extends BaseScene {
       "building-interior-floors",
       "tilesets/building-interior-floors.png"
     );
-    this.load.image(
-      "building-interior-mixed",
-      "tilesets/building-interior-mixed.png"
-    );
+
     this.load.image(
       "building-interior-objects",
       "tilesets/building-interior-objects.png"
@@ -59,12 +56,29 @@ export class HomeBuilding extends BaseScene {
       "building-interior-walls"
     );
 
-    if (!interiorFloorsTileset || !interiorWallsTileset) {
+    const interiorObjects = this.map.addTilesetImage(
+      "building-interior-objects",
+      "building-interior-objects"
+    );
+
+    const interiorWindows = this.map.addTilesetImage(
+      "building-interior-windows",
+      "building-interior-windows"
+    );
+
+    if (
+      !interiorFloorsTileset ||
+      !interiorWallsTileset ||
+      !interiorObjects ||
+      !interiorWindows
+    ) {
       throw new Error("Failed to load interior floors tileset");
     }
 
-    this.map.createLayer("FloorsBaseLayer", interiorFloorsTileset, 0, 0);
-    this.map.createLayer("WallBaseLayer", interiorWallsTileset, 0, 0);
+    this.map.createLayer("BaseFloor", interiorFloorsTileset, 0, 0);
+    this.map.createLayer("BaseWall", interiorWallsTileset, 0, 0);
+    this.map.createLayer("AccessoryLayer", interiorObjects, 0, 0);
+    this.map.createLayer("AccessoryLayer", interiorWindows, 0, 0);
 
     // if (this.waterLayer) {
     //   this.waterLayer.setCollisionByProperty({ collides: true });

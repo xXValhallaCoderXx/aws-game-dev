@@ -38,6 +38,29 @@
         "/Users/nate/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#water-main-animated": {
             "scaleInDock": 0.9392
         },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx": {
+            "scale": 2,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 276.75,
+                "y": 310
+            }
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx#building-interior-floors": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx#building-interior-mixed": {
+            "scaleInDock": 2
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx#building-interior-objects": {
+            "scaleInDock": 1.5
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx#building-interior-walls": {
+            "scaleInDock": 2
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx#building-interior-windows": {
+            "scaleInDock": 1
+        },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx": {
             "scale": 2,
             "selectedLayer": 0,
@@ -100,7 +123,7 @@
         }
     },
     "frame.defaultDuration": 300,
-    "last.exportedFilePath": "/Users/nate/Dungeon/Github/aws-game-dev/public/maps",
+    "last.exportedFilePath": "/home/odin/Dungeon/Github/aws-game-dev/public/maps",
     "last.imagePath": "/home/odin/Dungeon/Github/aws-game-dev/public/tilesets",
     "map.height": 30,
     "map.lastUsedExportFilter": "All Files (*)",
@@ -114,6 +137,7 @@
     "project": "untitled.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx",
         "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx",
         "main-map.tmx"
     ],
