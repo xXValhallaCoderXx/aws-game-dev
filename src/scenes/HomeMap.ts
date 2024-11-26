@@ -10,9 +10,11 @@ export class HomeMap extends BaseScene {
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private waterAnimatedLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private door!: Phaser.GameObjects.Sprite;
+  private isDoorAnimating: boolean = false;
   private interactionZone!: Phaser.GameObjects.Zone;
   private isDoorOpen: boolean = false; // Track door state
   private playerNearDoor: boolean = false; // Track if player is near the door
+  private buildingEntranceZone!: Phaser.GameObjects.Zone;
   private spaceKey!: Phaser.Input.Keyboard.Key;
   private buildingBaseLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private buildingRoofLayer: Phaser.Tilemaps.TilemapLayer | null = null;
@@ -171,6 +173,10 @@ export class HomeMap extends BaseScene {
     // Then call parent's create which will handle player creation and camera setup
     super.create();
     this.createDoor();
+
+    // Create the building entrance zone
+    this.createBuildingEntrance();
+
     // Finally set up the water collisions
     this.setupCollisions();
 
@@ -263,7 +269,7 @@ export class HomeMap extends BaseScene {
     this.door.play("door-closed");
 
     // Create an interaction zone around the door
-    this.interactionZone = this.add.zone(this.door.x, this.door.y, 100, 100); // Adjust size as needed
+    this.interactionZone = this.add.zone(this.door.x, this.door.y, 50, 20); // Adjust size as needed
     this.physics.world.enable(this.interactionZone);
     (this.interactionZone.body as Phaser.Physics.Arcade.Body).setAllowGravity(
       false
@@ -314,9 +320,14 @@ export class HomeMap extends BaseScene {
 
   private handlePlayerNearDoor(): void {
     this.playerNearDoor = true;
+    this.door.setTint(0x00ff00); // Green tint to indicate interaction
   }
 
   private toggleDoor(): void {
+    if (this.isDoorAnimating) return;
+
+    this.isDoorAnimating = true;
+
     if (this.isDoorOpen) {
       this.closeDoor();
     } else {
@@ -326,11 +337,60 @@ export class HomeMap extends BaseScene {
 
   private openDoor(): void {
     this.door.play("door-open");
-    this.isDoorOpen = true;
+
+    this.door.once("animationcomplete-door-open", () => {
+      this.isDoorOpen = true;
+      this.isDoorAnimating = false;
+    });
   }
 
   private closeDoor(): void {
     this.door.play("door-close");
-    this.isDoorOpen = false;
+
+    this.door.once("animationcomplete-door-close", () => {
+      this.isDoorOpen = false;
+      this.isDoorAnimating = false;
+    });
+  }
+
+  private createBuildingEntrance(): void {
+    // Position the entrance zone inside the building
+    const entranceX = 184; // Adjust based on your map
+    const entranceY = 142; // Adjust based on your map
+
+    this.buildingEntranceZone = this.add.zone(entranceX, entranceY, 50, 50);
+    this.physics.world.enable(this.buildingEntranceZone);
+    (
+      this.buildingEntranceZone.body as Phaser.Physics.Arcade.Body
+    ).setAllowGravity(false);
+    (this.buildingEntranceZone.body as Phaser.Physics.Arcade.Body).setImmovable(
+      true
+    );
+
+    // Add overlap between player and entrance zone
+    this.physics.add.overlap(
+      this.player,
+      this.buildingEntranceZone,
+      this.handlePlayerEnterBuilding,
+      undefined,
+      this
+    );
+  }
+
+  private handlePlayerEnterBuilding(): void {
+    if (this.isDoorOpen) {
+      this.enterBuilding();
+    } else {
+      // Optionally, provide feedback that the door is closed
+      console.log("The door is closed.");
+    }
+  }
+
+  private enterBuilding(): void {
+    // Optionally, play a sound or animation
+    this?.backgroundMusic?.stop();
+
+    // Transition to the indoor scene
+    this.scene.start(ESCENE_KEYS.HOME_HOUSE);
   }
 }
