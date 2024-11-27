@@ -15,7 +15,7 @@ export class Preloader extends Scene {
     this.load.image("tilled_dirt", "tiles/tilled_dirt.png");
     this.load.spritesheet(
       "player-walk",
-      "sprites/characters/Charlie/charlie-walk.png",
+      "sprites/characters/player/player-walk.png",
       {
         frameWidth: 80,
         frameHeight: 80,
@@ -24,7 +24,7 @@ export class Preloader extends Scene {
 
     this.load.spritesheet(
       "player-idle",
-      "sprites/characters/Charlie/charlie-idle.png",
+      "sprites/characters/player/player-idle.png",
       {
         frameWidth: 80,
         frameHeight: 80,
@@ -34,7 +34,7 @@ export class Preloader extends Scene {
     // Load the carry walking sprite sheet
     this.load.spritesheet(
       "player-carry-walk",
-      "sprites/characters/Charlie/charlie-carry-walk.png",
+      "sprites/characters/player/player-carry-walk.png",
       {
         frameWidth: 80, // Replace with actual frame width
         frameHeight: 80, // Replace with actual frame height
@@ -44,7 +44,7 @@ export class Preloader extends Scene {
     // Load the carry idle sprite sheet
     this.load.spritesheet(
       "player-carry-idle",
-      "sprites/characters/Charlie/charlie-carry-idle.png",
+      "sprites/characters/player/player-carry-idle.png",
       {
         frameWidth: 80,
         frameHeight: 80,
@@ -54,7 +54,7 @@ export class Preloader extends Scene {
     // Load Crop pull
     this.load.spritesheet(
       "player-harvest",
-      "sprites/characters/Charlie/charlie-crop-pull.png",
+      "sprites/characters/player/player-crop-pull.png",
       {
         frameWidth: 80,
         frameHeight: 80,
