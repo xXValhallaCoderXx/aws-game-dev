@@ -13,6 +13,25 @@ export class Preloader extends Scene {
     this.load.image("grass", "tiles/grass.png");
     this.load.image("hills", "tiles/hills.png");
     this.load.image("tilled_dirt", "tiles/tilled_dirt.png");
+
+    this.load.spritesheet(
+      "guide-walk",
+      "sprites/characters/guide/guide-walk.png",
+      {
+        frameWidth: 80,
+        frameHeight: 80,
+      }
+    );
+
+    this.load.spritesheet(
+      "guide-idle",
+      "sprites/characters/guide/guide-idle.png",
+      {
+        frameWidth: 80,
+        frameHeight: 80,
+      }
+    );
+
     this.load.spritesheet(
       "player-walk",
       "sprites/characters/player/player-walk.png",
@@ -77,6 +96,6 @@ export class Preloader extends Scene {
   }
 
   create() {
-    this.scene.start(ESCENE_KEYS.HOME_MAP);
+    this.scene.start(ESCENE_KEYS.INTRO_CUTSCENE);
   }
 }

@@ -18,17 +18,7 @@ export abstract class BaseScene extends Scene {
     this.cursors = this.input.keyboard!.createCursorKeys();
   }
 
-  preload() {
-    // Load common assets here (e.g., player spritesheets)
-    this.load.spritesheet("player-walk", "path/to/player-walk.png", {
-      frameWidth: 64,
-      frameHeight: 64,
-    });
-    this.load.spritesheet("player-idle", "path/to/player-idle.png", {
-      frameWidth: 64,
-      frameHeight: 64,
-    });
-  }
+  preload() {}
 
   create() {
     this.createMap(); // Abstract method to be implemented by subclasses
