@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
+import { AnimationManager } from "../slices/animations/animations-manager";
+import { animationConfigs } from "../slices/animations/animation-config";
 
 export class Preloader extends Scene {
   constructor() {
@@ -13,70 +15,46 @@ export class Preloader extends Scene {
     this.load.image("grass", "tiles/grass.png");
     this.load.image("hills", "tiles/hills.png");
     this.load.image("tilled_dirt", "tiles/tilled_dirt.png");
-    this.load.spritesheet(
-      "player-walk",
-      "sprites/characters/Charlie/charlie-walk.png",
-      {
-        frameWidth: 80,
-        frameHeight: 80,
-      }
-    );
-
-    this.load.spritesheet(
-      "player-idle",
-      "sprites/characters/Charlie/charlie-idle.png",
-      {
-        frameWidth: 80,
-        frameHeight: 80,
-      }
-    );
-
-    // Load the carry walking sprite sheet
-    this.load.spritesheet(
-      "player-carry-walk",
-      "sprites/characters/Charlie/charlie-carry-walk.png",
-      {
-        frameWidth: 80, // Replace with actual frame width
-        frameHeight: 80, // Replace with actual frame height
-      }
-    );
-
-    // Load the carry idle sprite sheet
-    this.load.spritesheet(
-      "player-carry-idle",
-      "sprites/characters/Charlie/charlie-carry-idle.png",
-      {
-        frameWidth: 80,
-        frameHeight: 80,
-      }
-    );
-
-    // Load Crop pull
-    this.load.spritesheet(
-      "player-harvest",
-      "sprites/characters/Charlie/charlie-crop-pull.png",
-      {
-        frameWidth: 80,
-        frameHeight: 80,
-      }
-    );
     this.load.spritesheet("seed-packets", "sprites/crops/seed-packets.png", {
       frameWidth: 16,
       frameHeight: 16,
     });
 
-
     this.load.spritesheet(
       "harvested-crop",
       "sprites/crops/crops-harvested.png",
       {
-        frameWidth: 16, // Width of each frame
-        frameHeight: 16, // Height of each frame
+        frameWidth: 16,
+        frameHeight: 16,
       }
     );
+
+    // Dynamically load all necessary spritesheets based on animationConfigs
+    animationConfigs.forEach((config) => {
+      const { entity, actions } = config;
+
+      Object.values(actions).forEach((actionConfig) => {
+        const { suffix } = actionConfig;
+        const textureKey = suffix
+          ? `${entity}-${suffix}`
+          : `${entity}-${actionConfig}`;
+
+        const filePath = `sprites/characters/player/${textureKey}.png`; // Adjust path as needed
+        const frameWidth = 64; // Adjust frame width as per your spritesheet
+        const frameHeight = 64; // Adjust frame height as per your spritesheet
+
+        this.load.spritesheet(textureKey, filePath, {
+          frameWidth,
+          frameHeight,
+        });
+      });
+    });
   }
 
   create() {
+    AnimationManager.initialize(this);
+
+    // Start the main game scene after loading animations
     this.scene.start(ESCENE_KEYS.CAMERA);
   }
 }

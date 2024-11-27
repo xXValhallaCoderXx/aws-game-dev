@@ -3,7 +3,7 @@
 // BaseScene.ts
 import { Scene } from "phaser";
 import { PlayerCharacter } from "../slices/character/PlayerCharacter";
-import { CharacterConfig } from "../slices/character/CharacterClass";
+import { CharacterConfig } from "../slices/character/player-character.interface";
 
 export abstract class BaseScene extends Scene {
   protected player!: PlayerCharacter;
@@ -74,7 +74,7 @@ export abstract class BaseScene extends Scene {
     const playerConfig: CharacterConfig = this.getPlayerConfig();
     this.player = new PlayerCharacter(playerConfig);
     this.player.setupAnimations();
-    this.player.anims.play(this.player.animations.idleDown);
+    this.player.anims.play("player-idle-down");
   }
 
   protected abstract createMap(): void;
@@ -84,27 +84,8 @@ export abstract class BaseScene extends Scene {
       scene: this,
       x: this.map.widthInPixels / 2,
       y: this.map.heightInPixels / 2,
-      texture: {
-        key: "player",
-        walkSheet: "player-walk",
-        idleSheet: "player-idle",
-        harvestSheet: "player-harvest",
-      },
+      texture: "player-idle-down",
       speed: 100,
-      animations: {
-        walkUp: "player-walk-up",
-        walkDown: "player-walk-down",
-        walkLeft: "player-walk-left",
-        walkRight: "player-walk-right",
-        idleUp: "player-idle-up",
-        idleDown: "player-idle-down",
-        idleLeft: "player-idle-left",
-        idleRight: "player-idle-right",
-        harvestUp: "player-harvest-up",
-        harvestDown: "player-harvest-down",
-        harvestLeft: "player-harvest-left",
-        harvestRight: "player-harvest-right",
-      },
     };
   }
 }

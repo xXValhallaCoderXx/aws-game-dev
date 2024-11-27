@@ -7,3 +7,13 @@ type InventoryItem = `${EFarmingCropTypes}Seeds`;
 type Inventory = Record<InventoryItem, number>;
 
 export type { InventoryItem, Inventory };
+
+
+
+  export interface CharacterConfig {
+    scene: Phaser.Scene;
+    x: number;
+    y: number;
+    texture: string;
+    speed: number;
+  }

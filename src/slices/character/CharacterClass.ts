@@ -1,47 +1,15 @@
-// CharacterClass.ts
-export interface AnimationKeys {
-  walkUp: string;
-  walkDown: string;
-  walkLeft: string;
-  walkRight: string;
-  idleUp: string;
-  idleDown: string;
-  idleLeft: string;
-  idleRight: string;
-  harvestUp: string;
-  harvestDown: string;
-  harvestLeft: string;
-  harvestRight: string;
-}
-
-export interface CharacterConfig {
-  scene: Phaser.Scene;
-  x: number;
-  y: number;
-  texture: {
-    key: string;
-    walkSheet: string;
-    idleSheet: string;
-    harvestSheet: string;
-  };
-  animations: AnimationKeys;
-  speed: number;
-}
+import { CharacterConfig } from "./player-character.interface";
 
 export class Character extends Phaser.Physics.Arcade.Sprite {
   protected speed: number;
   protected cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
-  public animations: AnimationKeys;
-  protected textureConfig: CharacterConfig["texture"]; // Add this line
   public facingDirection: "up" | "down" | "left" | "right" = "down";
 
   constructor(config: CharacterConfig) {
     // Call the parent class constructor with texture key and initial position
-    super(config.scene, config.x, config.y, config.texture.key);
+    super(config.scene, config.x, config.y, config.texture);
 
     this.speed = config.speed;
-    this.animations = config.animations;
-    this.textureConfig = config.texture; // Store the texture config
 
     // Add sprite to scene
     config.scene.add.existing(this);
