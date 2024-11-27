@@ -58,7 +58,6 @@ export class PlayerCharacter extends Character {
   }
 
   public setupAnimations(): void {
-
     const normalFrames = {
       walkUp: { start: 0, end: 5 },
       walkDown: { start: 6, end: 11 },
@@ -140,10 +139,7 @@ export class PlayerCharacter extends Character {
   }
 
   public handleMovement(): void {
-    console.log("HANDLE MOVEMENT");
     if (!this.cursors) return;
-
-    console.log("PASS ");
 
     // Do not allow movement if harvesting
     if (this.isHarvesting) {

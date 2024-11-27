@@ -3,6 +3,7 @@ import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "../shared/scene-keys";
 
 export class HomeBuilding extends BaseScene {
+  private buildingEntranceZone!: Phaser.GameObjects.Zone;
   constructor() {
     super(ESCENE_KEYS.HOME_HOUSE);
   }
@@ -42,6 +43,8 @@ export class HomeBuilding extends BaseScene {
 
     // Then call parent's create which will handle player creation and camera setup
     super.create();
+
+    this.createBuildingExit();
   }
 
   update(time: any, delta: any): void {
@@ -96,5 +99,41 @@ export class HomeBuilding extends BaseScene {
     // if (this.waterAnimatedLayer) {
     //   this.waterAnimatedLayer.setCollisionByProperty({ collides: true });
     // }
+  }
+
+  private createBuildingExit(): void {
+    // Position the entrance zone inside the building
+    const entranceX = 250; // Adjust based on your map
+    const entranceY = 350; // Adjust based on your map
+
+    this.buildingEntranceZone = this.add.zone(entranceX, entranceY, 16, 16);
+    this.physics.world.enable(this.buildingEntranceZone);
+    (
+      this.buildingEntranceZone.body as Phaser.Physics.Arcade.Body
+    ).setAllowGravity(false);
+    (this.buildingEntranceZone.body as Phaser.Physics.Arcade.Body).setImmovable(
+      true
+    );
+
+    // Add overlap between player and entrance zone
+    this.physics.add.overlap(
+      this.player,
+      this.buildingEntranceZone,
+      this.handlePlayerEnterBuilding,
+      undefined,
+      this
+    );
+  }
+
+  private handlePlayerEnterBuilding(): void {
+    this.exitBuilding();
+  }
+
+  private exitBuilding(): void {
+    // Optionally, play a sound or animation
+    // this?.backgroundMusic?.stop();
+
+    // Transition to the indoor scene
+    this.scene.start(ESCENE_KEYS.HOME_MAP);
   }
 }

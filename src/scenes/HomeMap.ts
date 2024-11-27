@@ -30,7 +30,7 @@ export class HomeMap extends BaseScene {
   private animatedTileSystem!: AnimatedTileSystem;
 
   constructor() {
-    super(ESCENE_KEYS.CAMERA);
+    super(ESCENE_KEYS.HOME_MAP);
   }
 
   preload() {

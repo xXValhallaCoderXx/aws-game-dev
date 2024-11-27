@@ -87,8 +87,8 @@ export abstract class BaseScene extends Scene {
   protected getPlayerConfig(): CharacterConfig {
     return {
       scene: this,
-      x: this.map.widthInPixels / 2,
-      y: this.map.heightInPixels / 2,
+      x: 185,
+      y: 170,
       texture: {
         key: "player",
         walkSheet: "player-walk",
