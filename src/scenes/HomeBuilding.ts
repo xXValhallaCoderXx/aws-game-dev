@@ -3,6 +3,8 @@ import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "../shared/scene-keys";
 
 export class HomeBuilding extends BaseScene {
+  private wallLayer?: Phaser.Tilemaps.TilemapLayer | null;
+  private accessoryLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private buildingEntranceZone!: Phaser.GameObjects.Zone;
   constructor() {
     super(ESCENE_KEYS.HOME_HOUSE);
@@ -48,8 +50,9 @@ export class HomeBuilding extends BaseScene {
 
     // Then call parent's create which will handle player creation and camera setup
     super.create();
-
     this.createBuildingExit();
+
+    this.setupCollisions();
   }
 
   update(time: any, delta: any): void {
@@ -89,21 +92,26 @@ export class HomeBuilding extends BaseScene {
     }
 
     this.map.createLayer("BaseFloor", interiorFloorsTileset, 0, 0);
-    this.map.createLayer("BaseWall", interiorWallsTileset, 0, 0);
-    this.map.createLayer(
+    this.wallLayer = this.map.createLayer(
+      "BaseWall",
+      interiorWallsTileset,
+      0,
+      0
+    );
+    this.accessoryLayer = this.map.createLayer(
       "AccessoryLayer",
       [interiorObjects, interiorWindows],
       0,
       0
     );
 
-    // if (this.waterLayer) {
-    //   this.waterLayer.setCollisionByProperty({ collides: true });
-    // }
+    if (this.wallLayer) {
+      this.wallLayer.setCollisionByProperty({ collides: true });
+    }
 
-    // if (this.waterAnimatedLayer) {
-    //   this.waterAnimatedLayer.setCollisionByProperty({ collides: true });
-    // }
+    if (this.accessoryLayer) {
+      this.accessoryLayer.setCollisionByProperty({ collides: true });
+    }
   }
 
   private createBuildingExit(): void {
@@ -140,5 +148,15 @@ export class HomeBuilding extends BaseScene {
 
     // Transition to the indoor scene
     this.scene.start(ESCENE_KEYS.HOME_MAP);
+  }
+
+  private setupCollisions(): void {
+    if (this.wallLayer && this.player) {
+      this.physics.add.collider(this.player, this.wallLayer);
+    }
+
+    if (this.accessoryLayer && this.player) {
+      this.physics.add.collider(this.player, this.accessoryLayer);
+    }
   }
 }

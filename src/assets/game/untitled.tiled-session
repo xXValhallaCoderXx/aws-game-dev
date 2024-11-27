@@ -137,8 +137,8 @@
     "project": "untitled.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx",
         "/home/odin/Dungeon/Github/aws-game-dev/resources/main-map.tmx",
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-building-map.tmx",
         "main-map.tmx"
     ],
     "tileset.embedInMap": true,

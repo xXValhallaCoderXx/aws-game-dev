@@ -200,7 +200,7 @@ export class HomeMap extends BaseScene {
     });
 
     // Play the background music
-    this.backgroundMusic.play();
+    // this.backgroundMusic.play();
 
     // Initialize the Farming System
     this.farmingSystem = new FarmingSystem({
