@@ -59,7 +59,12 @@ export abstract class BaseScene extends Scene {
   }
 
   update(time: any, delta: any) {
-    if (!this.cursors || !this.player) return;
+    console.log("BaseScene update called");
+    if (!this.cursors || !this.player) {
+      console.log("Cursors or player not defined", this.cursors);
+      console.log("PLAYUEER: ", this.player);
+      return;
+    }
     this.player.handleMovement();
   }
 
@@ -80,10 +85,11 @@ export abstract class BaseScene extends Scene {
   protected abstract createMap(): void;
 
   protected getPlayerConfig(): CharacterConfig {
+    const { x, y } = this.getStartingPosition();
     return {
       scene: this,
-      x: this.map.widthInPixels / 2,
-      y: this.map.heightInPixels / 2,
+      x,
+      y,
       texture: {
         key: "player",
         walkSheet: "player-walk",
@@ -106,5 +112,13 @@ export abstract class BaseScene extends Scene {
         harvestRight: "player-harvest-right",
       },
     };
+  }
+
+  /**
+   * Provides the starting position for the player.
+   * Subclasses can override this method to specify custom positions.
+   */
+  protected getStartingPosition(): { x: number; y: number } {
+    return { x: 185, y: 170 }; // Default starting position
   }
 }

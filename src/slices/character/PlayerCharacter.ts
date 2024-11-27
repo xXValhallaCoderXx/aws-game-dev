@@ -58,7 +58,6 @@ export class PlayerCharacter extends Character {
   }
 
   public setupAnimations(): void {
-
     const normalFrames = {
       walkUp: { start: 0, end: 5 },
       walkDown: { start: 6, end: 11 },
