@@ -85,10 +85,11 @@ export abstract class BaseScene extends Scene {
   protected abstract createMap(): void;
 
   protected getPlayerConfig(): CharacterConfig {
+    const { x, y } = this.getStartingPosition();
     return {
       scene: this,
-      x: 185,
-      y: 170,
+      x,
+      y,
       texture: {
         key: "player",
         walkSheet: "player-walk",
@@ -111,5 +112,13 @@ export abstract class BaseScene extends Scene {
         harvestRight: "player-harvest-right",
       },
     };
+  }
+
+  /**
+   * Provides the starting position for the player.
+   * Subclasses can override this method to specify custom positions.
+   */
+  protected getStartingPosition(): { x: number; y: number } {
+    return { x: 185, y: 170 }; // Default starting position
   }
 }

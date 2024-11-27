@@ -33,6 +33,11 @@ export class HomeMap extends BaseScene {
     super(ESCENE_KEYS.HOME_MAP);
   }
 
+  protected getStartingPosition(): { x: number; y: number } {
+    // Provide custom starting position for HomeMap
+    return { x: 185, y: 180 };
+  }
+
   preload() {
     super.preload();
     this.load.tilemapTiledJSON("home-map", "maps/home-map.json");
@@ -173,6 +178,7 @@ export class HomeMap extends BaseScene {
     // Then call parent's create which will handle player creation and camera setup
     super.create();
     this.createDoor();
+    this.isDoorOpen = false;
 
     // Create the building entrance zone
     this.createBuildingEntrance();
