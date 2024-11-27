@@ -59,7 +59,12 @@ export abstract class BaseScene extends Scene {
   }
 
   update(time: any, delta: any) {
-    if (!this.cursors || !this.player) return;
+    console.log("BaseScene update called");
+    if (!this.cursors || !this.player) {
+      console.log("Cursors or player not defined", this.cursors);
+      console.log("PLAYUEER: ", this.player);
+      return;
+    }
     this.player.handleMovement();
   }
 

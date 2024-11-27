@@ -8,6 +8,7 @@ export class HomeBuilding extends BaseScene {
   }
 
   init() {
+    super.init();
     console.log("HOME HOUSE");
   }
 
@@ -41,6 +42,10 @@ export class HomeBuilding extends BaseScene {
 
     // Then call parent's create which will handle player creation and camera setup
     super.create();
+  }
+
+  update(time: any, delta: any): void {
+    super.update(time, delta);
   }
 
   protected createMap(): void {
@@ -77,8 +82,12 @@ export class HomeBuilding extends BaseScene {
 
     this.map.createLayer("BaseFloor", interiorFloorsTileset, 0, 0);
     this.map.createLayer("BaseWall", interiorWallsTileset, 0, 0);
-    this.map.createLayer("AccessoryLayer", interiorObjects, 0, 0);
-    this.map.createLayer("AccessoryLayer", interiorWindows, 0, 0);
+    this.map.createLayer(
+      "AccessoryLayer",
+      [interiorObjects, interiorWindows],
+      0,
+      0
+    );
 
     // if (this.waterLayer) {
     //   this.waterLayer.setCollisionByProperty({ collides: true });
