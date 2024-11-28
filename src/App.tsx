@@ -32,7 +32,16 @@ const App = () => {
             {isMuted ? "Unmute Sound" : "Mute Sound"}
           </button>
         </div>
-        <div style={{ position: "absolute", left: 10, top: 0 }}>
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            bottom: "20px", // Adjust this value as needed
+            transform: "translateX(-50%)",
+            width: "80%", // Optional: Set a width for better control
+            maxWidth: "800px", // Optional: Set a max-width to prevent it from being too wide on large screens
+          }}
+        >
           <Dialogue />
         </div>
       </div>

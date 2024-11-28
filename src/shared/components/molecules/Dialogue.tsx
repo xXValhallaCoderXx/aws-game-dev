@@ -105,26 +105,56 @@ const Dialogue: React.FC = () => {
   return (
     <div className="nes-container is-dark">
       <div>
-        <p>
-          {currentDialogue.speaker}: {currentDialogue.text}
-        </p>
-        {choices && currentIndex === dialogues.length - 1 ? (
-          <div>
-            {choices.map((choice, index) => (
-              <button
-                className="nes-btn"
-                key={index}
-                onClick={() => handleChoice(choice.nextBranch)}
-              >
-                {choice.text}
-              </button>
-            ))}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            marginBottom: 10,
+            gap: 8,
+          }}
+        >
+          <div
+            style={{ display: "flex", flexDirection: "column", fontSize: 12 }}
+          >
+            <img
+              src="/sprites/characters/guide/portrait-happy.png"
+              alt="Guide"
+              width={100}
+              height={100}
+            />
+            <div
+              style={{
+                marginTop: 4,
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              {currentDialogue.speaker}
+            </div>
           </div>
-        ) : (
-          <button className="nes-btn" onClick={handleNext}>
-            Next
-          </button>
-        )}
+          <div>
+            <p>{currentDialogue.text}</p>
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          {choices && currentIndex === dialogues.length - 1 ? (
+            <div>
+              {choices.map((choice, index) => (
+                <button
+                  className="nes-btn"
+                  key={index}
+                  onClick={() => handleChoice(choice.nextBranch)}
+                >
+                  {choice.text}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <button className="nes-btn" onClick={handleNext}>
+              Next
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
