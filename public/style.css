@@ -1,9 +1,8 @@
 body {
     margin: 0;
     padding: 0;
-    color: rgba(255, 255, 255, 0.87);
+ 
     background-color: #000000; 
-    font-family: Arial, Helvetica, sans-serif;
 }
 
 #app {
@@ -15,78 +14,3 @@ body {
     align-items: center;
 }
 
-.spritePosition {
-    margin: 10px 0 0 10px;
-    font-size: 0.8em;
-}
-
-.button {
-    width: 140px;
-    margin: 10px;
-    padding: 10px;
-    background-color: #000000;
-    color: rgba(255, 255, 255, 0.87);
-    border: 1px solid rgba(255, 255, 255, 0.87);
-    cursor: pointer;
-    transition: all 0.3s;
-
-    &:hover {
-        border: 1px solid #0ec3c9;
-        color: #0ec3c9;
-    }
-
-    &:active {
-        background-color: #0ec3c9;
-    }
-
-    /* Disabled styles */
-    &:disabled {
-        cursor: not-allowed;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: rgba(255, 255, 255, 0.3);
-    }
-}
-
-/* src/components/Dialogue/Dialogue.css */
-
-.dialogue-container {
-  position: absolute;
-  bottom: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 800px;
-  pointer-events: none; /* Allow clicks to pass through when not interacting */
-}
-
-.dialogue-box {
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  border-radius: 10px;
-  color: #ffffff;
-  font-family: Arial, sans-serif;
-  pointer-events: all; /* Enable interactions within the dialogue box */
-}
-
-.choices {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.choices button,
-.dialogue-box button {
-  margin-top: 5px;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  background-color: #00aaff;
-  color: #ffffff;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.choices button:hover,
-.dialogue-box button:hover {
-  background-color: #0088cc;
-}

@@ -115,26 +115,8 @@ export class IntroCutScene extends BaseScene {
 
     // Start Dialogue
     this.guideNPC.initiateDialogue();
-    // Define dialogue branches with movement sequences
-    const dialogueEndCallback = () => {
-      // After initial dialogue, move NPC to start the adventure
-      this.guideNPC.moveAlongPath(
-        [
-          { x: 450, y: 300 },
-          { x: 500, y: 300 },
-          { x: 550, y: 300 },
-        ],
-        100,
-        () => {
-          // After movement, emit an event to signal the end of the cutscene
-          PhaserEventBus.emit("cutscene-end");
-          this.scene.start(ESCENE_KEYS.HOME_MAP, { spawnX: 185, spawnY: 170 });
-        }
-      );
-    };
-
-    // Listen for dialogue-end event to trigger movement
-    PhaserEventBus.on("cutscene-end", dialogueEndCallback, this);
+    // Listen for cutscene-end event to transition to HomeMap
+    PhaserEventBus.on("cutscene-end", this.endCutscene, this);
   }
 
   protected createMap(): void {
@@ -225,4 +207,15 @@ export class IntroCutScene extends BaseScene {
     // Transition to the main game scene
     this.scene.start(ESCENE_KEYS.HOME_MAP, { spawnX: 185, spawnY: 170 });
   }
+
+  // Clean up event listeners when scene is destroyed
+  // public shutdown() {
+  //   super.shutdown();
+  //   PhaserEventBus.off("cutscene-end", this.endCutscene, this);
+  // }
+
+  // public destroy() {
+  //   super.destroy();
+  //   PhaserEventBus.off("cutscene-end", this.endCutscene, this);
+  // }
 }

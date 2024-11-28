@@ -52,6 +52,8 @@ export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
 
     // Play idle animation
     this.play(config.animations.idle);
+    // Listen for dialogue choice events
+    PhaserEventBus.on("choose-dialogue", this.handleDialogueChoice, this);
   }
 
   public setupAnimations(animations: {
@@ -69,30 +71,35 @@ export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
 
   public initiateDialogue() {
     if (this.isTalking) return; // Prevent overlapping dialogues
-
+    console.log(`Initiating dialogue with branch: ${this.currentBranchKey}`);
     this.isTalking = true;
-    this.play("guide-talk", true);
+    this.play("guide-idle", true);
 
     // Emit an event with the current dialogue branch data
     const branch = this.dialogues.find((b) => b.key === this.currentBranchKey);
     if (branch) {
+      console.log(`Emitting show-dialogue for branch: ${branch.key}`);
       PhaserEventBus.emit("show-dialogue", branch);
+    } else {
+      console.warn(`Dialogue branch not found: ${this.currentBranchKey}`);
     }
   }
-
   // Method to handle dialogue responses from React
-  public handleDialogueChoice(nextBranchKey: string) {
+  private handleDialogueChoice(nextBranchKey: string) {
     this.currentBranchKey = nextBranchKey;
+    console.log(`Initiating dialogue with branch: ${this.currentBranchKey}`);
     this.isTalking = false;
     this.play("guide-idle", true);
 
     // Emit event to proceed with the next dialogue branch
     const branch = this.dialogues.find((b) => b.key === this.currentBranchKey);
     if (branch) {
+      console.log(`Emitting show-dialogue for branch: ${branch.key}`);
       PhaserEventBus.emit("show-dialogue", branch);
+    } else {
+      console.warn(`Dialogue branch not found: ${this.currentBranchKey}`);
     }
   }
-
   public moveTo(targetX: number, targetY: number, duration: number = 2000) {
     // Move the NPC to a target position over a specified duration
     this.scene.tweens.add({
@@ -162,5 +169,11 @@ export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
       [],
       this
     );
+  }
+
+  // Clean up event listeners when NPC is destroyed
+  public destroy(fromScene?: boolean): void {
+    PhaserEventBus.off("choose-dialogue", this.handleDialogueChoice, this);
+    super.destroy(fromScene);
   }
 }

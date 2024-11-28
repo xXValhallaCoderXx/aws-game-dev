@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { PhaserEventBus } from "../../services/phaser.service";
 
-
 interface Dialogue {
   speaker: string;
   text: string;
@@ -23,6 +22,7 @@ const Dialogue: React.FC = () => {
   const [currentDialogue, setCurrentDialogue] = useState<Dialogue | null>(null);
   const [dialogues, setDialogues] = useState<Dialogue[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [test, setTest] = useState(false);
   const [choices, setChoices] = useState<
     { text: string; nextBranch: string }[] | null
   >(null);
@@ -30,13 +30,24 @@ const Dialogue: React.FC = () => {
   useEffect(() => {
     // Listener for showing dialogue
     const showDialogueListener = (branch: DialogueBranch) => {
+      console.log("Received show-dialogue event with branch:", branch.key);
+      console.log("Dialogue data:", branch.dialogues);
+
+      // Update state with new dialogues
       setDialogues(branch.dialogues);
       setCurrentIndex(0);
       setChoices(branch.choices || null);
       setCurrentDialogue(branch.dialogues[0]);
       setVisible(true);
-    };
+      setTest(true);
 
+      console.log("State after updating:", {
+        visible: true,
+        currentDialogue: branch.dialogues[0],
+        currentIndex: 0,
+        choices: branch.choices || null,
+      });
+    };
     PhaserEventBus.on("show-dialogue", showDialogueListener);
 
     // Cleanup on unmount
@@ -47,51 +58,61 @@ const Dialogue: React.FC = () => {
 
   const handleNext = () => {
     if (currentIndex + 1 < dialogues.length) {
-      setCurrentIndex(currentIndex + 1);
-      setCurrentDialogue(dialogues[currentIndex + 1]);
-
-      // If at the last dialogue with choices
-      if (currentIndex + 1 === dialogues.length - 1 && choices) {
-        // Choices are handled below
-      } else {
-        // Continue listening for next input
-        PhaserEventBus.emit("advance-dialogue");
-      }
+      const nextIndex = currentIndex + 1;
+      console.log(`HANDLE NEXT - NEXT DIALOGUE: ${nextIndex}`);
+      setCurrentIndex(nextIndex);
+      setCurrentDialogue(dialogues[nextIndex]);
+      setTest(false);
     } else {
-      console.log("DIALOGUE END");
       // End of dialogues
+      console.log("HANDLE NEXT - END OF CUTSCENE");
       setVisible(false);
       setDialogues([]);
       setCurrentDialogue(null);
       setChoices(null);
-      // Emit cutscene-end if needed
+
+      // Emit cutscene-end event to Phaser
       PhaserEventBus.emit("cutscene-end");
     }
   };
 
   const handleChoice = (nextBranch: string) => {
-    console.log("HANDLE CHOICE: ", nextBranch);
-    // Emit an event to Phaser with the chosen branch
-    PhaserEventBus.emit("cutscene-end");
-    // Hide the dialogue UI
+    console.log(`User chose branch: ${nextBranch}`);
+
     setVisible(false);
     setDialogues([]);
     setCurrentDialogue(null);
     setChoices(null);
+    PhaserEventBus.emit("choose-dialogue", nextBranch);
   };
 
-  if (!visible || !currentDialogue) return null;
+  // Debugging: Log the current state whenever the component re-renders
+  console.log("Dialogue Component Render:", {
+    visible,
+    currentDialogue,
+    currentIndex,
+    choices,
+  });
+  console.log("TEST: ", test);
+
+  if (!visible || !currentDialogue) {
+    console.log(
+      "Dialogue component is not visible or currentDialogue is null."
+    );
+    return null;
+  }
 
   return (
-    <div className="dialogue-container">
-      <div className="dialogue-box">
+    <div className="nes-container is-dark">
+      <div>
         <p>
-          <strong>{currentDialogue.speaker}:</strong> {currentDialogue.text}
+          {currentDialogue.speaker}: {currentDialogue.text}
         </p>
         {choices && currentIndex === dialogues.length - 1 ? (
-          <div className="choices">
+          <div>
             {choices.map((choice, index) => (
               <button
+                className="nes-btn"
                 key={index}
                 onClick={() => handleChoice(choice.nextBranch)}
               >
@@ -100,7 +121,9 @@ const Dialogue: React.FC = () => {
             ))}
           </div>
         ) : (
-          <button onClick={handleNext}>Next</button>
+          <button className="nes-btn" onClick={handleNext}>
+            Next
+          </button>
         )}
       </div>
     </div>
