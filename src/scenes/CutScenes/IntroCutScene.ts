@@ -1,6 +1,7 @@
 import { BaseScene } from "../BaseScene";
 import { ESCENE_KEYS } from "../../shared/scene-keys";
 import { GuideCharacter } from "../../slices/character/GuideCharacter";
+import { PhaserEventBus } from "../../shared/services/phaser.service";
 
 export class IntroCutScene extends BaseScene {
   private guideNPC!: GuideCharacter;
@@ -44,6 +45,50 @@ export class IntroCutScene extends BaseScene {
         idle: "guide-idle",
         walk: "guide-walk",
       },
+      dialogues: [
+        {
+          key: "start",
+          dialogues: [
+            { speaker: "Guide", text: "Welcome to our village!" },
+            {
+              speaker: "Guide",
+              text: "I'm here to guide you through your journey.",
+            },
+            {
+              speaker: "Guide",
+              text: "Would you like to start your adventure now?",
+            },
+          ],
+          choices: [
+            { text: "Yes, let's go!", nextBranch: "startAdventure" },
+            { text: "Tell me more.", nextBranch: "tellMore" },
+          ],
+        },
+        {
+          key: "startAdventure",
+          dialogues: [
+            { speaker: "Guide", text: "Great! Follow me to your first task." },
+          ],
+        },
+        {
+          key: "tellMore",
+          dialogues: [
+            {
+              speaker: "Guide",
+              text: "Our village is full of mysteries and adventures.",
+            },
+            {
+              speaker: "Guide",
+              text: "Explore, interact, and uncover the secrets that lie ahead.",
+            },
+            {
+              speaker: "Guide",
+              text: "Whenever you're ready, let me know to begin.",
+            },
+          ],
+        },
+      ],
+      initialBranchKey: "start",
     });
 
     // Setup NPC Animations
@@ -70,10 +115,25 @@ export class IntroCutScene extends BaseScene {
 
     // Start Dialogue
     this.guideNPC.initiateDialogue();
-    this.guideNPC.play("guide-idle");
+    // Define dialogue branches with movement sequences
+    const dialogueEndCallback = () => {
+      // After initial dialogue, move NPC to start the adventure
+      this.guideNPC.moveAlongPath(
+        [
+          { x: 450, y: 300 },
+          { x: 500, y: 300 },
+          { x: 550, y: 300 },
+        ],
+        100,
+        () => {
+          // After movement, emit an event to signal the end of the cutscene
+          PhaserEventBus.emit("cutscene-end");
+        }
+      );
+    };
 
-    // Listen for the end of the cutscene
-    this.events.once("cutscene-end", this.endCutscene, this);
+    // Listen for dialogue-end event to trigger movement
+    PhaserEventBus.on("cutscene-end", dialogueEndCallback, this);
   }
 
   protected createMap(): void {
@@ -157,6 +217,9 @@ export class IntroCutScene extends BaseScene {
     // Re-enable player input and make the player visible
     this.input.enabled = true;
     this.player.setVisible(true);
+    if (this.player.body) {
+      this.player.body.enable = true;
+    }
 
     // Transition to the main game scene
     this.scene.start(ESCENE_KEYS.HOME_MAP, { spawnX: 185, spawnY: 170 });

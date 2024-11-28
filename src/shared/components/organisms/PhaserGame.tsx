@@ -55,6 +55,46 @@ export const PhaserGame = forwardRef<PhaserGameRef, PhaserGameProps>(
       };
     }, [currentActiveScene, ref]);
 
+    // Listen for events from React to advance dialogue or choose branches
+    useEffect(() => {
+      const advanceDialogue = () => {
+        // Find the active scene and advance the dialogue
+        const activeScene = game.current?.scene.keys[0];
+        if (activeScene) {
+          const phaserScene = game.current?.scene.getScene(activeScene) as any;
+          if (phaserScene?.guideNPC?.dialogueManager) {
+            // Implement a method in DialogueManager to handle advancing dialogue
+            // Alternatively, manage via events
+          }
+        }
+      };
+
+      const chooseDialogue = (nextBranch: string) => {
+        // Handle choosing a dialogue branch
+        const activeScene = game.current?.scene.keys[0];
+        if (activeScene) {
+          const phaserScene = game.current?.scene.getScene(activeScene) as any;
+          if (phaserScene?.guideNPC) {
+            phaserScene.guideNPC.handleDialogueChoice(nextBranch);
+          }
+        }
+      };
+
+      const showDiag = (_x: any) => {
+        console.log("LALALA: ", _x);
+      };
+
+      PhaserEventBus.on("advance-dialogue", advanceDialogue);
+      PhaserEventBus.on("choose-dialogue", chooseDialogue);
+      PhaserEventBus.on("show-dialogue", showDiag);
+
+      return () => {
+        PhaserEventBus.off("advance-dialogue", advanceDialogue);
+        PhaserEventBus.off("choose-dialogue", chooseDialogue);
+        PhaserEventBus.off("show-dialogue", showDiag);
+      };
+    }, []);
+
     return <div id="game-container"></div>;
   }
 );

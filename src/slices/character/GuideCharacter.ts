@@ -1,6 +1,21 @@
 // src/sprites/GuideNPC.ts
 
 import Phaser from "phaser";
+import { PhaserEventBus } from "../../shared/services/phaser.service";
+
+interface Dialogue {
+  speaker: string;
+  text: string;
+}
+
+interface DialogueBranch {
+  key: string;
+  dialogues: Dialogue[];
+  choices?: {
+    text: string;
+    nextBranch: string;
+  }[];
+}
 
 interface GuideNPCConfig {
   scene: Phaser.Scene;
@@ -11,25 +26,21 @@ interface GuideNPCConfig {
     idle: string;
     walk: string;
   };
+  dialogues: DialogueBranch[];
+  initialBranchKey: string;
 }
-
 export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
-  private dialogues: string[];
-  private currentDialogueIndex: number = 0;
+  private dialogues: DialogueBranch[];
+  private currentBranchKey: string;
   private isTalking: boolean = false;
-  private dialogueBox!: Phaser.GameObjects.Graphics;
-  private dialogueText!: Phaser.GameObjects.Text;
   public scene: Phaser.Scene;
 
   constructor(config: GuideNPCConfig) {
     super(config.scene, config.x, config.y, config.texture);
 
     this.scene = config.scene;
-    this.dialogues = [
-      "Welcome to our village!",
-      "I'm here to guide you through your journey.",
-      "Let's begin by exploring the nearby areas.",
-    ];
+    this.dialogues = config.dialogues;
+    this.currentBranchKey = config.initialBranchKey;
 
     // Add the NPC to the scene
     this.scene.add.existing(this);
@@ -56,71 +67,30 @@ export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  public initiateDialogue(dialogues: string[] = this.dialogues) {
+  public initiateDialogue() {
     if (this.isTalking) return; // Prevent overlapping dialogues
 
-    this.dialogues = dialogues;
-    this.currentDialogueIndex = 0;
     this.isTalking = true;
+    this.play("guide-talk", true);
 
-    // Stop current animation and play talk animation
-    this.anims.play("guide-talk", true);
-
-    // Create dialogue box and text
-    this.createDialogueBox();
-
-    // Show first dialogue
-    this.showDialogue();
-
-    // Listen for pointer (mouse/touch) to advance dialogue
-    this.scene.input.once("pointerdown", this.advanceDialogue, this);
-  }
-
-  private createDialogueBox(): void {
-    // Create a semi-transparent rectangle for the dialogue box
-    this.dialogueBox = this.scene.add.graphics();
-    this.dialogueBox.fillStyle(0x000000, 0.7);
-    this.dialogueBox.fillRect(50, 450, 700, 100); // Adjust position and size as needed
-
-    // Create dialogue text
-    this.dialogueText = this.scene.add.text(60, 460, "", {
-      font: "20px Arial",
-      color: "#ffffff",
-      wordWrap: { width: 680 },
-    });
-  }
-
-  private showDialogue(): void {
-    if (this.currentDialogueIndex < this.dialogues.length) {
-      this.dialogueText.setText(this.dialogues[this.currentDialogueIndex]);
-    } else {
-      // End of dialogues
-      this.endDialogue();
+    // Emit an event with the current dialogue branch data
+    const branch = this.dialogues.find((b) => b.key === this.currentBranchKey);
+    if (branch) {
+      PhaserEventBus.emit("show-dialogue", branch);
     }
   }
 
-  private advanceDialogue(): void {
-    this.currentDialogueIndex++;
-    this.showDialogue();
-
-    if (this.currentDialogueIndex < this.dialogues.length) {
-      // Listen for the next input
-      this.scene.input.once("pointerdown", this.advanceDialogue, this);
-    }
-  }
-
-  private endDialogue(): void {
-    // Destroy dialogue elements
-    this.dialogueBox.destroy();
-    this.dialogueText.destroy();
-
-    // Play idle animation
-    this.anims.play("guide-idle", true);
-
+  // Method to handle dialogue responses from React
+  public handleDialogueChoice(nextBranchKey: string) {
+    this.currentBranchKey = nextBranchKey;
     this.isTalking = false;
+    this.play("guide-idle", true);
 
-    // Additional actions after dialogue ends (e.g., move NPC, trigger events)
-    this.scene.events.emit("cutscene-end"); // Emit an event to signal end of cutscene
+    // Emit event to proceed with the next dialogue branch
+    const branch = this.dialogues.find((b) => b.key === this.currentBranchKey);
+    if (branch) {
+      PhaserEventBus.emit("show-dialogue", branch);
+    }
   }
 
   public moveTo(targetX: number, targetY: number, duration: number = 2000) {
@@ -140,28 +110,57 @@ export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  public patrol(path: Array<{ x: number; y: number }>, speed: number = 100) {
-    // Make the NPC patrol along a predefined path
+  public moveAlongPath(
+    path: Array<{ x: number; y: number }>,
+    speed: number = 100,
+    onComplete?: () => void
+  ) {
     if (path.length === 0) return;
 
-    let currentPoint = 0;
-
-    const moveToNextPoint = () => {
-      if (currentPoint >= path.length) {
-        currentPoint = 0; // Loop patrol
+    const moveToPoint = (index: number) => {
+      if (index >= path.length) {
+        if (onComplete) onComplete();
+        return;
       }
 
-      const point = path[currentPoint];
-      currentPoint++;
-
-      this.scene.physics.moveTo(this, point.x, point.y, speed);
-
-      this.once(
-        Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + "guide-walk",
-        moveToNextPoint
+      const point = path[index];
+      const distance = Phaser.Math.Distance.Between(
+        this.x,
+        this.y,
+        point.x,
+        point.y
       );
+      const duration = (distance / speed) * 1000; // Duration in ms
+
+      this.scene.tweens.add({
+        targets: this,
+        x: point.x,
+        y: point.y,
+        duration: duration,
+        ease: "Power2",
+        onStart: () => {
+          this.anims.play("guide-walk", true);
+        },
+        onComplete: () => {
+          this.anims.play("guide-idle", true);
+          moveToPoint(index + 1);
+        },
+      });
     };
 
-    moveToNextPoint();
+    moveToPoint(0);
+  }
+
+  public standStill(duration: number, onComplete?: () => void) {
+    // Make the NPC stand still for a certain duration
+    this.anims.play("guide-idle", true);
+    this.scene.time.delayedCall(
+      duration,
+      () => {
+        if (onComplete) onComplete();
+      },
+      [],
+      this
+    );
   }
 }
