@@ -128,6 +128,7 @@ export class IntroCutScene extends BaseScene {
         () => {
           // After movement, emit an event to signal the end of the cutscene
           PhaserEventBus.emit("cutscene-end");
+          this.scene.start(ESCENE_KEYS.HOME_MAP, { spawnX: 185, spawnY: 170 });
         }
       );
     };

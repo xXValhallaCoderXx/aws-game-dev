@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import Phaser, { Scene } from "phaser";
 import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import { phaserConfig, PhaserEventBus } from "../../services/phaser.service";
 
@@ -55,22 +56,25 @@ export const PhaserGame = forwardRef<PhaserGameRef, PhaserGameProps>(
       };
     }, [currentActiveScene, ref]);
 
-    // Listen for events from React to advance dialogue or choose branches
+    // Handle any custom event bus listeners if necessary
     useEffect(() => {
-      const advanceDialogue = () => {
-        // Find the active scene and advance the dialogue
-        const activeScene = game.current?.scene.keys[0];
-        if (activeScene) {
-          const phaserScene = game.current?.scene.getScene(activeScene) as any;
-          if (phaserScene?.guideNPC?.dialogueManager) {
-            // Implement a method in DialogueManager to handle advancing dialogue
-            // Alternatively, manage via events
-          }
+      const handleSceneReady = (currentScene: Scene) => {
+        if (currentActiveScene) {
+          currentActiveScene(currentScene);
         }
       };
 
+      PhaserEventBus.on("current-scene-ready", handleSceneReady);
+
+      return () => {
+        PhaserEventBus.off("current-scene-ready", handleSceneReady);
+      };
+    }, [currentActiveScene]);
+
+    // Listen for events from React to handle dialogue choices
+    useEffect(() => {
       const chooseDialogue = (nextBranch: string) => {
-        // Handle choosing a dialogue branch
+        // Find the active scene and handle the dialogue choice
         const activeScene = game.current?.scene.keys[0];
         if (activeScene) {
           const phaserScene = game.current?.scene.getScene(activeScene) as any;
@@ -80,18 +84,10 @@ export const PhaserGame = forwardRef<PhaserGameRef, PhaserGameProps>(
         }
       };
 
-      const showDiag = (_x: any) => {
-        console.log("LALALA: ", _x);
-      };
-
-      PhaserEventBus.on("advance-dialogue", advanceDialogue);
       PhaserEventBus.on("choose-dialogue", chooseDialogue);
-      PhaserEventBus.on("show-dialogue", showDiag);
 
       return () => {
-        PhaserEventBus.off("advance-dialogue", advanceDialogue);
         PhaserEventBus.off("choose-dialogue", chooseDialogue);
-        PhaserEventBus.off("show-dialogue", showDiag);
       };
     }, []);
 

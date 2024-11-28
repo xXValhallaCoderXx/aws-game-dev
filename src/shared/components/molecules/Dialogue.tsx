@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { PhaserEventBus } from "../../services/phaser.service";
-import "./Dialogue.css"; // Optional: For styling
+
 
 interface Dialogue {
   speaker: string;
@@ -21,6 +21,8 @@ interface DialogueBranch {
 const Dialogue: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [currentDialogue, setCurrentDialogue] = useState<Dialogue | null>(null);
+  const [dialogues, setDialogues] = useState<Dialogue[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [choices, setChoices] = useState<
     { text: string; nextBranch: string }[] | null
   >(null);
@@ -28,9 +30,11 @@ const Dialogue: React.FC = () => {
   useEffect(() => {
     // Listener for showing dialogue
     const showDialogueListener = (branch: DialogueBranch) => {
-      setVisible(true);
-      setCurrentDialogue(branch.dialogues[0]);
+      setDialogues(branch.dialogues);
+      setCurrentIndex(0);
       setChoices(branch.choices || null);
+      setCurrentDialogue(branch.dialogues[0]);
+      setVisible(true);
     };
 
     PhaserEventBus.on("show-dialogue", showDialogueListener);
@@ -42,34 +46,39 @@ const Dialogue: React.FC = () => {
   }, []);
 
   const handleNext = () => {
-    // Emit an event to Phaser to advance the dialogue
-    PhaserEventBus.emit("advance-dialogue");
+    if (currentIndex + 1 < dialogues.length) {
+      setCurrentIndex(currentIndex + 1);
+      setCurrentDialogue(dialogues[currentIndex + 1]);
+
+      // If at the last dialogue with choices
+      if (currentIndex + 1 === dialogues.length - 1 && choices) {
+        // Choices are handled below
+      } else {
+        // Continue listening for next input
+        PhaserEventBus.emit("advance-dialogue");
+      }
+    } else {
+      console.log("DIALOGUE END");
+      // End of dialogues
+      setVisible(false);
+      setDialogues([]);
+      setCurrentDialogue(null);
+      setChoices(null);
+      // Emit cutscene-end if needed
+      PhaserEventBus.emit("cutscene-end");
+    }
   };
 
   const handleChoice = (nextBranch: string) => {
-    // Emit an event to Phaser to handle the dialogue choice
-    PhaserEventBus.emit("choose-dialogue", nextBranch);
+    console.log("HANDLE CHOICE: ", nextBranch);
+    // Emit an event to Phaser with the chosen branch
+    PhaserEventBus.emit("cutscene-end");
     // Hide the dialogue UI
     setVisible(false);
+    setDialogues([]);
     setCurrentDialogue(null);
     setChoices(null);
   };
-
-  // Listen for dialogue updates
-  useEffect(() => {
-    if (!visible) return;
-
-    const updateDialogueListener = (branch: DialogueBranch) => {
-      setCurrentDialogue(branch.dialogues[0]);
-      setChoices(branch.choices || null);
-    };
-
-    PhaserEventBus.on("show-dialogue", updateDialogueListener);
-
-    return () => {
-      PhaserEventBus.off("show-dialogue", updateDialogueListener);
-    };
-  }, [visible]);
 
   if (!visible || !currentDialogue) return null;
 
@@ -79,7 +88,7 @@ const Dialogue: React.FC = () => {
         <p>
           <strong>{currentDialogue.speaker}:</strong> {currentDialogue.text}
         </p>
-        {choices ? (
+        {choices && currentIndex === dialogues.length - 1 ? (
           <div className="choices">
             {choices.map((choice, index) => (
               <button
