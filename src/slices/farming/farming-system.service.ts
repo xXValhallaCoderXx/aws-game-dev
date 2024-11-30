@@ -2,9 +2,9 @@
 
 import Phaser from "phaser";
 import { Crop } from "./Crop";
-import { PlayerCharacter } from "../character/PlayerCharacter";
+import { PlayerCharacter } from "@slices/character/PlayerCharacter";
 import { EFarmingCropTypes } from "./farming.interface";
-import { InventoryItem } from "../character/player-character.interface";
+import { InventoryItem } from "@slices/character/player-character.interface";
 
 interface FarmingConfig {
   scene: Phaser.Scene;

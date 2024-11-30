@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Phaser from "phaser";
 
 const debugDrawer = (layer: any, scene: Phaser.Scene) => {

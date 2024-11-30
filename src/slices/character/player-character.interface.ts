@@ -1,4 +1,4 @@
-import { EFarmingCropTypes } from "../farming/farming.interface";
+import { EFarmingCropTypes } from "@slices/farming/farming.interface";
 
 // Create a type that appends 'Seeds' to each crop type
 type InventoryItem = `${EFarmingCropTypes}Seeds`;
