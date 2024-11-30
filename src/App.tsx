@@ -2,6 +2,7 @@
 
 import { PhaserGame } from "./shared/components/organisms/PhaserGame";
 import { useRef, useState } from "react";
+import Dialogue from "./shared/components/molecules/Dialogue";
 
 const App = () => {
   //  References to the PhaserGame component (game and scene are exposed)
@@ -30,6 +31,18 @@ const App = () => {
           <button onClick={handleToggleMute}>
             {isMuted ? "Unmute Sound" : "Mute Sound"}
           </button>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            bottom: "20px", // Adjust this value as needed
+            transform: "translateX(-50%)",
+            width: "80%", // Optional: Set a width for better control
+            maxWidth: "800px", // Optional: Set a max-width to prevent it from being too wide on large screens
+          }}
+        >
+          <Dialogue />
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import Phaser, { Scene } from "phaser";
 import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import { phaserConfig, PhaserEventBus } from "../../services/phaser.service";
 
@@ -54,6 +55,66 @@ export const PhaserGame = forwardRef<PhaserGameRef, PhaserGameProps>(
         PhaserEventBus.removeListener("current-scene-ready", handleSceneReady);
       };
     }, [currentActiveScene, ref]);
+
+    // Handle any custom event bus listeners if necessary
+    useEffect(() => {
+      const handleSceneReady = (currentScene: Scene) => {
+        if (currentActiveScene) {
+          currentActiveScene(currentScene);
+        }
+      };
+
+      PhaserEventBus.on("current-scene-ready", handleSceneReady);
+
+      return () => {
+        PhaserEventBus.off("current-scene-ready", handleSceneReady);
+      };
+    }, [currentActiveScene]);
+
+    // Listen for events from React to handle dialogue choices
+    useEffect(() => {
+      const chooseDialogue = (nextBranch: string) => {
+        console.log(
+          `PhaserGame received choose-dialogue event with branch: ${nextBranch}`
+        );
+
+        // Fetch active scenes
+        const activeScenes = game.current?.scene.getScenes(true); // 'true' to include active scenes
+        console.log(
+          `Active scenes:`,
+          activeScenes?.map((scene: any) => scene.scene.key)
+        );
+
+        const activeScene =
+          activeScenes && activeScenes.length > 0 ? activeScenes[0] : null;
+        const activeSceneKey = activeScene?.scene.key;
+        console.log(`Active scene key: ${activeSceneKey}`);
+
+        if (activeScene && activeSceneKey) {
+          const phaserScene = game.current?.scene.getScene(
+            activeSceneKey
+          ) as any;
+          if (phaserScene?.guideNPC) {
+            console.log(
+              `Calling GuideNPC.handleDialogueChoice with: ${nextBranch}`
+            );
+            phaserScene.guideNPC.handleDialogueChoice(nextBranch);
+          } else {
+            console.warn(`guideNPC not found in scene: ${activeSceneKey}`);
+          }
+        } else {
+          console.warn(
+            `No active scene found to handle choose-dialogue event.`
+          );
+        }
+      };
+
+      PhaserEventBus.on("choose-dialogue", chooseDialogue);
+    
+      return () => {
+        PhaserEventBus.off("choose-dialogue", chooseDialogue);
+      };
+    }, []);
 
     return <div id="game-container"></div>;
   }
