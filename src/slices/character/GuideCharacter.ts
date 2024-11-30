@@ -1,7 +1,7 @@
 // src/sprites/GuideNPC.ts
 
 import Phaser from "phaser";
-import { PhaserEventBus } from "../../shared/services/phaser.service";
+import { PhaserEventBus } from "@services/phaser.service";
 
 interface Dialogue {
   speaker: string;

@@ -1,7 +1,7 @@
 // src/components/Dialogue/Dialogue.tsx
 
 import React, { useEffect, useState } from "react";
-import { PhaserEventBus } from "../../services/phaser.service";
+import { PhaserEventBus } from "@services/phaser.service";
 
 interface Dialogue {
   speaker: string;

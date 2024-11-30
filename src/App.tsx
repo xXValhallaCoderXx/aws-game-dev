@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { PhaserGame } from "./shared/components/organisms/PhaserGame";
+import { PhaserGame } from "@components/organisms/PhaserGame";
 import { useRef, useState } from "react";
-import Dialogue from "./shared/components/molecules/Dialogue";
+import Dialogue from "@components/molecules/Dialogue";
 
 const App = () => {
   //  References to the PhaserGame component (game and scene are exposed)
