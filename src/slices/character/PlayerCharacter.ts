@@ -73,65 +73,49 @@ export class PlayerCharacter extends BaseCharacter {
 
   protected setupAnimations(): void {
     const directions = ["up", "down", "left", "right"];
-
+    
     directions.forEach((direction, directionIndex) => {
-      // Walk animations
-      if (!this.scene.anims.exists(`player-walk-${direction}`)) {
-        this.scene.anims.create({
-          key: `player-walk-${direction}`,
-          frames: this.scene.anims.generateFrameNumbers("player-walk", {
-            // Each direction has 6 frames, so multiply directionIndex by 6
-            start: directionIndex * 6,
-            end: directionIndex * 6 + 5,
-          }),
-          frameRate: 10,
-          repeat: -1,
-        });
-      }
+      // Regular animations
+      ["walk", "idle"].forEach((action) => {
+        const baseKey = `player-${action}-${direction}`;
+        const spritesheet = `player-${action}`;
 
-      // Idle animations
-      if (!this.scene.anims.exists(`player-idle-${direction}`)) {
-        this.scene.anims.create({
-          key: `player-idle-${direction}`,
-          frames: this.scene.anims.generateFrameNumbers("player-idle", {
-            start: directionIndex * 6,
-            end: directionIndex * 6 + 5,
-          }),
-          frameRate: 8,
-          repeat: -1,
-        });
-      }
+        if (!this.scene.anims.exists(baseKey)) {
+          this.scene.anims.create({
+            key: baseKey,
+            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
+              start: directionIndex * 6,
+              end: directionIndex * 6 + 5,
+            }),
+            frameRate: action === "walk" ? 10 : 8,
+            repeat: -1,
+          });
+        }
+      });
 
-      // Carry walk animations
-      if (!this.scene.anims.exists(`player-carry-walk-${direction}`)) {
-        this.scene.anims.create({
-          key: `player-carry-walk-${direction}`,
-          frames: this.scene.anims.generateFrameNumbers("player-carry-walk", {
-            start: directionIndex * 6,
-            end: directionIndex * 6 + 5,
-          }),
-          frameRate: 10,
-          repeat: -1,
-        });
-      }
+      // Carry animations
+      ["walk", "idle"].forEach((action) => {
+        const baseKey = `player-carry-${action}-${direction}`;
+        const spritesheet = `player-carry-${action}`;
 
-      // Carry idle animations
-      if (!this.scene.anims.exists(`player-carry-idle-${direction}`)) {
-        this.scene.anims.create({
-          key: `player-carry-idle-${direction}`,
-          frames: this.scene.anims.generateFrameNumbers("player-carry-idle", {
-            start: directionIndex * 6,
-            end: directionIndex * 6 + 5,
-          }),
-          frameRate: 8,
-          repeat: -1,
-        });
-      }
+        if (!this.scene.anims.exists(baseKey)) {
+          this.scene.anims.create({
+            key: baseKey,
+            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
+              start: directionIndex * 6,
+              end: directionIndex * 6 + 5,
+            }),
+            frameRate: action === "walk" ? 10 : 8,
+            repeat: -1,
+          });
+        }
+      });
 
-      // Harvest animations
-      if (!this.scene.anims.exists(`player-harvest-${direction}`)) {
+      // Harvest animation
+      const harvestKey = `player-harvest-${direction}`;
+      if (!this.scene.anims.exists(harvestKey)) {
         this.scene.anims.create({
-          key: `player-harvest-${direction}`,
+          key: harvestKey,
           frames: this.scene.anims.generateFrameNumbers("player-harvest", {
             start: directionIndex * 6,
             end: directionIndex * 6 + 5,
@@ -149,7 +133,6 @@ export class PlayerCharacter extends BaseCharacter {
   public handleMovement(): void {
     if (!this.cursors) return;
 
-    // Do not allow movement if harvesting
     if (this.isHarvesting) {
       this.setVelocity(0);
       return;
@@ -190,18 +173,22 @@ export class PlayerCharacter extends BaseCharacter {
       velocityY *= Math.SQRT1_2;
     }
 
-    // Set velocity
     this.setVelocity(velocityX, velocityY);
 
-    // Determine the appropriate animation key
+    // Determine animation
     const action = moving ? "walk" : "idle";
-    const animationKey = this.isCarrying
-      ? this.carryAnimations[
-          `${action}${this.capitalize(this.facingDirection)}`
-        ]
-      : this.animations[`${action}${this.capitalize(this.facingDirection)}`];
+    // const direction = this.capitalize(this.facingDirection);
+    let animationKey: string;
 
-    // Play the animation if it's not already playing
+    if (this.isCarrying) {
+      animationKey = `player-carry-${action.toLowerCase()}-${
+        this.facingDirection
+      }`;
+    } else {
+      animationKey = `player-${action.toLowerCase()}-${this.facingDirection}`;
+    }
+
+    // Only change animation if it's different from the current one
     if (this.anims.currentAnim?.key !== animationKey) {
       this.play(animationKey, true);
     }
@@ -241,4 +228,6 @@ export class PlayerCharacter extends BaseCharacter {
       this.anims.play(idleAnimKey);
     });
   }
+
+
 }
