@@ -7,3 +7,13 @@ type InventoryItem = `${EFarmingCropTypes}Seeds`;
 type Inventory = Record<InventoryItem, number>;
 
 export type { InventoryItem, Inventory };
+
+export type Direction = "up" | "down" | "left" | "right";
+export type DirectionCapitalized = "Up" | "Down" | "Left" | "Right";
+
+export interface BaseCharacterConfig {
+  scene: Phaser.Scene;
+  x: number;
+  y: number;
+  texture: string;
+}

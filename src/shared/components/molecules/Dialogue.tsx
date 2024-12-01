@@ -86,19 +86,8 @@ const Dialogue: React.FC = () => {
     PhaserEventBus.emit("choose-dialogue", nextBranch);
   };
 
-  // Debugging: Log the current state whenever the component re-renders
-  console.log("Dialogue Component Render:", {
-    visible,
-    currentDialogue,
-    currentIndex,
-    choices,
-  });
-  console.log("TEST: ", test);
 
   if (!visible || !currentDialogue) {
-    console.log(
-      "Dialogue component is not visible or currentDialogue is null."
-    );
     return null;
   }
 
