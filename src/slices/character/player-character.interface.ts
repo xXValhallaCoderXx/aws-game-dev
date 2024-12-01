@@ -8,6 +8,13 @@ type Inventory = Record<InventoryItem, number>;
 
 export type { InventoryItem, Inventory };
 
+export type Action = "walk" | "idle" | "harvest";
+export type CarryAction = "walk" | "idle";
+
+export type AnimationKey = `${Action}${DirectionCapitalized}`;
+export type AnimationKeyCarry = `${CarryAction}${DirectionCapitalized}`;
+
+
 export type Direction = "up" | "down" | "left" | "right";
 export type DirectionCapitalized = "Up" | "Down" | "Left" | "Right";
 

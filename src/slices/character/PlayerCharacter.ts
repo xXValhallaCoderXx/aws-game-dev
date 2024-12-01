@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BaseCharacter } from "./BaseChracter";
-import { Inventory } from "./player-character.interface";
 import {
   BaseCharacterConfig,
-  DirectionCapitalized,
+  Inventory,
+  AnimationKey,
+  AnimationKeyCarry,
 } from "./player-character.interface";
 
 interface PlayerConfig extends BaseCharacterConfig {
@@ -73,7 +74,7 @@ export class PlayerCharacter extends BaseCharacter {
 
   protected setupAnimations(): void {
     const directions = ["up", "down", "left", "right"];
-    
+
     directions.forEach((direction, directionIndex) => {
       // Regular animations
       ["walk", "idle"].forEach((action) => {
@@ -112,18 +113,17 @@ export class PlayerCharacter extends BaseCharacter {
       });
 
       // Harvest animation
-      const harvestKey = `player-harvest-${direction}`;
-      if (!this.scene.anims.exists(harvestKey)) {
-        this.scene.anims.create({
-          key: harvestKey,
-          frames: this.scene.anims.generateFrameNumbers("player-harvest", {
-            start: directionIndex * 6,
-            end: directionIndex * 6 + 5,
+      ["up", "down", "left", "right"].forEach((direction, index) => {
+        this.anims.create({
+          key: `player-harvest-${direction}`, // This matches your animation keys
+          frames: this.anims.generateFrameNumbers("player-harvest", {
+            start: index * 6,
+            end: index * 6 + 5,
           }),
-          frameRate: 8,
-          repeat: -1,
+          frameRate: 12,
+          repeat: 0, // Important: set to 0 to play only once
         });
-      }
+      });
     });
 
     // Start with idle animation
@@ -194,40 +194,34 @@ export class PlayerCharacter extends BaseCharacter {
     }
   }
 
-  public startHarvesting(onComplete: () => void): void {
+  public startHarvesting(onComplete?: () => void): void {
     if (this.isHarvesting) return;
 
     this.isHarvesting = true;
 
-    // Stop the player from moving
-    this.setVelocity(0);
+    // Use the correct animation key from your animations object
+    const harvestAnim =
+      this.animations[
+        `harvest${this.capitalize(this.facingDirection)}` as AnimationKey
+      ];
 
-    // Get current direction
-    const directionCapitalized = this.capitalize(
-      this.facingDirection
-    ) as DirectionCapitalized;
-
-    // Play the harvesting animation
-
-    const animationKey = this.animations[`harvest${directionCapitalized}`];
-    console.log("HARVESTING - ANIMATION KEY: ", animationKey);
-    this.anims.play(animationKey);
-
-    // Listen for animation completion
-    this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+    this.play(harvestAnim, true).once("animationcomplete", () => {
       this.isHarvesting = false;
 
-      // Call the onComplete callback
-      onComplete();
+      // Return to idle animation using the correct key
+      const idleAnim = this.isCarrying
+        ? this.carryAnimations[
+            `idle${this.capitalize(this.facingDirection)}` as AnimationKeyCarry
+          ]
+        : this.animations[
+            `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+          ];
 
-      // Return to idle animation
+      this.play(idleAnim, true);
 
-      const idleAnimKey = this.isCarrying
-        ? this.carryAnimations[`idle${directionCapitalized}`]
-        : this.animations[`idle${directionCapitalized}`];
-      this.anims.play(idleAnimKey);
+      if (onComplete) {
+        onComplete();
+      }
     });
   }
-
-
 }

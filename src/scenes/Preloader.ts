@@ -86,7 +86,7 @@ export class Preloader extends Scene {
 
 
     this.load.spritesheet(
-      "harvested-crop",
+      "harvested-crops",
       "sprites/crops/crops-harvested.png",
       {
         frameWidth: 16, // Width of each frame
@@ -96,6 +96,6 @@ export class Preloader extends Scene {
   }
 
   create() {
-    this.scene.start(ESCENE_KEYS.INTRO_CUTSCENE);
+    this.scene.start(ESCENE_KEYS.HOME_MAP);
   }
 }

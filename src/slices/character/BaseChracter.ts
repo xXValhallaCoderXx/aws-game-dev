@@ -7,7 +7,7 @@ import {
 
 export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
   public scene: Scene;
-  protected facingDirection: Direction = "down"; // Default facing direction
+  public facingDirection: Direction = "down"; // Default facing direction
   protected animations: Record<string, string> = {};
   protected carryAnimations: Record<string, string> = {};
 
