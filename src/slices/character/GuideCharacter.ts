@@ -6,13 +6,14 @@ import {
   DialogueBranch,
   BaseCharacterConfig,
 } from "./player-character.interface";
+import { BaseCharacter } from "./BaseChracter";
 
 interface GuideCharacterConfig extends BaseCharacterConfig {
   dialogues: DialogueBranch[];
   initialBranchKey: string;
 }
 
-export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
+export class GuideCharacter extends BaseCharacter {
   private dialogues: DialogueBranch[];
   private currentBranchKey: string;
   private isTalking: boolean = false;
@@ -21,8 +22,7 @@ export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
   private moveSpeed: number = 100;
 
   constructor(config: GuideCharacterConfig) {
-    const { scene, x, y, texture } = config;
-    super(scene, x, y, texture);
+    super(config);
     this.dialogues = config.dialogues;
     this.currentBranchKey = config.initialBranchKey;
 
@@ -117,64 +117,63 @@ export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
       console.warn(`Dialogue branch not found: ${this.currentBranchKey}`);
     }
   }
-  public moveTo(targetX: number, targetY: number, duration: number = 2000) {
-    // Move the NPC to a target position over a specified duration
-    this.scene.tweens.add({
-      targets: this,
-      x: targetX,
-      y: targetY,
-      duration: duration,
-      ease: "Power2",
-      onStart: () => {
-        this.anims.play("guide-walk", true);
-      },
-      onComplete: () => {
-        this.anims.play("guide-idle", true);
-      },
-    });
-  }
 
   public moveAlongPath(
-    path: Array<{ x: number; y: number }>,
-    speed: number = 100,
+    path: { x: number; y: number }[],
+    speed?: number,
     onComplete?: () => void
-  ) {
-    if (path.length === 0) return;
+  ): void {
+    this.currentPath = path;
+    this.currentPathIndex = 0;
+    if (speed) this.moveSpeed = speed;
+    this.moveToNextPoint(onComplete);
+  }
 
-    const moveToPoint = (index: number) => {
-      if (index >= path.length) {
-        if (onComplete) onComplete();
-        return;
-      }
+  private moveToNextPoint(onComplete?: () => void): void {
+    if (this.currentPathIndex >= this.currentPath.length) {
+      // Path complete
+      this.setVelocity(0);
+      this.play(`guide-idle-${this.facingDirection}`, true);
+      if (onComplete) onComplete();
+      return;
+    }
 
-      const point = path[index];
+    const target = this.currentPath[this.currentPathIndex];
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
+
+    // Set facing direction based on angle
+    if (Math.abs(angle) < Math.PI / 4) {
+      this.facingDirection = "right";
+    } else if (Math.abs(angle) > (3 * Math.PI) / 4) {
+      this.facingDirection = "left";
+    } else if (angle > 0) {
+      this.facingDirection = "down";
+    } else {
+      this.facingDirection = "up";
+    }
+
+    // Play walking animation
+    this.play(`guide-walk-${this.facingDirection}`, true);
+
+    // Move to target
+    this.scene.physics.moveTo(this, target.x, target.y, this.moveSpeed);
+
+    // Check for arrival at destination
+    this.scene.physics.world.on("worldstep", () => {
       const distance = Phaser.Math.Distance.Between(
         this.x,
         this.y,
-        point.x,
-        point.y
+        target.x,
+        target.y
       );
-      const duration = (distance / speed) * 1000; // Duration in ms
 
-      this.scene.tweens.add({
-        targets: this,
-        x: point.x,
-        y: point.y,
-        duration: duration,
-        ease: "Power2",
-        onStart: () => {
-          this.anims.play("guide-walk", true);
-        },
-        onComplete: () => {
-          this.anims.play("guide-idle", true);
-          moveToPoint(index + 1);
-        },
-      });
-    };
-
-    moveToPoint(0);
+      if (distance < 4) {
+        this.setVelocity(0);
+        this.currentPathIndex++;
+        this.moveToNextPoint(onComplete);
+      }
+    });
   }
-
   public standStill(duration: number, onComplete?: () => void) {
     // Make the NPC stand still for a certain duration
     this.anims.play("guide-idle", true);

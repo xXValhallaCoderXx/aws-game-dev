@@ -188,28 +188,26 @@ export class IntroCutScene extends BaseScene {
 
   private endCutscene(): void {
     // Re-enable player input and make the player visible
-    // this.input.enabled = true;
-    // this.player.setVisible(true);
-    // if (this.player.body) {
-    //   this.player.body.enable = true;
-    // }
+    this.input.enabled = true;
+    if (this.player) {
+      this.player.setVisible(true);
+      if (this.player.body) {
+        this.player.body.enable = true;
+      }
+    }
 
     // Define the path for guideNPC to follow to the far right
     const path = [
-      { x: this.guideNPC.x + 100, y: this.guideNPC.y }, // Move right by 100 units
-      { x: this.guideNPC.x + 200, y: this.guideNPC.y }, // Move right by another 100 units
-      { x: 700, y: this.guideNPC.y }, // Final destination (adjust based on your map's width)
+      { x: this.guideNPC.x + 300, y: this.guideNPC.y }, // Move right by 300 units
     ];
 
+    console.log("START MOVE");
     // Move guideNPC along the defined path
     this.guideNPC.moveAlongPath(path, 100, () => {
-      console.log(
-        "guideNPC has moved to the far right. Transitioning to HOME_MAP."
-      );
-
       // Optional: Add a fade-out effect before transitioning
-      this.cameras.main.fadeOut(1000, 0, 0, 0); // Fade out over 1 second
-
+      console.log("CAMERA FADE START");
+      this.cameras.main.fadeOut(1000, 0, 0, 0);
+      console.log("CAMERA FADE END");
       this.cameras.main.once("camerafadeoutcomplete", () => {
         console.log("Fade-out complete. Transitioning to HOME_MAP.");
         this.scene.start(ESCENE_KEYS.HOME_MAP, { spawnX: 185, spawnY: 170 });
@@ -217,14 +215,12 @@ export class IntroCutScene extends BaseScene {
     });
   }
 
-  // Clean up event listeners when scene is destroyed
-  // public shutdown() {
-  //   super.shutdown();
-  //   PhaserEventBus.off("cutscene-end", this.endCutscene, this);
-  // }
-
-  // public destroy() {
+  // destroy() {
+  //   // Clean up event listeners
+  //   PhaserEventBus.off("dialogue-complete");
+  //   if (this.backgroundMusic) {
+  //     this.backgroundMusic.stop();
+  //   }
   //   super.destroy();
-  //   PhaserEventBus.off("cutscene-end", this.endCutscene, this);
   // }
 }
