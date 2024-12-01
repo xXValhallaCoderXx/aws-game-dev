@@ -1,147 +1,143 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Character, CharacterConfig } from "./CharacterClass";
-import { Inventory } from "./player-character.interface";
+import { BaseCharacter } from "./BaseChracter";
+import {
+  BaseCharacterConfig,
+  Inventory,
+  AnimationKey,
+  AnimationKeyCarry,
+} from "./player-character.interface";
 
-type Action = "walk" | "idle" | "harvest";
-type CarryActions = "walk" | "idle";
-type Direction = "up" | "down" | "left" | "right";
-type DirectionCapitalized = "Up" | "Down" | "Left" | "Right";
-type AnimationKey = `${Action}${DirectionCapitalized}`;
-type AnimationKeyCarry = `${CarryActions}${DirectionCapitalized}`;
+interface PlayerConfig extends BaseCharacterConfig {
+  speed: number;
+}
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
-export class PlayerCharacter extends Character {
-  // Add properties for carrying items
+export class PlayerCharacter extends BaseCharacter {
+  public carriedItem?: string;
   public isCarrying: boolean = false;
-  public carriedItem?: string; // The type of seed being carried
-
   public isHarvesting: boolean = false;
-
   public inventory: Inventory = {
     carrotSeeds: 5,
     radishSeeds: 3,
     cauliflowerSeeds: 2,
   };
-  public animations: Record<AnimationKey, string> = {
-    walkUp: "player-walk-up",
-    walkDown: "player-walk-down",
-    walkLeft: "player-walk-left",
-    walkRight: "player-walk-right",
-    idleUp: "player-idle-up",
-    idleDown: "player-idle-down",
-    idleLeft: "player-idle-left",
-    idleRight: "player-idle-right",
-    harvestUp: "player-harvest-up",
-    harvestDown: "player-harvest-down",
-    harvestLeft: "player-harvest-left",
-    harvestRight: "player-harvest-right",
-  };
 
-  public carryAnimations: Record<AnimationKeyCarry, string> = {
-    walkUp: "player-carry-walk-up",
-    walkDown: "player-carry-walk-down",
-    walkLeft: "player-carry-walk-left",
-    walkRight: "player-carry-walk-right",
-    idleUp: "player-carry-idle-up",
-    idleDown: "player-carry-idle-down",
-    idleLeft: "player-carry-idle-left",
-    idleRight: "player-carry-idle-right",
-  };
+  protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  private speed: number;
 
-  constructor(config: CharacterConfig) {
+  constructor(config: PlayerConfig) {
     super(config);
     if (this.scene) {
       // Add null check
-      this.cursors = this.scene.input.keyboard?.createCursorKeys();
+      // this.cursors = this.scene.input.keyboard?.createCursorKeys();
       this.setDepth(10); // Arbitrary high value
     }
+    this.speed = config.speed;
+
+    // Initialize cursors with proper error handling
+    if (!this.scene.input.keyboard) {
+      throw new Error("Keyboard input not available in the current scene");
+    }
+    this.cursors = this.scene.input.keyboard?.createCursorKeys();
+    this.carryAnimations = this.getCarryAnimations();
   }
 
-  public setupAnimations(): void {
-    const normalFrames = {
-      walkUp: { start: 0, end: 5 },
-      walkDown: { start: 6, end: 11 },
-      walkLeft: { start: 12, end: 17 },
-      walkRight: { start: 18, end: 23 },
-      idleUp: { start: 0, end: 5 },
-      idleDown: { start: 6, end: 11 },
-      idleLeft: { start: 12, end: 17 },
-      idleRight: { start: 18, end: 23 },
-      harvestUp: { start: 0, end: 5 },
-      harvestDown: { start: 6, end: 11 },
-      harvestLeft: { start: 12, end: 17 },
-      harvestRight: { start: 18, end: 23 },
+  protected getDefaultAnimations(): Record<string, string> {
+    return {
+      walkUp: "player-walk-up",
+      walkDown: "player-walk-down",
+      walkLeft: "player-walk-left",
+      walkRight: "player-walk-right",
+      idleUp: "player-idle-up",
+      idleDown: "player-idle-down",
+      idleLeft: "player-idle-left",
+      idleRight: "player-idle-right",
+      harvestUp: "player-harvest-up",
+      harvestDown: "player-harvest-down",
+      harvestLeft: "player-harvest-left",
+      harvestRight: "player-harvest-right",
     };
-
-    const frameRates = {
-      walk: 10,
-      idle: 8,
-      harvest: 8,
-    };
-
-    // Create normal animations
-    this.createCharacterAnimations(
-      this.animations,
-      {
-        walk: this.textureConfig.walkSheet,
-        idle: this.textureConfig.idleSheet,
-        harvest: this.textureConfig.harvestSheet,
-      },
-      normalFrames,
-      frameRates
-    );
-
-    // Create carry animations
-    this.createCharacterAnimations(
-      this.carryAnimations,
-      {
-        walk: "player-carry-walk",
-        idle: "player-carry-idle",
-        harvest: "player-harvest",
-      },
-      normalFrames, // Assuming frames are the same
-      frameRates
-    );
   }
 
-  private createCharacterAnimations(
-    animationKeys: { [key: string]: string },
-    textureKeys: { [key: string]: string },
-    frames: { [key: string]: { start: number; end: number } },
-    frameRates: { [key: string]: number }
-  ) {
-    const directions = ["Up", "Down", "Left", "Right"];
-    const actions = ["walk", "idle", "harvest"];
+  protected getCarryAnimations(): Record<string, string> {
+    return {
+      walkUp: "player-carry-walk-up",
+      walkDown: "player-carry-walk-down",
+      walkLeft: "player-carry-walk-left",
+      walkRight: "player-carry-walk-right",
+      idleUp: "player-carry-idle-up",
+      idleDown: "player-carry-idle-down",
+      idleLeft: "player-carry-idle-left",
+      idleRight: "player-carry-idle-right",
+    };
+  }
 
-    actions.forEach((action) => {
-      directions.forEach((direction) => {
-        const animKey = animationKeys[`${action}${direction}`];
-        const textureKey = textureKeys[action];
-        const frameConfig = frames[`${action}${direction}`];
-        const frameRate = frameRates[action];
+  protected setupAnimations(): void {
+    const directions = ["up", "down", "left", "right"];
 
-        // **Check if animation already exists before creating**
-        if (!this.scene.anims.exists(animKey)) {
+    directions.forEach((direction, directionIndex) => {
+      // Regular animations
+      ["walk", "idle"].forEach((action) => {
+        const baseKey = `player-${action}-${direction}`;
+        const spritesheet = `player-${action}`;
+
+        if (!this.scene.anims.exists(baseKey)) {
           this.scene.anims.create({
-            key: animKey,
-            frames: this.scene.anims.generateFrameNumbers(
-              textureKey,
-              frameConfig
-            ),
-            frameRate: frameRate,
-            repeat: action === "harvest" ? 1 : -1,
+            key: baseKey,
+            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
+              start: directionIndex * 6,
+              end: directionIndex * 6 + 5,
+            }),
+            frameRate: action === "walk" ? 10 : 8,
+            repeat: -1,
           });
-        } else {
-          console.warn(`Animation key already exists: ${animKey}`);
+        }
+      });
+
+      // Carry animations
+      ["walk", "idle"].forEach((action) => {
+        const baseKey = `player-carry-${action}-${direction}`;
+        const spritesheet = `player-carry-${action}`;
+
+        if (!this.scene.anims.exists(baseKey)) {
+          this.scene.anims.create({
+            key: baseKey,
+            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
+              start: directionIndex * 6,
+              end: directionIndex * 6 + 5,
+            }),
+            frameRate: action === "walk" ? 10 : 8,
+            repeat: -1,
+          });
+        }
+      });
+
+      // Harvest animation
+      ["up", "down", "left", "right"].forEach(() => {
+        const baseKey = `player-harvest-${direction}`;
+        const spritesheet = `player-harvest`;
+
+        if (!this.scene.anims.exists(baseKey)) {
+          this.scene.anims.create({
+            key: baseKey,
+            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
+              start: directionIndex * 6,
+              end: directionIndex * 6 + 5,
+            }),
+            frameRate: 12,
+            repeat: 0,
+          });
         }
       });
     });
+
+    // Start with idle animation
+    this.play("player-idle-down");
   }
 
   public handleMovement(): void {
     if (!this.cursors) return;
 
-    // Do not allow movement if harvesting
     if (this.isHarvesting) {
       this.setVelocity(0);
       return;
@@ -182,64 +178,55 @@ export class PlayerCharacter extends Character {
       velocityY *= Math.SQRT1_2;
     }
 
-    // Set velocity
     this.setVelocity(velocityX, velocityY);
 
-    // Determine the appropriate animation key
+    // Determine animation
     const action = moving ? "walk" : "idle";
-    const directionCapitalized = this.capitalize(this.facingDirection);
+    // const direction = this.capitalize(this.facingDirection);
     let animationKey: string;
 
     if (this.isCarrying) {
-      // Use carry animations
-      animationKey = this.carryAnimations[`${action}${directionCapitalized}`];
+      animationKey = `player-carry-${action.toLowerCase()}-${
+        this.facingDirection
+      }`;
     } else {
-      // Use normal animations
-      animationKey = this.animations[`${action}${directionCapitalized}`];
+      animationKey = `player-${action.toLowerCase()}-${this.facingDirection}`;
     }
 
-    // Play the animation if it's not already playing
+    // Only change animation if it's different from the current one
     if (this.anims.currentAnim?.key !== animationKey) {
-      this.anims.play(animationKey, true);
+      this.play(animationKey, true);
     }
   }
 
-  public startHarvesting(onComplete: () => void): void {
+  public startHarvesting(onComplete?: () => void): void {
     if (this.isHarvesting) return;
 
     this.isHarvesting = true;
 
-    // Stop the player from moving
-    this.setVelocity(0);
+    // Use the correct animation key from your animations object
+    const harvestAnim =
+      this.animations[
+        `harvest${this.capitalize(this.facingDirection)}` as AnimationKey
+      ];
 
-    // Get current direction
-    const directionCapitalized = this.capitalize(
-      this.facingDirection
-    ) as DirectionCapitalized;
-
-    // Play the harvesting animation
-
-    const animationKey = this.animations[`harvest${directionCapitalized}`];
-    console.log("HARVESTING - ANIMATION KEY: ", animationKey);
-    this.anims.play(animationKey);
-
-    // Listen for animation completion
-    this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+    this.play(harvestAnim, true).once("animationcomplete", () => {
       this.isHarvesting = false;
 
-      // Call the onComplete callback
-      onComplete();
+      // Return to idle animation using the correct key
+      const idleAnim = this.isCarrying
+        ? this.carryAnimations[
+            `idle${this.capitalize(this.facingDirection)}` as AnimationKeyCarry
+          ]
+        : this.animations[
+            `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+          ];
 
-      // Return to idle animation
+      this.play(idleAnim, true);
 
-      const idleAnimKey = this.isCarrying
-        ? this.carryAnimations[`idle${directionCapitalized}`]
-        : this.animations[`idle${directionCapitalized}`];
-      this.anims.play(idleAnimKey);
+      if (onComplete) {
+        onComplete();
+      }
     });
-  }
-
-  private capitalize(str: Direction): DirectionCapitalized {
-    return (str.charAt(0).toUpperCase() + str.slice(1)) as DirectionCapitalized;
   }
 }

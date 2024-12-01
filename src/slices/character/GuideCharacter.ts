@@ -2,78 +2,95 @@
 
 import Phaser from "phaser";
 import { PhaserEventBus } from "@services/phaser.service";
+import {
+  DialogueBranch,
+  BaseCharacterConfig,
+} from "./player-character.interface";
+import { BaseCharacter } from "./BaseChracter";
 
-interface Dialogue {
-  speaker: string;
-  text: string;
-}
-
-interface DialogueBranch {
-  key: string;
-  dialogues: Dialogue[];
-  choices?: {
-    text: string;
-    nextBranch: string;
-  }[];
-}
-
-interface GuideNPCConfig {
-  scene: Phaser.Scene;
-  x: number;
-  y: number;
-  texture: string;
-  animations: {
-    idle: string;
-    walk: string;
-  };
+interface GuideCharacterConfig extends BaseCharacterConfig {
   dialogues: DialogueBranch[];
   initialBranchKey: string;
 }
-export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
+
+export class GuideCharacter extends BaseCharacter {
   private dialogues: DialogueBranch[];
   private currentBranchKey: string;
   private isTalking: boolean = false;
-  public scene: Phaser.Scene;
+  private currentPath: { x: number; y: number }[] = [];
+  private currentPathIndex: number = 0;
+  private moveSpeed: number = 100;
 
-  constructor(config: GuideNPCConfig) {
-    super(config.scene, config.x, config.y, config.texture);
-
-    this.scene = config.scene;
+  constructor(config: GuideCharacterConfig) {
+    super(config);
     this.dialogues = config.dialogues;
     this.currentBranchKey = config.initialBranchKey;
 
-    // Add the NPC to the scene
-    this.scene.add.existing(this);
-    this.scene.physics.add.existing(this);
+    // Set up animations right after construction
+    this.setupAnimations();
 
-    // Set physics properties
-    this.setCollideWorldBounds(true);
-    this.setDepth(10); // Ensure NPC is above other elements
+    // Start with idle animation
+    this.play("guide-idle-down", true);
 
-    // Play idle animation
-    this.play(config.animations.idle);
     // Listen for dialogue choice events
     PhaserEventBus.on("choose-dialogue", this.handleDialogueChoice, this);
   }
 
-  public setupAnimations(animations: {
-    idle: Phaser.Types.Animations.Animation;
-    walk: Phaser.Types.Animations.Animation;
-  }) {
-    // Create animations if not already created
-    Object.keys(animations).forEach((key) => {
-      const anim = animations[key as keyof typeof animations];
-      if (!this.scene.anims.exists(String(anim.key))) {
-        this.scene.anims.create(anim);
+  protected getDefaultAnimations(): Record<string, string> {
+    return {
+      walkUp: "guide-walk-up",
+      walkDown: "guide-walk-down",
+      walkLeft: "guide-walk-left",
+      walkRight: "guide-walk-right",
+      idleUp: "guide-idle-up",
+      idleDown: "guide-idle-down",
+      idleLeft: "guide-idle-left",
+      idleRight: "guide-idle-right",
+    };
+  }
+
+  protected setupAnimations(): void {
+    const directions = ["up", "down", "left", "right"];
+
+    directions.forEach((direction, directionIndex) => {
+      // Walk animations
+      const walkKey = `guide-walk-${direction}`;
+      if (!this.scene.anims.exists(walkKey)) {
+        this.scene.anims.create({
+          key: walkKey,
+          frames: this.scene.anims.generateFrameNumbers("guide-walk", {
+            start: directionIndex * 6,
+            end: directionIndex * 6 + 5,
+          }),
+          frameRate: 10,
+          repeat: -1,
+        });
+      }
+
+      // Idle animations
+      const idleKey = `guide-idle-${direction}`;
+      if (!this.scene.anims.exists(idleKey)) {
+        this.scene.anims.create({
+          key: idleKey,
+          frames: this.scene.anims.generateFrameNumbers("guide-idle", {
+            start: directionIndex * 6,
+            end: directionIndex * 6 + 5,
+          }),
+          frameRate: 8,
+          repeat: -1,
+        });
       }
     });
+
+    // Start with idle down animation
+    this.play("guide-idle-down");
   }
 
   public initiateDialogue() {
     if (this.isTalking) return; // Prevent overlapping dialogues
     console.log(`Initiating dialogue with branch: ${this.currentBranchKey}`);
     this.isTalking = true;
-    this.play("guide-idle", true);
+    this.play("guide-idle-down", true);
 
     // Emit an event with the current dialogue branch data
     const branch = this.dialogues.find((b) => b.key === this.currentBranchKey);
@@ -100,62 +117,76 @@ export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
       console.warn(`Dialogue branch not found: ${this.currentBranchKey}`);
     }
   }
-  public moveTo(targetX: number, targetY: number, duration: number = 2000) {
-    // Move the NPC to a target position over a specified duration
-    this.scene.tweens.add({
-      targets: this,
-      x: targetX,
-      y: targetY,
-      duration: duration,
-      ease: "Power2",
-      onStart: () => {
-        this.anims.play("guide-walk", true);
-      },
-      onComplete: () => {
-        this.anims.play("guide-idle", true);
-      },
-    });
-  }
 
   public moveAlongPath(
-    path: Array<{ x: number; y: number }>,
-    speed: number = 100,
+    path: { x: number; y: number }[],
+    speed?: number,
     onComplete?: () => void
-  ) {
-    if (path.length === 0) return;
+  ): void {
+    this.currentPath = path;
+    this.currentPathIndex = 0;
+    if (speed) this.moveSpeed = speed;
 
-    const moveToPoint = (index: number) => {
-      if (index >= path.length) {
-        if (onComplete) onComplete();
-        return;
+    // Clear any existing worldstep listeners
+    this.scene.physics.world.off("worldstep");
+
+    this.moveToNextPoint(onComplete);
+  }
+
+  private moveToNextPoint(onComplete?: () => void): void {
+    if (this.currentPathIndex >= this.currentPath.length) {
+      // Path complete
+      this.setVelocity(0);
+      this.play(`guide-idle-${this.facingDirection}`, true);
+
+      // Clear the worldstep listener
+      this.scene.physics.world.off("worldstep");
+
+      if (onComplete) {
+        onComplete();
       }
+      return;
+    }
 
-      const point = path[index];
+    const target = this.currentPath[this.currentPathIndex];
+    const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
+
+    // Set facing direction based on angle
+    if (Math.abs(angle) < Math.PI / 4) {
+      this.facingDirection = "right";
+    } else if (Math.abs(angle) > (3 * Math.PI) / 4) {
+      this.facingDirection = "left";
+    } else if (angle > 0) {
+      this.facingDirection = "down";
+    } else {
+      this.facingDirection = "up";
+    }
+
+    // Play walking animation
+    this.play(`guide-walk-${this.facingDirection}`, true);
+
+    // Move to target
+    this.scene.physics.moveTo(this, target.x, target.y, this.moveSpeed);
+
+    // Create a single worldstep listener
+    const checkDistance = () => {
       const distance = Phaser.Math.Distance.Between(
         this.x,
         this.y,
-        point.x,
-        point.y
+        target.x,
+        target.y
       );
-      const duration = (distance / speed) * 1000; // Duration in ms
 
-      this.scene.tweens.add({
-        targets: this,
-        x: point.x,
-        y: point.y,
-        duration: duration,
-        ease: "Power2",
-        onStart: () => {
-          this.anims.play("guide-walk", true);
-        },
-        onComplete: () => {
-          this.anims.play("guide-idle", true);
-          moveToPoint(index + 1);
-        },
-      });
+      if (distance < 4) {
+        this.setVelocity(0);
+        this.currentPathIndex++;
+        // Remove this listener before moving to next point
+        this.scene.physics.world.off("worldstep", checkDistance);
+        this.moveToNextPoint(onComplete);
+      }
     };
 
-    moveToPoint(0);
+    this.scene.physics.world.on("worldstep", checkDistance);
   }
 
   public standStill(duration: number, onComplete?: () => void) {

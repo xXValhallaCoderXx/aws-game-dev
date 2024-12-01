@@ -3,7 +3,7 @@
 // BaseScene.ts
 import { Scene } from "phaser";
 import { PlayerCharacter } from "../slices/character/PlayerCharacter";
-import { CharacterConfig } from "../slices/character/CharacterClass";
+import { BaseCharacterConfig } from "@/slices/character/player-character.interface";
 
 export abstract class BaseScene extends Scene {
   protected player!: PlayerCharacter;
@@ -49,10 +49,7 @@ export abstract class BaseScene extends Scene {
   }
 
   update(time: any, delta: any) {
-    console.log("BaseScene update called");
     if (!this.cursors || !this.player) {
-      console.log("Cursors or player not defined", this.cursors);
-      console.log("PLAYUEER: ", this.player);
       return;
     }
     this.player.handleMovement();
@@ -66,41 +63,21 @@ export abstract class BaseScene extends Scene {
   }
 
   protected createPlayer(): void {
-    const playerConfig: CharacterConfig = this.getPlayerConfig();
-    this.player = new PlayerCharacter(playerConfig);
-    this.player.setupAnimations();
-    this.player.anims.play(this.player.animations.idleDown);
+    const playerConfig: BaseCharacterConfig = this.getPlayerConfig();
+    this.player = new PlayerCharacter({ ...playerConfig, speed: 100 });
+
+    // this.player.anims.play(this.player.animations.idleDown);
   }
 
   protected abstract createMap(): void;
 
-  protected getPlayerConfig(): CharacterConfig {
+  protected getPlayerConfig(): BaseCharacterConfig {
     const { x, y } = this.getStartingPosition();
     return {
       scene: this,
       x,
       y,
-      texture: {
-        key: "player",
-        walkSheet: "player-walk",
-        idleSheet: "player-idle",
-        harvestSheet: "player-harvest",
-      },
-      speed: 100,
-      animations: {
-        walkUp: "player-walk-up",
-        walkDown: "player-walk-down",
-        walkLeft: "player-walk-left",
-        walkRight: "player-walk-right",
-        idleUp: "player-idle-up",
-        idleDown: "player-idle-down",
-        idleLeft: "player-idle-left",
-        idleRight: "player-idle-right",
-        harvestUp: "player-harvest-up",
-        harvestDown: "player-harvest-down",
-        harvestLeft: "player-harvest-left",
-        harvestRight: "player-harvest-right",
-      },
+      texture: "player-idle",
     };
   }
 
