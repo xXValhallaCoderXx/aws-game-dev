@@ -18,7 +18,7 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
   physics: {
     default: "arcade",
     arcade: {
-      debug: true,
+      debug: false,
     },
   },
   scene: [Preloader, IntroCutScene, HomeMap, HomeBuilding],

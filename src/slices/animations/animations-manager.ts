@@ -1,60 +1,22 @@
-// AnimationManager.ts
-import Phaser from "phaser";
-
 export class AnimationManager {
-  /**
-   * Initializes all animations required for the game.
-   * @param scene The current Phaser scene.
-   */
-  static initialize(scene: Phaser.Scene) {
-    this.createPlayerAnimations(scene);
-    this.createMonsterAnimations(scene);
-    // Initialize animations for other entities...
-  }
+  private static animationsCreated = false;
 
-  static createPlayerAnimations(scene: Phaser.Scene) {
-    const animations = [
-      {
-        key: "player-walk-up",
-        frames: scene.anims.generateFrameNumbers("player", {
-          start: 0,
-          end: 3,
+  public static createPlayerAnimations(scene: Phaser.Scene): void {
+    if (this.animationsCreated) return;
+
+    // Create harvest animations
+    ["up", "down", "left", "right"].forEach((direction, index) => {
+      scene.anims.create({
+        key: `player-harvest-${direction}`,
+        frames: scene.anims.generateFrameNumbers("player-harvest", {
+          start: index * 6,
+          end: index * 6 + 5,
         }),
-        frameRate: 10,
-        repeat: -1,
-      },
-      // Define other player animations...
-    ];
-
-    animations.forEach((anim) => {
-      if (!scene.anims.exists(anim.key)) {
-        scene.anims.create(anim);
-      } else {
-        console.warn(`Animation key already exists: ${anim.key}`);
-      }
+        frameRate: 12,
+        repeat: 0,
+      });
     });
-  }
 
-  static createMonsterAnimations(scene: Phaser.Scene) {
-    const animations = [
-      {
-        key: "monster-walk-left",
-        frames: scene.anims.generateFrameNumbers("monster", {
-          start: 0,
-          end: 3,
-        }),
-        frameRate: 8,
-        repeat: -1,
-      },
-      // Define other monster animations...
-    ];
-
-    animations.forEach((anim) => {
-      if (!scene.anims.exists(anim.key)) {
-        scene.anims.create(anim);
-      } else {
-        console.warn(`Animation key already exists: ${anim.key}`);
-      }
-    });
+    this.animationsCreated = true;
   }
 }

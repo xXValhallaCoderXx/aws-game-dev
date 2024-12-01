@@ -113,16 +113,21 @@ export class PlayerCharacter extends BaseCharacter {
       });
 
       // Harvest animation
-      ["up", "down", "left", "right"].forEach((direction, index) => {
-        this.anims.create({
-          key: `player-harvest-${direction}`, // This matches your animation keys
-          frames: this.anims.generateFrameNumbers("player-harvest", {
-            start: index * 6,
-            end: index * 6 + 5,
-          }),
-          frameRate: 12,
-          repeat: 0, // Important: set to 0 to play only once
-        });
+      ["up", "down", "left", "right"].forEach(() => {
+        const baseKey = `player-harvest-${direction}`;
+        const spritesheet = `player-harvest`;
+
+        if (!this.scene.anims.exists(baseKey)) {
+          this.scene.anims.create({
+            key: baseKey,
+            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
+              start: directionIndex * 6,
+              end: directionIndex * 6 + 5,
+            }),
+            frameRate: 12,
+            repeat: 0,
+          });
+        }
       });
     });
 
