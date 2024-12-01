@@ -17,3 +17,18 @@ export interface BaseCharacterConfig {
   y: number;
   texture: string;
 }
+
+
+export interface Dialogue {
+  speaker: string;
+  text: string;
+}
+
+export interface DialogueBranch {
+  key: string;
+  dialogues: Dialogue[];
+  choices?: {
+    text: string;
+    nextBranch: string;
+  }[];
+}

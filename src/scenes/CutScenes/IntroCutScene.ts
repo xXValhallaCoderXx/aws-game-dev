@@ -32,6 +32,9 @@ export class IntroCutScene extends BaseScene {
 
   create() {
     super.create();
+
+    this.createMap();
+
     this.backgroundMusic = this.sound.add("backgroundMusic", {
       volume: 0.2, // Set lower volume (0 to 1)
       loop: true, // Loop the music
@@ -41,18 +44,15 @@ export class IntroCutScene extends BaseScene {
     this.backgroundMusic.play();
     // Disable player input
     this.input.enabled = false;
-    this.player.setVisible(false); // Optionally hide the player during the cutscene
+    // this.player.setVisible(false); // Optionally hide the player during the cutscene
 
     // Create Guide NPC
     this.guideNPC = new GuideCharacter({
       scene: this,
       x: 250,
-      y: 250,
+      y: 100,
       texture: "guide-idle",
-      animations: {
-        idle: "guide-idle",
-        walk: "guide-walk",
-      },
+
       dialogues: [
         {
           key: "start",
@@ -99,27 +99,9 @@ export class IntroCutScene extends BaseScene {
       initialBranchKey: "start",
     });
 
-    // Setup NPC Animations
-    this.guideNPC.setupAnimations({
-      idle: {
-        key: "guide-idle",
-        frames: this.anims.generateFrameNumbers("guide-idle", {
-          start: 0,
-          end: 3,
-        }),
-        frameRate: 2,
-        repeat: -1,
-      },
-      walk: {
-        key: "guide-walk",
-        frames: this.anims.generateFrameNumbers("guide-idle", {
-          start: 4,
-          end: 7,
-        }),
-        frameRate: 10,
-        repeat: -1,
-      },
-    });
+    // Make sure the guide is added to the scene and visible
+    this.add.existing(this.guideNPC);
+    this.guideNPC.setDepth(10); // Set a depth value higher than the map layers
 
     // Start Dialogue
     this.guideNPC.initiateDialogue();

@@ -2,78 +2,95 @@
 
 import Phaser from "phaser";
 import { PhaserEventBus } from "@services/phaser.service";
+import {
+  DialogueBranch,
+  BaseCharacterConfig,
+} from "./player-character.interface";
 
-interface Dialogue {
-  speaker: string;
-  text: string;
-}
-
-interface DialogueBranch {
-  key: string;
-  dialogues: Dialogue[];
-  choices?: {
-    text: string;
-    nextBranch: string;
-  }[];
-}
-
-interface GuideNPCConfig {
-  scene: Phaser.Scene;
-  x: number;
-  y: number;
-  texture: string;
-  animations: {
-    idle: string;
-    walk: string;
-  };
+interface GuideCharacterConfig extends BaseCharacterConfig {
   dialogues: DialogueBranch[];
   initialBranchKey: string;
 }
+
 export class GuideCharacter extends Phaser.Physics.Arcade.Sprite {
   private dialogues: DialogueBranch[];
   private currentBranchKey: string;
   private isTalking: boolean = false;
-  public scene: Phaser.Scene;
+  private currentPath: { x: number; y: number }[] = [];
+  private currentPathIndex: number = 0;
+  private moveSpeed: number = 100;
 
-  constructor(config: GuideNPCConfig) {
-    super(config.scene, config.x, config.y, config.texture);
-
-    this.scene = config.scene;
+  constructor(config: GuideCharacterConfig) {
+    const { scene, x, y, texture } = config;
+    super(scene, x, y, texture);
     this.dialogues = config.dialogues;
     this.currentBranchKey = config.initialBranchKey;
 
-    // Add the NPC to the scene
-    this.scene.add.existing(this);
-    this.scene.physics.add.existing(this);
+    // Set up animations right after construction
+    this.setupAnimations();
 
-    // Set physics properties
-    this.setCollideWorldBounds(true);
-    this.setDepth(10); // Ensure NPC is above other elements
+    // Start with idle animation
+    this.play("guide-idle-down", true);
 
-    // Play idle animation
-    this.play(config.animations.idle);
     // Listen for dialogue choice events
     PhaserEventBus.on("choose-dialogue", this.handleDialogueChoice, this);
   }
 
-  public setupAnimations(animations: {
-    idle: Phaser.Types.Animations.Animation;
-    walk: Phaser.Types.Animations.Animation;
-  }) {
-    // Create animations if not already created
-    Object.keys(animations).forEach((key) => {
-      const anim = animations[key as keyof typeof animations];
-      if (!this.scene.anims.exists(String(anim.key))) {
-        this.scene.anims.create(anim);
+  protected getDefaultAnimations(): Record<string, string> {
+    return {
+      walkUp: "guide-walk-up",
+      walkDown: "guide-walk-down",
+      walkLeft: "guide-walk-left",
+      walkRight: "guide-walk-right",
+      idleUp: "guide-idle-up",
+      idleDown: "guide-idle-down",
+      idleLeft: "guide-idle-left",
+      idleRight: "guide-idle-right",
+    };
+  }
+
+  protected setupAnimations(): void {
+    const directions = ["up", "down", "left", "right"];
+
+    directions.forEach((direction, directionIndex) => {
+      // Walk animations
+      const walkKey = `guide-walk-${direction}`;
+      if (!this.scene.anims.exists(walkKey)) {
+        this.scene.anims.create({
+          key: walkKey,
+          frames: this.scene.anims.generateFrameNumbers("guide-walk", {
+            start: directionIndex * 6,
+            end: directionIndex * 6 + 5,
+          }),
+          frameRate: 10,
+          repeat: -1,
+        });
+      }
+
+      // Idle animations
+      const idleKey = `guide-idle-${direction}`;
+      if (!this.scene.anims.exists(idleKey)) {
+        this.scene.anims.create({
+          key: idleKey,
+          frames: this.scene.anims.generateFrameNumbers("guide-idle", {
+            start: directionIndex * 6,
+            end: directionIndex * 6 + 5,
+          }),
+          frameRate: 8,
+          repeat: -1,
+        });
       }
     });
+
+    // Start with idle down animation
+    this.play("guide-idle-down");
   }
 
   public initiateDialogue() {
     if (this.isTalking) return; // Prevent overlapping dialogues
     console.log(`Initiating dialogue with branch: ${this.currentBranchKey}`);
     this.isTalking = true;
-    this.play("guide-idle", true);
+    this.play("guide-idle-down", true);
 
     // Emit an event with the current dialogue branch data
     const branch = this.dialogues.find((b) => b.key === this.currentBranchKey);
