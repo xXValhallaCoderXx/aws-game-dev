@@ -22,7 +22,7 @@ const Dialogue: React.FC = () => {
   const [currentDialogue, setCurrentDialogue] = useState<Dialogue | null>(null);
   const [dialogues, setDialogues] = useState<Dialogue[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [test, setTest] = useState(false);
+
   const [choices, setChoices] = useState<
     { text: string; nextBranch: string }[] | null
   >(null);
@@ -39,7 +39,6 @@ const Dialogue: React.FC = () => {
       setChoices(branch.choices || null);
       setCurrentDialogue(branch.dialogues[0]);
       setVisible(true);
-      setTest(true);
 
       console.log("State after updating:", {
         visible: true,
@@ -62,7 +61,6 @@ const Dialogue: React.FC = () => {
       console.log(`HANDLE NEXT - NEXT DIALOGUE: ${nextIndex}`);
       setCurrentIndex(nextIndex);
       setCurrentDialogue(dialogues[nextIndex]);
-      setTest(false);
     } else {
       // End of dialogues
       console.log("HANDLE NEXT - END OF CUTSCENE");
