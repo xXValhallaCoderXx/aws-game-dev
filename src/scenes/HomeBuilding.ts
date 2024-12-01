@@ -17,7 +17,7 @@ export class HomeBuilding extends BaseScene {
 
   init() {
     super.init();
-    console.log("HOME HOUSE");
+
   }
 
   preload() {

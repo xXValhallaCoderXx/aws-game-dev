@@ -16,7 +16,7 @@ export class IntroCutScene extends BaseScene {
 
   init() {
     super.init();
-    console.log("INTRO CUTSCENE");
+
   }
 
   preload() {
@@ -201,15 +201,10 @@ export class IntroCutScene extends BaseScene {
       { x: this.guideNPC.x + 300, y: this.guideNPC.y }, // Move right by 300 units
     ];
 
-    console.log("START MOVE");
-
     // Move guideNPC along the defined path
     this.guideNPC.moveAlongPath(path, 100, () => {
-      console.log("MOVEMENT COMPLETE");
-
       // Create a promise to handle the fade out
       const fadeOutPromise = new Promise<void>((resolve) => {
-        console.log("CAMERA FADE START");
         this.cameras.main.fadeOut(1000, 0, 0, 0);
 
         this.cameras.main.once(
