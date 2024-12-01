@@ -3,7 +3,7 @@
 // BaseScene.ts
 import { Scene } from "phaser";
 import { PlayerCharacter } from "../slices/character/PlayerCharacter";
-import { CharacterConfig } from "../slices/character/BaseCharacter";
+import { CharacterConfig } from "@/slices/character/player-character.interface";
 
 export abstract class BaseScene extends Scene {
   protected player!: PlayerCharacter;
@@ -49,10 +49,7 @@ export abstract class BaseScene extends Scene {
   }
 
   update(time: any, delta: any) {
-    console.log("BaseScene update called");
     if (!this.cursors || !this.player) {
-      console.log("Cursors or player not defined", this.cursors);
-      console.log("PLAYUEER: ", this.player);
       return;
     }
     this.player.handleMovement();
@@ -67,9 +64,10 @@ export abstract class BaseScene extends Scene {
 
   protected createPlayer(): void {
     const playerConfig: CharacterConfig = this.getPlayerConfig();
+    console.log("PLAYER CONFIG: ", playerConfig);
     this.player = new PlayerCharacter(playerConfig);
     this.player.setupAnimations();
-    this.player.anims.play(this.player.animations.idleDown);
+    // this.player.anims.play(this.player.animations.idleDown);
   }
 
   protected abstract createMap(): void;

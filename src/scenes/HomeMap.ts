@@ -388,7 +388,7 @@ export class HomeMap extends BaseScene {
       this.enterBuilding();
     } else {
       // Optionally, provide feedback that the door is closed
-      console.log("The door is closed.");
+
     }
   }
 

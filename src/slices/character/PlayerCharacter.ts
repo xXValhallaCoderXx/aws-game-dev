@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { CharacterConfig } from "./player-character.interface";
+import { CharacterConfig, Inventory } from "./player-character.interface";
 import { AnimationManager } from "../animations/animations-manager";
 import { BaseCharacter } from "./BaseCharacter";
-import { Inventory } from "./player-character.interface";
 
 type Action = "walk" | "idle" | "harvest";
-type CarryActions = "walk" | "idle";
+type CarryAction = "walk" | "idle";
 type DirectionCapitalized = "Up" | "Down" | "Left" | "Right";
 type AnimationKey = `${Action}${DirectionCapitalized}`;
-type AnimationKeyCarry = `${CarryActions}${DirectionCapitalized}`;
+type AnimationKeyCarry = `${CarryAction}${DirectionCapitalized}`;
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
+
 export class PlayerCharacter extends BaseCharacter {
   // Add properties for carrying items
   public isCarrying: boolean = false;
@@ -61,9 +61,8 @@ export class PlayerCharacter extends BaseCharacter {
   public setupAnimations(): void {
     // Define normal animations
     Object.entries(this.animations).forEach(([key, animKey]) => {
-      const [action, direction] = key
-        .match(/([a-z]+)(Up|Down|Left|Right)/)!
-        .slice(1);
+      const [action] = key.match(/([a-z]+)(Up|Down|Left|Right)/)!.slice(1);
+      console.log("ANIM KEY: ", animKey);
       AnimationManager.defineAnimation(this.scene, {
         key: animKey,
         frames: { start: 0, end: 5 }, // Adjust frame ranges as per your sprite sheet
@@ -74,9 +73,7 @@ export class PlayerCharacter extends BaseCharacter {
 
     // Define carry animations
     Object.entries(this.carryAnimations).forEach(([key, animKey]) => {
-      const [action, direction] = key
-        .match(/([a-z]+)(Up|Down|Left|Right)/)!
-        .slice(1);
+      const [action] = key.match(/([a-z]+)(Up|Down|Left|Right)/)!.slice(1);
       AnimationManager.defineAnimation(this.scene, {
         key: animKey,
         frames: { start: 0, end: 5 }, // Adjust frame ranges as per your sprite sheet
@@ -145,11 +142,11 @@ export class PlayerCharacter extends BaseCharacter {
       // Use normal animations
       animationKey = this.animations[`${action}${directionCapitalized}`];
     }
-
+    console.log("ANIMATIONS KEY: ", animationKey);
     // Play the animation if it's not already playing
-    if (this.anims.currentAnim?.key !== animationKey) {
-      this.anims.play(animationKey, true);
-    }
+    // if (this.anims.currentAnim?.key !== animationKey) {
+    //   this.anims.play(animationKey, true);
+    // }
   }
 
   public startHarvesting(onComplete: () => void): void {

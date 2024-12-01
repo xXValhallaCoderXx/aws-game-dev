@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 import { Preloader } from "@scenes/Preloader";
-import { HomeMap } from "@scenes/HomeMap";
+// import { HomeMap } from "@scenes/HomeMap";
 import { HomeBuilding } from "@scenes/HomeBuilding";
-import { IntroCutScene } from "@scenes/CutScenes/IntroCutScene";
+// import { IntroCutScene } from "@scenes/CutScenes/IntroCutScene";
 
 export const phaserConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -21,7 +21,7 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [Preloader, IntroCutScene, HomeMap, HomeBuilding],
+  scene: [Preloader, HomeBuilding],
 };
 
 // Used to emit events between React components and Phaser scenes
