@@ -202,14 +202,27 @@ export class IntroCutScene extends BaseScene {
     ];
 
     console.log("START MOVE");
+
     // Move guideNPC along the defined path
     this.guideNPC.moveAlongPath(path, 100, () => {
-      // Optional: Add a fade-out effect before transitioning
-      console.log("CAMERA FADE START");
-      this.cameras.main.fadeOut(1000, 0, 0, 0);
-      console.log("CAMERA FADE END");
-      this.cameras.main.once("camerafadeoutcomplete", () => {
-        console.log("Fade-out complete. Transitioning to HOME_MAP.");
+      console.log("MOVEMENT COMPLETE");
+
+      // Create a promise to handle the fade out
+      const fadeOutPromise = new Promise<void>((resolve) => {
+        console.log("CAMERA FADE START");
+        this.cameras.main.fadeOut(1000, 0, 0, 0);
+
+        this.cameras.main.once(
+          Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+          () => {
+            console.log("Fade-out complete. Transitioning to HOME_MAP.");
+            resolve();
+          }
+        );
+      });
+
+      // Handle the scene transition after fade out
+      fadeOutPromise.then(() => {
         this.scene.start(ESCENE_KEYS.HOME_MAP, { spawnX: 185, spawnY: 170 });
       });
     });

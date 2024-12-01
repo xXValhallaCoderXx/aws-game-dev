@@ -126,6 +126,10 @@ export class GuideCharacter extends BaseCharacter {
     this.currentPath = path;
     this.currentPathIndex = 0;
     if (speed) this.moveSpeed = speed;
+
+    // Clear any existing worldstep listeners
+    this.scene.physics.world.off("worldstep");
+
     this.moveToNextPoint(onComplete);
   }
 
@@ -134,7 +138,13 @@ export class GuideCharacter extends BaseCharacter {
       // Path complete
       this.setVelocity(0);
       this.play(`guide-idle-${this.facingDirection}`, true);
-      if (onComplete) onComplete();
+
+      // Clear the worldstep listener
+      this.scene.physics.world.off("worldstep");
+
+      if (onComplete) {
+        onComplete();
+      }
       return;
     }
 
@@ -158,8 +168,8 @@ export class GuideCharacter extends BaseCharacter {
     // Move to target
     this.scene.physics.moveTo(this, target.x, target.y, this.moveSpeed);
 
-    // Check for arrival at destination
-    this.scene.physics.world.on("worldstep", () => {
+    // Create a single worldstep listener
+    const checkDistance = () => {
       const distance = Phaser.Math.Distance.Between(
         this.x,
         this.y,
@@ -170,10 +180,15 @@ export class GuideCharacter extends BaseCharacter {
       if (distance < 4) {
         this.setVelocity(0);
         this.currentPathIndex++;
+        // Remove this listener before moving to next point
+        this.scene.physics.world.off("worldstep", checkDistance);
         this.moveToNextPoint(onComplete);
       }
-    });
+    };
+
+    this.scene.physics.world.on("worldstep", checkDistance);
   }
+
   public standStill(duration: number, onComplete?: () => void) {
     // Make the NPC stand still for a certain duration
     this.anims.play("guide-idle", true);
