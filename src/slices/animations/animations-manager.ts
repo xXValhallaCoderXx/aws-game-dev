@@ -1,60 +1,38 @@
-// AnimationManager.ts
 import Phaser from "phaser";
 
+interface AnimationDefinition {
+  key: string;
+  frames: Phaser.Types.Animations.GenerateFrameNumbers;
+  frameRate: number;
+  repeat: number;
+}
+
 export class AnimationManager {
+  private static animationsDefined: Set<string> = new Set();
+
   /**
-   * Initializes all animations required for the game.
-   * @param scene The current Phaser scene.
+   * Defines an animation if it hasn't been defined already.
+   * @param scene The Phaser scene.
+   * @param definition The animation definition.
    */
-  static initialize(scene: Phaser.Scene) {
-    this.createPlayerAnimations(scene);
-    this.createMonsterAnimations(scene);
-    // Initialize animations for other entities...
-  }
+  public static defineAnimation(
+    scene: Phaser.Scene,
+    definition: AnimationDefinition
+  ) {
+    if (this.animationsDefined.has(definition.key)) {
+      return; // Animation already defined
+    }
 
-  static createPlayerAnimations(scene: Phaser.Scene) {
-    const animations = [
-      {
-        key: "player-walk-up",
-        frames: scene.anims.generateFrameNumbers("player", {
-          start: 0,
-          end: 3,
-        }),
-        frameRate: 10,
-        repeat: -1,
-      },
-      // Define other player animations...
-    ];
-
-    animations.forEach((anim) => {
-      if (!scene.anims.exists(anim.key)) {
-        scene.anims.create(anim);
-      } else {
-        console.warn(`Animation key already exists: ${anim.key}`);
-      }
+    scene.anims.create({
+      key: definition.key,
+      frames: scene.anims.generateFrameNumbers(
+        definition.key,
+        definition.frames
+      ),
+      frameRate: definition.frameRate,
+      repeat: definition.repeat,
     });
-  }
 
-  static createMonsterAnimations(scene: Phaser.Scene) {
-    const animations = [
-      {
-        key: "monster-walk-left",
-        frames: scene.anims.generateFrameNumbers("monster", {
-          start: 0,
-          end: 3,
-        }),
-        frameRate: 8,
-        repeat: -1,
-      },
-      // Define other monster animations...
-    ];
-
-    animations.forEach((anim) => {
-      if (!scene.anims.exists(anim.key)) {
-        scene.anims.create(anim);
-      } else {
-        console.warn(`Animation key already exists: ${anim.key}`);
-      }
-    });
+    this.animationsDefined.add(definition.key);
   }
 }

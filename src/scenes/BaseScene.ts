@@ -3,7 +3,7 @@
 // BaseScene.ts
 import { Scene } from "phaser";
 import { PlayerCharacter } from "../slices/character/PlayerCharacter";
-import { CharacterConfig } from "../slices/character/CharacterClass";
+import { CharacterConfig } from "../slices/character/BaseCharacter";
 
 export abstract class BaseScene extends Scene {
   protected player!: PlayerCharacter;

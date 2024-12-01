@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Character, CharacterConfig } from "./CharacterClass";
+import { CharacterConfig } from "./player-character.interface";
+import { AnimationManager } from "../animations/animations-manager";
+import { BaseCharacter } from "./BaseCharacter";
 import { Inventory } from "./player-character.interface";
 
 type Action = "walk" | "idle" | "harvest";
 type CarryActions = "walk" | "idle";
-type Direction = "up" | "down" | "left" | "right";
 type DirectionCapitalized = "Up" | "Down" | "Left" | "Right";
 type AnimationKey = `${Action}${DirectionCapitalized}`;
 type AnimationKeyCarry = `${CarryActions}${DirectionCapitalized}`;
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
-export class PlayerCharacter extends Character {
+export class PlayerCharacter extends BaseCharacter {
   // Add properties for carrying items
   public isCarrying: boolean = false;
   public carriedItem?: string; // The type of seed being carried
@@ -58,82 +59,29 @@ export class PlayerCharacter extends Character {
   }
 
   public setupAnimations(): void {
-    const normalFrames = {
-      walkUp: { start: 0, end: 5 },
-      walkDown: { start: 6, end: 11 },
-      walkLeft: { start: 12, end: 17 },
-      walkRight: { start: 18, end: 23 },
-      idleUp: { start: 0, end: 5 },
-      idleDown: { start: 6, end: 11 },
-      idleLeft: { start: 12, end: 17 },
-      idleRight: { start: 18, end: 23 },
-      harvestUp: { start: 0, end: 5 },
-      harvestDown: { start: 6, end: 11 },
-      harvestLeft: { start: 12, end: 17 },
-      harvestRight: { start: 18, end: 23 },
-    };
+    // Define normal animations
+    Object.entries(this.animations).forEach(([key, animKey]) => {
+      const [action, direction] = key
+        .match(/([a-z]+)(Up|Down|Left|Right)/)!
+        .slice(1);
+      AnimationManager.defineAnimation(this.scene, {
+        key: animKey,
+        frames: { start: 0, end: 5 }, // Adjust frame ranges as per your sprite sheet
+        frameRate: action === "walk" ? 10 : 8,
+        repeat: action === "harvest" ? 1 : -1,
+      });
+    });
 
-    const frameRates = {
-      walk: 10,
-      idle: 8,
-      harvest: 8,
-    };
-
-    // Create normal animations
-    this.createCharacterAnimations(
-      this.animations,
-      {
-        walk: this.textureConfig.walkSheet,
-        idle: this.textureConfig.idleSheet,
-        harvest: this.textureConfig.harvestSheet,
-      },
-      normalFrames,
-      frameRates
-    );
-
-    // Create carry animations
-    this.createCharacterAnimations(
-      this.carryAnimations,
-      {
-        walk: "player-carry-walk",
-        idle: "player-carry-idle",
-        harvest: "player-harvest",
-      },
-      normalFrames, // Assuming frames are the same
-      frameRates
-    );
-  }
-
-  private createCharacterAnimations(
-    animationKeys: { [key: string]: string },
-    textureKeys: { [key: string]: string },
-    frames: { [key: string]: { start: number; end: number } },
-    frameRates: { [key: string]: number }
-  ) {
-    const directions = ["Up", "Down", "Left", "Right"];
-    const actions = ["walk", "idle", "harvest"];
-
-    actions.forEach((action) => {
-      directions.forEach((direction) => {
-        const animKey = animationKeys[`${action}${direction}`];
-        const textureKey = textureKeys[action];
-        const frameConfig = frames[`${action}${direction}`];
-        const frameRate = frameRates[action];
-
-        // **Check if animation already exists before creating**
-        if (!this.scene.anims.exists(animKey)) {
-          this.scene.anims.create({
-            key: animKey,
-            frames: this.scene.anims.generateFrameNumbers(
-              textureKey,
-              frameConfig
-            ),
-            frameRate: frameRate,
-            repeat: action === "harvest" ? 1 : -1,
-          });
-        } else {
-          console.warn(`Animation key already exists: ${animKey}`);
-        }
+    // Define carry animations
+    Object.entries(this.carryAnimations).forEach(([key, animKey]) => {
+      const [action, direction] = key
+        .match(/([a-z]+)(Up|Down|Left|Right)/)!
+        .slice(1);
+      AnimationManager.defineAnimation(this.scene, {
+        key: animKey,
+        frames: { start: 0, end: 5 }, // Adjust frame ranges as per your sprite sheet
+        frameRate: action === "walk" ? 10 : 8,
+        repeat: -1,
       });
     });
   }
@@ -141,7 +89,7 @@ export class PlayerCharacter extends Character {
   public handleMovement(): void {
     if (!this.cursors) return;
 
-    // Do not allow movement if harvesting
+    // Prevent movement if harvesting
     if (this.isHarvesting) {
       this.setVelocity(0);
       return;
@@ -218,9 +166,7 @@ export class PlayerCharacter extends Character {
     ) as DirectionCapitalized;
 
     // Play the harvesting animation
-
     const animationKey = this.animations[`harvest${directionCapitalized}`];
-    console.log("HARVESTING - ANIMATION KEY: ", animationKey);
     this.anims.play(animationKey);
 
     // Listen for animation completion
@@ -231,15 +177,10 @@ export class PlayerCharacter extends Character {
       onComplete();
 
       // Return to idle animation
-
       const idleAnimKey = this.isCarrying
         ? this.carryAnimations[`idle${directionCapitalized}`]
         : this.animations[`idle${directionCapitalized}`];
       this.anims.play(idleAnimKey);
     });
-  }
-
-  private capitalize(str: Direction): DirectionCapitalized {
-    return (str.charAt(0).toUpperCase() + str.slice(1)) as DirectionCapitalized;
   }
 }
