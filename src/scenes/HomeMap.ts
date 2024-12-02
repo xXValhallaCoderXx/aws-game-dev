@@ -363,27 +363,19 @@ export class HomeMap extends BaseScene {
   }
 
   private createBuildingEntrance(): void {
-    // Position the entrance zone inside the building
-    const entranceX = 184; // Adjust based on your map
-    const entranceY = 142; // Adjust based on your map
-
-    this.buildingEntranceZone = this.add.zone(entranceX, entranceY, 50, 50);
-    this.physics.world.enable(this.buildingEntranceZone);
-    (
-      this.buildingEntranceZone.body as Phaser.Physics.Arcade.Body
-    ).setAllowGravity(false);
-    (this.buildingEntranceZone.body as Phaser.Physics.Arcade.Body).setImmovable(
-      true
-    );
-
-    // Add overlap between player and entrance zone
-    this.physics.add.overlap(
-      this.player,
-      this.buildingEntranceZone,
-      this.handlePlayerEnterBuilding,
-      undefined,
-      this
-    );
+    // Create other entrances as needed
+    // Example: Entering a building
+    const buildingEntranceConfig: IEntranceConfig = {
+      zoneX: 184, // Adjust based on your map
+      zoneY: 130, // Adjust based on your map
+      zoneWidth: 50,
+      zoneHeight: 50,
+      targetScene: ESCENE_KEYS.HOME_HOUSE, // Example indoor scene
+      targetStartingPosition: { x: 245, y: 300 }, // Starting position in HomeHouse
+      comingFrom: ESCENE_KEYS.HOME_MAP,
+      debug: true,
+    };
+    this.createEntrance(buildingEntranceConfig);
   }
 
   private createTownEntrance(): void {
