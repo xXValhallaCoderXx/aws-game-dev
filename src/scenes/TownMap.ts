@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "@shared/scene-keys";
+import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 
 export class TownMap extends BaseScene {
   private backgroundMusic: Phaser.Sound.BaseSound | null = null;
-  private homeMapEntranceZone!: Phaser.GameObjects.Zone;
 
   constructor() {
     super(ESCENE_KEYS.TOWN_MAP);
   }
 
-  init() {
-    super.init();
+  init(data: any) {
+    super.init(data);
   }
 
   preload() {
@@ -32,14 +33,13 @@ export class TownMap extends BaseScene {
     });
 
     // Play the background music
-    this.backgroundMusic.play();
+    // this.backgroundMusic.play();
 
     this.createHomeMapEntrance();
   }
 
-  protected getStartingPosition(): { x: number; y: number } {
-    // Provide custom starting position for HomeMap
-    return { x: 35, y: 205 };
+  protected getDefaultStartingPosition(): { x: number; y: number } {
+    return { x: 25, y: 205 }; // Default spawn point on TownMap
   }
 
   protected createMap(): void {
@@ -64,44 +64,17 @@ export class TownMap extends BaseScene {
   }
 
   private createHomeMapEntrance(): void {
-    // Position the entrance zone inside the building
-    const entranceX = 0; // Adjust based on your map
-    const entranceY = 208; // Adjust based on your map
-
-    this.homeMapEntranceZone = this.add.zone(entranceX, entranceY, 50, 50);
-    this.physics.world.enable(this.homeMapEntranceZone);
-    (
-      this.homeMapEntranceZone.body as Phaser.Physics.Arcade.Body
-    ).setAllowGravity(false);
-    (this.homeMapEntranceZone.body as Phaser.Physics.Arcade.Body).setImmovable(
-      true
-    );
-
-    // Add overlap between player and entrance zone
-    this.physics.add.overlap(
-      this.player,
-      this.homeMapEntranceZone,
-      this.handlePlayerEnteringHome,
-      undefined,
-      this
-    );
-
-    // Add a visible border for debugging
-    const graphics = this.add.graphics();
-    graphics.lineStyle(2, 0xff0000, 1); // Red color, 2px thickness
-    graphics.strokeRect(
-      this.homeMapEntranceZone.x - this.homeMapEntranceZone.width / 2,
-      this.homeMapEntranceZone.y - this.homeMapEntranceZone.height / 2,
-      this.homeMapEntranceZone.width,
-      this.homeMapEntranceZone.height
-    );
-  }
-
-  private handlePlayerEnteringHome(): void {
-    // Optionally, play a sound or animation
-    this?.backgroundMusic?.stop();
-
-    // Transition to the indoor scene
-    this.scene.start(ESCENE_KEYS.HOME_MAP);
+    // Create entrances using the reusable function
+    const homeMapEntranceConfig: IEntranceConfig = {
+      zoneX: -10, // Adjust based on your map
+      zoneY: 208, // Adjust based on your map
+      zoneWidth: 50,
+      zoneHeight: 50,
+      targetScene: ESCENE_KEYS.HOME_MAP,
+      targetStartingPosition: { x: 530, y: 140 }, // Starting position in HomeMap
+      comingFrom: ESCENE_KEYS.TOWN_MAP,
+      debug: true, // Set to true for debugging borders
+    };
+    this.createEntrance(homeMapEntranceConfig);
   }
 }
