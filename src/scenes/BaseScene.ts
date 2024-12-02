@@ -150,6 +150,18 @@ export abstract class BaseScene extends Scene {
       this.scene.wake(config.targetScene);
     }
 
+    // Check if a condition function is provided
+    if (config.canTransition) {
+      const canProceed = config.canTransition();
+      if (!canProceed) {
+        // Provide feedback to the player if transition is blocked
+        if (config.feedbackMessage) {
+          console.log("BLOVKED - 1", config.feedbackMessage);
+        }
+        return; // Do not proceed with the transition
+      }
+    }
+
     // Optionally, stop background music or perform other cleanup
     // Example:
     // this.backgroundMusic?.stop();

@@ -367,13 +367,15 @@ export class HomeMap extends BaseScene {
     // Example: Entering a building
     const buildingEntranceConfig: IEntranceConfig = {
       zoneX: 184, // Adjust based on your map
-      zoneY: 130, // Adjust based on your map
+      zoneY: 140, // Adjust based on your map
       zoneWidth: 50,
       zoneHeight: 50,
       targetScene: ESCENE_KEYS.HOME_HOUSE, // Example indoor scene
       targetStartingPosition: { x: 245, y: 300 }, // Starting position in HomeHouse
       comingFrom: ESCENE_KEYS.HOME_MAP,
       debug: true,
+      canTransition: () => this.isDoorOpen, // Only allow transition if door is open
+      feedbackMessage: "The door is closed.", // Message if door is closed
     };
     this.createEntrance(buildingEntranceConfig);
   }
@@ -391,22 +393,5 @@ export class HomeMap extends BaseScene {
       debug: true, // Set to true for debugging borders
     };
     this.createEntrance(townEntranceConfig);
-  }
-
-  private handlePlayerEnterBuilding(): void {
-    if (this.isDoorOpen) {
-      this.enterBuilding();
-    } else {
-      // Optionally, provide feedback that the door is closed
-      console.log("The door is closed.");
-    }
-  }
-
-  private enterBuilding(): void {
-    // Optionally, play a sound or animation
-    this?.backgroundMusic?.stop();
-
-    // Transition to the indoor scene
-    this.scene.start(ESCENE_KEYS.HOME_HOUSE);
   }
 }
