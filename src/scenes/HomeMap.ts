@@ -15,6 +15,7 @@ export class HomeMap extends BaseScene {
   private isDoorOpen: boolean = false; // Track door state
   private playerNearDoor: boolean = false; // Track if player is near the door
   private buildingEntranceZone!: Phaser.GameObjects.Zone;
+  private townEntranceZone!: Phaser.GameObjects.Zone;
   private spaceKey!: Phaser.Input.Keyboard.Key;
   private buildingBaseLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private buildingRoofLayer: Phaser.Tilemaps.TilemapLayer | null = null;
@@ -182,6 +183,9 @@ export class HomeMap extends BaseScene {
 
     // Create the building entrance zone
     this.createBuildingEntrance();
+
+    // Create town entrance zone
+    this.createTownEntrance();
 
     // Finally set up the water collisions
     this.setupCollisions();
@@ -383,6 +387,40 @@ export class HomeMap extends BaseScene {
     );
   }
 
+  private createTownEntrance(): void {
+    // Position the entrance zone inside the building
+    const entranceX = 550; // Adjust based on your map
+    const entranceY = 142; // Adjust based on your map
+
+    this.townEntranceZone = this.add.zone(entranceX, entranceY, 50, 50);
+    this.physics.world.enable(this.townEntranceZone);
+    (this.townEntranceZone.body as Phaser.Physics.Arcade.Body).setAllowGravity(
+      false
+    );
+    (this.townEntranceZone.body as Phaser.Physics.Arcade.Body).setImmovable(
+      true
+    );
+
+    // Add overlap between player and entrance zone
+    this.physics.add.overlap(
+      this.player,
+      this.townEntranceZone,
+      this.handlePlayerEnteringTown,
+      undefined,
+      this
+    );
+
+    // Add a visible border for debugging
+    const graphics = this.add.graphics();
+    graphics.lineStyle(2, 0xff0000, 1); // Red color, 2px thickness
+    graphics.strokeRect(
+      this.townEntranceZone.x - this.townEntranceZone.width / 2,
+      this.townEntranceZone.y - this.townEntranceZone.height / 2,
+      this.townEntranceZone.width,
+      this.townEntranceZone.height
+    );
+  }
+
   private handlePlayerEnterBuilding(): void {
     if (this.isDoorOpen) {
       this.enterBuilding();
@@ -390,6 +428,13 @@ export class HomeMap extends BaseScene {
       // Optionally, provide feedback that the door is closed
       console.log("The door is closed.");
     }
+  }
+  private handlePlayerEnteringTown(): void {
+    // Optionally, play a sound or animation
+    this?.backgroundMusic?.stop();
+
+    // Transition to the indoor scene
+    this.scene.start(ESCENE_KEYS.TOWN_MAP);
   }
 
   private enterBuilding(): void {
