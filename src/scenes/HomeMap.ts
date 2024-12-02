@@ -4,6 +4,7 @@ import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "../shared/scene-keys";
 import { FarmingSystem } from "../slices/farming/farming-system.service";
 import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
+import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
@@ -33,9 +34,8 @@ export class HomeMap extends BaseScene {
     super(ESCENE_KEYS.HOME_MAP);
   }
 
-  protected getStartingPosition(): { x: number; y: number } {
-    // Provide custom starting position for HomeMap
-    return { x: 185, y: 180 };
+  protected getDefaultStartingPosition(): { x: number; y: number } {
+    return { x: 185, y: 180 }; // Default spawn point on HomeMap
   }
 
   preload() {
@@ -183,6 +183,9 @@ export class HomeMap extends BaseScene {
     // Create the building entrance zone
     this.createBuildingEntrance();
 
+    // Create town entrance zone
+    this.createTownEntrance();
+
     // Finally set up the water collisions
     this.setupCollisions();
 
@@ -200,7 +203,7 @@ export class HomeMap extends BaseScene {
     });
 
     // Play the background music
-    this.backgroundMusic.play();
+    // this.backgroundMusic.play();
 
     // Initialize the Farming System
     this.farmingSystem = new FarmingSystem({
@@ -360,43 +363,35 @@ export class HomeMap extends BaseScene {
   }
 
   private createBuildingEntrance(): void {
-    // Position the entrance zone inside the building
-    const entranceX = 184; // Adjust based on your map
-    const entranceY = 142; // Adjust based on your map
-
-    this.buildingEntranceZone = this.add.zone(entranceX, entranceY, 50, 50);
-    this.physics.world.enable(this.buildingEntranceZone);
-    (
-      this.buildingEntranceZone.body as Phaser.Physics.Arcade.Body
-    ).setAllowGravity(false);
-    (this.buildingEntranceZone.body as Phaser.Physics.Arcade.Body).setImmovable(
-      true
-    );
-
-    // Add overlap between player and entrance zone
-    this.physics.add.overlap(
-      this.player,
-      this.buildingEntranceZone,
-      this.handlePlayerEnterBuilding,
-      undefined,
-      this
-    );
+    // Create other entrances as needed
+    // Example: Entering a building
+    const buildingEntranceConfig: IEntranceConfig = {
+      zoneX: 184, // Adjust based on your map
+      zoneY: 140, // Adjust based on your map
+      zoneWidth: 50,
+      zoneHeight: 50,
+      targetScene: ESCENE_KEYS.HOME_HOUSE, // Example indoor scene
+      targetStartingPosition: { x: 245, y: 300 }, // Starting position in HomeHouse
+      comingFrom: ESCENE_KEYS.HOME_MAP,
+      debug: true,
+      canTransition: () => this.isDoorOpen, // Only allow transition if door is open
+      feedbackMessage: "The door is closed.", // Message if door is closed
+    };
+    this.createEntrance(buildingEntranceConfig);
   }
 
-  private handlePlayerEnterBuilding(): void {
-    if (this.isDoorOpen) {
-      this.enterBuilding();
-    } else {
-      // Optionally, provide feedback that the door is closed
-      console.log("The door is closed.");
-    }
-  }
-
-  private enterBuilding(): void {
-    // Optionally, play a sound or animation
-    this?.backgroundMusic?.stop();
-
-    // Transition to the indoor scene
-    this.scene.start(ESCENE_KEYS.HOME_HOUSE);
+  private createTownEntrance(): void {
+    // Create entrances using the reusable function
+    const townEntranceConfig: IEntranceConfig = {
+      zoneX: 570, // Adjust based on your map
+      zoneY: 142, // Adjust based on your map
+      zoneWidth: 50,
+      zoneHeight: 50,
+      targetScene: ESCENE_KEYS.TOWN_MAP,
+      targetStartingPosition: { x: 25, y: 205 }, // Starting position in TownMap
+      comingFrom: ESCENE_KEYS.HOME_MAP,
+      debug: true, // Set to true for debugging borders
+    };
+    this.createEntrance(townEntranceConfig);
   }
 }

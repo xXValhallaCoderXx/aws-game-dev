@@ -10,14 +10,13 @@ export class HomeBuilding extends BaseScene {
     super(ESCENE_KEYS.HOME_HOUSE);
   }
 
-  protected getStartingPosition(): { x: number; y: number } {
+  protected getDefaultStartingPosition(): { x: number; y: number } {
     // Provide custom starting position for HomeBuilding
     return { x: 250, y: 310 };
   }
 
-  init() {
-    super.init();
-
+  init(data: any) {
+    super.init(data);
   }
 
   preload() {
