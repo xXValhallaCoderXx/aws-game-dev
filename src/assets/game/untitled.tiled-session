@@ -1,0 +1,68 @@
+{
+    "activeFile": "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx",
+    "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
+        "#terrain-main": {
+            "scaleInEditor": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx": {
+            "scale": 1.274017857142857,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 280.2158525474806,
+                "y": 280.6083117247179
+            }
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#buildings-main": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#crops-tiles-main": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#terrain-village-1": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#terrain-village-2": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#water-blank": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#water-main-animated": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 94,
+                "y": 219
+            }
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#buildings-main": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#terrain-city": {
+            "scaleInDock": 2
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#terrain-main": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#terrain-village-1": {
+            "scaleInDock": 1.5
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#terrain-village-2": {
+            "scaleInDock": 0.5
+        }
+    },
+    "openFiles": [
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx"
+    ],
+    "recentFiles": [
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx"
+    ]
+}

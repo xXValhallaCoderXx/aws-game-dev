@@ -46,23 +46,24 @@ export class FarmingSystem {
     this.harvestCropSound = config.harvestCropSound;
 
     this.setupInput();
+    this.setupEventListeners();
   }
 
   private setupInput() {
     if (this.scene.input.keyboard) {
       // Define keys for selecting seeds
-      this.scene.input.keyboard.on("keydown-ONE", () => {
-        this.changeSelectedSeed(EFarmingCropTypes.CARROT);
-      });
-      this.scene.input.keyboard.on("keydown-TWO", () => {
-        this.changeSelectedSeed(EFarmingCropTypes.RADISH);
-      });
-      this.scene.input.keyboard.on("keydown-THREE", () => {
-        this.changeSelectedSeed(EFarmingCropTypes.CAULIFLOWER);
-      });
-      this.scene.input.keyboard.on("keydown-ZERO", () => {
-        this.clearSelectedSeed();
-      });
+      // this.scene.input.keyboard.on("keydown-ONE", () => {
+      //   this.changeSelectedSeed(EFarmingCropTypes.CARROT);
+      // });
+      // this.scene.input.keyboard.on("keydown-TWO", () => {
+      //   this.changeSelectedSeed(EFarmingCropTypes.RADISH);
+      // });
+      // this.scene.input.keyboard.on("keydown-THREE", () => {
+      //   this.changeSelectedSeed(EFarmingCropTypes.CAULIFLOWER);
+      // });
+      // this.scene.input.keyboard.on("keydown-ZERO", () => {
+      //   this.clearSelectedSeed();
+      // });
 
       // Define key for farming action (e.g., SPACE)
       const actionKey = this.scene.input.keyboard.addKey(
@@ -73,6 +74,23 @@ export class FarmingSystem {
         this.handlePlayerAction();
       });
     }
+  }
+
+  private setupEventListeners() {
+    this.scene.events.on(
+      "inventory:seedSelected",
+      (selectedSeedId: string | null) => {
+        if (selectedSeedId) {
+          this.changeSelectedSeed(selectedSeedId as EFarmingCropTypes);
+        } else {
+          this.clearSelectedSeed();
+        }
+      }
+    );
+
+    this.scene.events.on("inventory:update", () => {
+      // Optionally, handle inventory updates (e.g., refresh UI)
+    });
   }
 
   private handlePlayerAction() {
@@ -89,13 +107,16 @@ export class FarmingSystem {
 
   private handleFarming(tile: Phaser.Tilemaps.Tile) {
     const tileKey = `${tile.x},${tile.y}`;
-    console.log("GOOO")
+
     if (!this.crops[tileKey]) {
       // Plant a new crop if the tile is farmable and player has seeds
-      const seedItem = `${this.selectedSeedType}Seeds` as InventoryItem;
+      const seedId = `${this.selectedSeedType}Seeds` as InventoryItem;
+      const seedItem = this.player.inventory.getItem(seedId);
+
       console.log("SEED ITEM: ", seedItem);
-      if (this.player.inventory[seedItem] > 0) {
-        this.player.inventory[seedItem]--;
+      if (seedItem && seedItem.quantity > 0) {
+        this.player.useItem(seedId, 1); // Deduct one seed
+
         const worldX = tile.getCenterX();
         const worldY = tile.getCenterY();
         const crop = new Crop(
@@ -111,7 +132,6 @@ export class FarmingSystem {
         // this.scene.sound.play("errorSound"); // Optionally, play an error sound
         console.log(`No ${this.selectedSeedType} seeds left!`);
       }
-
     } else {
       const crop = this.crops[tileKey];
       if (crop.growthStage === crop.maxGrowthStage) {
@@ -138,12 +158,13 @@ export class FarmingSystem {
           delete this.crops[tileKey];
 
           // Add crop to inventory
-          const cropItem =
-            `${crop.cropType}` as keyof typeof this.player.inventory;
-          if (!this.player.inventory[cropItem]) {
-            this.player.inventory[cropItem] = 0;
-          }
-          this.player.inventory[cropItem]++;
+          const cropItem: InventoryItem = {
+            id: crop.cropType,
+            name: `${crop.cropType} Crop`,
+            quantity: 1,
+            category: "crop",
+          };
+          this.player.pickUpItem(cropItem);
 
           console.log(`Harvested ${crop.cropType}!`);
         });
@@ -217,77 +238,77 @@ export class FarmingSystem {
     }
   }
 
-// Make sure your animateHarvestedCrop method is working correctly:
-private animateHarvestedCrop(
-  startX: number,
-  startY: number,
-  direction: string,
-  frameIndex: number
-): void {
-  const arcHeight = 70; // Height of the arc
-  const arcDistance = 40; // Distance to move horizontally
-  let targetX = startX;
-  let targetY = startY - 50; // Final Y position above the starting point
+  // Make sure your animateHarvestedCrop method is working correctly:
+  private animateHarvestedCrop(
+    startX: number,
+    startY: number,
+    direction: string,
+    frameIndex: number
+  ): void {
+    const arcHeight = 70; // Height of the arc
+    const arcDistance = 40; // Distance to move horizontally
+    let targetX = startX;
+    let targetY = startY - 50; // Final Y position above the starting point
 
-  // Create the harvested crop sprite
-  const harvestedCrop = this.scene.add.sprite(
-    startX,
-    startY,
-    "harvested-crops",
-    frameIndex
-  );
-  harvestedCrop.setDepth(20); // Ensure it appears above other elements
+    // Create the harvested crop sprite
+    const harvestedCrop = this.scene.add.sprite(
+      startX,
+      startY,
+      "harvested-crops",
+      frameIndex
+    );
+    harvestedCrop.setDepth(20); // Ensure it appears above other elements
 
-  // Adjust target position based on direction
-  switch (direction) {
-    case "up":
-      targetY -= arcDistance;
-      break;
-    case "down":
-      targetY += arcDistance;
-      break;
-    case "left":
-      targetX -= arcDistance;
-      break;
-    case "right":
-      targetX += arcDistance;
-      break;
+    // Adjust target position based on direction
+    switch (direction) {
+      case "up":
+        targetY -= arcDistance;
+        break;
+      case "down":
+        targetY += arcDistance;
+        break;
+      case "left":
+        targetX -= arcDistance;
+        break;
+      case "right":
+        targetX += arcDistance;
+        break;
+    }
+
+    // First Tween: Move up in an arc
+    const tweenUp = this.scene.tweens.add({
+      targets: harvestedCrop,
+      y: startY - arcHeight,
+      duration: 350,
+      ease: "Sine.easeOut",
+      onUpdate: () => {
+        harvestedCrop.rotation += 0.05;
+      },
+      onComplete: () => {
+        tweenOut.play();
+      },
+    });
+
+    // Second Tween: Move to final position
+    const tweenOut = this.scene.tweens.add({
+      targets: harvestedCrop,
+      x: targetX,
+      y: targetY,
+      duration: 350,
+      ease: "Sine.easeIn",
+      onUpdate: () => {
+        harvestedCrop.rotation += 0.05;
+        harvestedCrop.setScale(Math.max(0, harvestedCrop.scaleX - 0.005));
+      },
+      onComplete: () => {
+        harvestedCrop.destroy();
+      },
+      paused: true,
+    });
+
+    // Start the animation sequence
+    tweenUp.play();
   }
-
-  // First Tween: Move up in an arc
-  const tweenUp = this.scene.tweens.add({
-    targets: harvestedCrop,
-    y: startY - arcHeight,
-    duration: 350,
-    ease: "Sine.easeOut",
-    onUpdate: () => {
-      harvestedCrop.rotation += 0.05;
-    },
-    onComplete: () => {
-      tweenOut.play();
-    },
-  });
-
-  // Second Tween: Move to final position
-  const tweenOut = this.scene.tweens.add({
-    targets: harvestedCrop,
-    x: targetX,
-    y: targetY,
-    duration: 350,
-    ease: "Sine.easeIn",
-    onUpdate: () => {
-      harvestedCrop.rotation += 0.05;
-      harvestedCrop.setScale(Math.max(0, harvestedCrop.scaleX - 0.005));
-    },
-    onComplete: () => {
-      harvestedCrop.destroy();
-    },
-    paused: true,
-  });
-
-  // Start the animation sequence
-  tweenUp.play();
-}
 
   private getHarvestedCropFrame(cropType: string): number {
     const frameMapping: { [key: string]: number } = {

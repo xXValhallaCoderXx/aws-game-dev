@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BaseCharacter } from "./BaseChracter";
+import { Inventory, InventoryItem } from "../inventory/inventory.service";
 import {
   BaseCharacterConfig,
-  Inventory,
   AnimationKey,
   AnimationKeyCarry,
 } from "./player-character.interface";
@@ -16,12 +16,7 @@ export class PlayerCharacter extends BaseCharacter {
   public carriedItem?: string;
   public isCarrying: boolean = false;
   public isHarvesting: boolean = false;
-  public inventory: Inventory = {
-    carrotSeeds: 5,
-    radishSeeds: 3,
-    cauliflowerSeeds: 2,
-  };
-
+  public inventory: Inventory;
   protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private speed: number;
 
@@ -40,6 +35,10 @@ export class PlayerCharacter extends BaseCharacter {
     }
     this.cursors = this.scene.input.keyboard?.createCursorKeys();
     this.carryAnimations = this.getCarryAnimations();
+    this.inventory = new Inventory();
+    this.initializeStartingInventory();
+
+    this.inventory.setupKeyboardListeners(this.scene);
   }
 
   protected getDefaultAnimations(): Record<string, string> {
@@ -228,5 +227,57 @@ export class PlayerCharacter extends BaseCharacter {
         onComplete();
       }
     });
+  }
+
+  private initializeStartingInventory(): void {
+    // Add initial seeds to inventory
+    this.inventory.addItem({
+      id: "carrot-seed",
+      name: "Carrot Seed",
+      quantity: 5,
+    });
+    this.inventory.addItem({
+      id: "radish-seed",
+      name: "Radish Seed",
+      quantity: 3,
+    });
+    this.inventory.addItem({
+      id: "cauliflower-seed",
+      name: "Cauliflower Seed",
+      quantity: 2,
+    });
+  }
+
+  /**
+   * Picks up an item and adds it to the inventory.
+   * @param item The item to pick up.
+   */
+  public pickUpItem(item: InventoryItem): void {
+    const success = this.inventory.addItem(item);
+    if (success) {
+      console.log(`Picked up ${item.quantity} x ${item.name}`);
+      // Optionally, trigger a UI update or feedback (e.g., sound effect)
+      this.scene.events.emit("inventory:update");
+    } else {
+      console.log(`Failed to pick up ${item.name}. Inventory might be full.`);
+    }
+  }
+
+  /**
+   * Uses a specified quantity of an item from the inventory.
+   * @param itemId The ID of the item to use.
+   * @param quantity The quantity to use.
+   */
+  public useItem(itemId: string, quantity: number): boolean {
+    const success = this.inventory.removeItem(itemId, quantity);
+    if (success) {
+      console.log(`Used ${quantity} x ${itemId}`);
+      // Implement item-specific logic here (e.g., consuming a seed)
+      this.scene.events.emit("inventory:update");
+      return true;
+    } else {
+      console.log(`Not enough ${itemId} to use.`);
+      return false;
+    }
   }
 }

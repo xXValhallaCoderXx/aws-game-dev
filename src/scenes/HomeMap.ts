@@ -6,6 +6,7 @@ import { FarmingSystem } from "../slices/farming/farming-system.service";
 import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 
+
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
@@ -15,7 +16,6 @@ export class HomeMap extends BaseScene {
   private interactionZone!: Phaser.GameObjects.Zone;
   private isDoorOpen: boolean = false; // Track door state
   private playerNearDoor: boolean = false; // Track if player is near the door
-  private buildingEntranceZone!: Phaser.GameObjects.Zone;
   private spaceKey!: Phaser.Input.Keyboard.Key;
   private buildingBaseLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private buildingRoofLayer: Phaser.Tilemaps.TilemapLayer | null = null;
