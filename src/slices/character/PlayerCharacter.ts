@@ -35,7 +35,9 @@ export class PlayerCharacter extends BaseCharacter {
     }
     this.cursors = this.scene.input.keyboard?.createCursorKeys();
     this.carryAnimations = this.getCarryAnimations();
-    this.inventory = new Inventory();
+    this.inventory = new Inventory({
+      scene: this.scene,
+    });
     this.initializeStartingInventory();
 
     this.inventory.setupKeyboardListeners(this.scene);

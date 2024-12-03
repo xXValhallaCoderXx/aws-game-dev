@@ -51,20 +51,6 @@ export class FarmingSystem {
 
   private setupInput() {
     if (this.scene.input.keyboard) {
-      // Define keys for selecting seeds
-      // this.scene.input.keyboard.on("keydown-ONE", () => {
-      //   this.changeSelectedSeed(EFarmingCropTypes.CARROT);
-      // });
-      // this.scene.input.keyboard.on("keydown-TWO", () => {
-      //   this.changeSelectedSeed(EFarmingCropTypes.RADISH);
-      // });
-      // this.scene.input.keyboard.on("keydown-THREE", () => {
-      //   this.changeSelectedSeed(EFarmingCropTypes.CAULIFLOWER);
-      // });
-      // this.scene.input.keyboard.on("keydown-ZERO", () => {
-      //   this.clearSelectedSeed();
-      // });
-
       // Define key for farming action (e.g., SPACE)
       const actionKey = this.scene.input.keyboard.addKey(
         Phaser.Input.Keyboard.KeyCodes.SPACE
@@ -112,14 +98,8 @@ export class FarmingSystem {
 
     if (!this.crops[tileKey]) {
       // Plant a new crop if the tile is farmable and player has seeds
-      console.log("SELECTED SEED TYPE: ", this.selectedSeedType);
-      const invetory = this.player.inventory.getAllItems();
-      console.log("INVENTORY: ", invetory);
       const seedId = `${this.selectedSeedType}` as InventoryItem;
-      console.log("SEED ID: ", seedId);
       const seedItem = this.player.inventory.getItem(seedId);
-
-      console.log("SEED ITEM: ", seedItem);
       if (seedItem && seedItem.quantity > 0) {
         this.player.useItem(seedId, 1); // Deduct one seed
 
@@ -132,6 +112,11 @@ export class FarmingSystem {
           this.selectedSeedType as EFarmingCropTypes
         );
         this.crops[tileKey] = crop;
+        // Check if last item then clear selected item
+        if (seedItem.quantity === 0) {
+          this.clearSelectedSeed();
+        }
+
         this.plantSeedSound.play();
       } else {
         // Notify player they have no seeds of this type
@@ -164,14 +149,14 @@ export class FarmingSystem {
           delete this.crops[tileKey];
 
           // Add crop to inventory
-          const cropItem: InventoryItem = {
+      
+          this.player.pickUpItem({
             id: crop.cropType,
-            name: `${crop.cropType} Crop`,
+            name: `${crop.cropType}`,
             quantity: 1,
             category: "crop",
-          };
-          this.player.pickUpItem(cropItem);
-
+          });
+          console.log("INVENTORY: ", this.player.inventory.getAllItems());
           console.log(`Harvested ${crop.cropType}!`);
         });
       } else {

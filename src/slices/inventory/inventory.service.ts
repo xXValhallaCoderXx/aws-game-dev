@@ -5,13 +5,28 @@ export interface InventoryItem {
   category?: string; // Optional: e.g., 'seed', 'tool'
 }
 
+interface InventoryConfig {
+  maxCapacity?: number;
+  scene: Phaser.Scene;
+}
+
 export class Inventory {
+  private scene: Phaser.Scene;
   private items: Map<string, InventoryItem> = new Map();
   private maxCapacity: number;
 
-  constructor(maxCapacity: number = 100) {
+  constructor({ maxCapacity = 100, scene }: InventoryConfig) {
     // Default capacity
     this.maxCapacity = maxCapacity;
+    this.scene = scene;
+    this.setupEventListeners();
+  }
+
+  private setupEventListeners() {
+    this.scene.events.on("inventory:update", () => {
+      console.log("INVENTORY UPDATE");
+      console.log("WHAT IS THIS: ", this.getAllItems());
+    });
   }
 
   addItem(item: InventoryItem): boolean {
