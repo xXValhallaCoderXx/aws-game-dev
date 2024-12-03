@@ -73,11 +73,12 @@ export class Inventory {
         THREE: "cauliflower-seed",
         // Add more mappings as needed
       };
-      console.log("KEY MAPPINGS: ", keyMappings);
 
       Object.entries(keyMappings).forEach(([keyCode, seedId]) => {
         if (scene?.input?.keyboard) {
           scene.input.keyboard.on(`keydown-${keyCode}`, () => {
+            console.log("keyCode: ", keyCode);
+            console.log("seedId: ", seedId);
             if (this.items.has(seedId)) {
               scene.events.emit("inventory:seedSelected", seedId);
             } else {

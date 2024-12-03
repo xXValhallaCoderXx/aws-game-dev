@@ -1,5 +1,5 @@
 export enum EFarmingCropTypes {
-  CARROT = "carrot",
-  RADISH = "radish",
-  CAULIFLOWER = "cauliflower",
+  CARROT = "carrot-seed",
+  RADISH = "radish-seed",
+  CAULIFLOWER = "cauliflower-seed",
 }

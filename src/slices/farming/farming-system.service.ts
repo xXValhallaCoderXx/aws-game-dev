@@ -80,7 +80,9 @@ export class FarmingSystem {
     this.scene.events.on(
       "inventory:seedSelected",
       (selectedSeedId: string | null) => {
+        console.log("LALAL: ", selectedSeedId);
         if (selectedSeedId) {
+          console.log("VALID SEED");
           this.changeSelectedSeed(selectedSeedId as EFarmingCropTypes);
         } else {
           this.clearSelectedSeed();
@@ -110,7 +112,11 @@ export class FarmingSystem {
 
     if (!this.crops[tileKey]) {
       // Plant a new crop if the tile is farmable and player has seeds
-      const seedId = `${this.selectedSeedType}Seeds` as InventoryItem;
+      console.log("SELECTED SEED TYPE: ", this.selectedSeedType);
+      const invetory = this.player.inventory.getAllItems();
+      console.log("INVENTORY: ", invetory);
+      const seedId = `${this.selectedSeedType}` as InventoryItem;
+      console.log("SEED ID: ", seedId);
       const seedItem = this.player.inventory.getItem(seedId);
 
       console.log("SEED ITEM: ", seedItem);
@@ -209,12 +215,13 @@ export class FarmingSystem {
     // Update the player's carrying state
     this.player.isCarrying = true;
     this.player.carriedItem = seedType;
-
+    console.log("SEED PACKET SPRITE: ", this.seedPacketSprite);
     // Remove existing seed packet sprite if it exists
     if (this.seedPacketSprite) {
       this.seedPacketSprite.destroy();
     }
-
+    console.log("SEED PACKET FRAME INDEX: ", this.SEED_PACKET_FRAME_INDEX);
+    console.log("SEED TYPE: ", seedType);
     // Create a new seed packet sprite
     this.seedPacketSprite = this.scene.add.sprite(
       this.player.x,
