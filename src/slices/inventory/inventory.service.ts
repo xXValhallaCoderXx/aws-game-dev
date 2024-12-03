@@ -31,15 +31,27 @@ export class Inventory {
 
   addItem(item: InventoryItem): boolean {
     const existingItem = this.items.get(item.id);
+    console.log("INVENTORY ADD ITEM: ", item);
     const additionalCapacity = item.quantity; // Assuming each item takes 1 unit
+    console.log(
+      "INVENTORY - GET CURRENT CAPACITY: ",
+      this.getCurrentCapacity()
+    );
     if (this.getCurrentCapacity() + additionalCapacity > this.maxCapacity) {
       console.warn("Inventory is full. Cannot add more items.");
       return false;
     }
 
     if (existingItem) {
+      console.log("INVENTORY - EXISTING ITEM", existingItem);
+      console.log("INVENTORY - EXISTING ITEM QUANTITY", existingItem.quantity);
+      console.log(
+        "INVENTORY - NEW AMOUNT: ",
+        (existingItem.quantity += item.quantity)
+      );
       existingItem.quantity += item.quantity;
     } else {
+      console.log("INVENTORY - NEW ITEM");
       this.items.set(item.id, { ...item });
     }
     return true;

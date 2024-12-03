@@ -259,7 +259,13 @@ export class PlayerCharacter extends BaseCharacter {
     if (success) {
       console.log(`Picked up ${item.quantity} x ${item.name}`);
       // Optionally, trigger a UI update or feedback (e.g., sound effect)
-      this.scene.events.emit("inventory:update");
+      // this.scene.events.emit("inventory:update");
+      this.inventory.addItem({
+        id: item.name,
+        name: item.name,
+        quantity: item.quantity,
+      });
+      console.log("INVENTORY GET: ", this.inventory.getAllItems());
     } else {
       console.log(`Failed to pick up ${item.name}. Inventory might be full.`);
     }

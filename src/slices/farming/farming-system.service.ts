@@ -34,7 +34,9 @@ export class FarmingSystem {
       [EFarmingCropTypes.CARROT]: 0,
       [EFarmingCropTypes.RADISH]: 1,
       [EFarmingCropTypes.CAULIFLOWER]: 2,
-      // Add more seeds as needed
+      [EFarmingCropTypes.CARROT_CROP]: 0,
+      [EFarmingCropTypes.RADISH_CROP]: 0,
+      [EFarmingCropTypes.CAULIFLOWER_CROP]: 0,
     };
 
   constructor(config: FarmingConfig) {
@@ -66,9 +68,7 @@ export class FarmingSystem {
     this.scene.events.on(
       "inventory:seedSelected",
       (selectedSeedId: string | null) => {
-        console.log("LALAL: ", selectedSeedId);
         if (selectedSeedId) {
-          console.log("VALID SEED");
           this.changeSelectedSeed(selectedSeedId as EFarmingCropTypes);
         } else {
           this.clearSelectedSeed();
@@ -149,7 +149,7 @@ export class FarmingSystem {
           delete this.crops[tileKey];
 
           // Add crop to inventory
-      
+
           this.player.pickUpItem({
             id: crop.cropType,
             name: `${crop.cropType}`,
@@ -157,7 +157,7 @@ export class FarmingSystem {
             category: "crop",
           });
           console.log("INVENTORY: ", this.player.inventory.getAllItems());
-          console.log(`Harvested ${crop.cropType}!`);
+          console.log(`Harvested ${crop}!`);
         });
       } else {
         console.log(`${crop.cropType} is still growing.`);

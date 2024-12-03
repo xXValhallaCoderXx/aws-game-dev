@@ -25,12 +25,12 @@ export class Crop {
   private getGrowthTime(cropType: string): number {
     // Define growth times for different crops
     const growthTimes: { [key: string]: number } = {
-      carrot: 1200,
-      raddish: 1400,
-      cauliflower: 1600,
+      carrot: 200,
+      raddish: 200,
+      cauliflower: 200,
       // Add more crops as needed
     };
-    return growthTimes[cropType] || 5000; // Default to 5000 ms
+    return growthTimes[cropType] || 200; // Default to 5000 ms
   }
 
   update(delta: number) {
