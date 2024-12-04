@@ -1,4 +1,4 @@
-import { EFarmingCropTypes } from "./farming.interface";
+import { EFarmingCrops } from "./farming.interface";
 
 export class Crop {
   public x: number;
@@ -49,9 +49,9 @@ export class Crop {
   private updateSpriteFrame() {
     // Map crop types to their row indices
     const cropRows: { [key: string]: number } = {
-      [EFarmingCropTypes.CARROT]: 0,
-      [EFarmingCropTypes.RADISH]: 1,
-      [EFarmingCropTypes.CAULIFLOWER]: 2,
+      [EFarmingCrops.CARROT]: 0,
+      [EFarmingCrops.RADISH]: 1,
+      [EFarmingCrops.CAULIFLOWER]: 2,
     };
 
     const cropRow = cropRows[this.cropType];

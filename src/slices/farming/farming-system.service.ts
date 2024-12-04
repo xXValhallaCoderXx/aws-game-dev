@@ -3,7 +3,11 @@
 import Phaser from "phaser";
 import { Crop } from "./Crop";
 import { PlayerCharacter } from "@slices/character/PlayerCharacter";
-import { EFarmingCropTypes } from "./farming.interface";
+import {
+  EFarmingCrops,
+  EFarmingCropYields,
+  CropHarvestMapping,
+} from "./farming.interface";
 import { InventoryItem } from "@slices/character/player-character.interface";
 
 interface FarmingConfig {
@@ -24,20 +28,38 @@ export class FarmingSystem {
   private harvestCropSound: Phaser.Sound.BaseSound;
 
   private crops: { [key: string]: Crop } = {};
-  private selectedSeedType: EFarmingCropTypes | "" = EFarmingCropTypes.CARROT; // Default seed type
+  private selectedSeedType: EFarmingCrops | "" = EFarmingCrops.CARROT; // Default seed type
 
   // Seed packet sprite
   private seedPacketSprite?: Phaser.GameObjects.Sprite;
   private readonly SEED_PACKET_OFFSET_Y = 8; // Adjust based on your character's size
-  private readonly SEED_PACKET_FRAME_INDEX: Record<EFarmingCropTypes, number> =
-    {
-      [EFarmingCropTypes.CARROT]: 0,
-      [EFarmingCropTypes.RADISH]: 1,
-      [EFarmingCropTypes.CAULIFLOWER]: 2,
-      [EFarmingCropTypes.CARROT_CROP]: 0,
-      [EFarmingCropTypes.RADISH_CROP]: 0,
-      [EFarmingCropTypes.CAULIFLOWER_CROP]: 0,
-    };
+  private readonly SEED_PACKET_FRAME_INDEX: Record<EFarmingCrops, number> = {
+    [EFarmingCrops.CARROT]: 0,
+    [EFarmingCrops.RADISH]: 1,
+    [EFarmingCrops.CAULIFLOWER]: 2,
+  };
+
+  private readonly CROP_HARVEST_CONFIG: CropHarvestMapping = {
+    [EFarmingCrops.CARROT]: {
+      cropId: EFarmingCropYields.CARROT,
+      baseYield: 1,
+      name: "Carrot",
+      qualityBonusChance: 0.1, // 10% chance for extra crop
+    },
+    [EFarmingCrops.RADISH]: {
+      cropId: EFarmingCropYields.RADISH,
+      baseYield: 1,
+      name: "Radish",
+      qualityBonusChance: 0.15,
+    },
+    [EFarmingCrops.CAULIFLOWER]: {
+      cropId: EFarmingCropYields.CAULIFLOWER,
+      baseYield: 1,
+      name: "Cauliflower",
+      qualityBonusChance: 0.15,
+    },
+    // Add more crop types here
+  };
 
   constructor(config: FarmingConfig) {
     this.scene = config.scene;
@@ -69,7 +91,7 @@ export class FarmingSystem {
       "inventory:seedSelected",
       (selectedSeedId: string | null) => {
         if (selectedSeedId) {
-          this.changeSelectedSeed(selectedSeedId as EFarmingCropTypes);
+          this.changeSelectedSeed(selectedSeedId as EFarmingCrops);
         } else {
           this.clearSelectedSeed();
         }
@@ -79,6 +101,21 @@ export class FarmingSystem {
     this.scene.events.on("inventory:update", () => {
       // Optionally, handle inventory updates (e.g., refresh UI)
     });
+  }
+
+  private calculateHarvestYield(cropType: EFarmingCrops): number {
+    const cropConfig = this.CROP_HARVEST_CONFIG[cropType];
+    let cropYield = cropConfig.baseYield;
+
+    // Calculate bonus crops if applicable
+    if (
+      cropConfig.qualityBonusChance &&
+      Math.random() < cropConfig.qualityBonusChance
+    ) {
+      cropYield += 1;
+    }
+
+    return cropYield;
   }
 
   private handlePlayerAction() {
@@ -109,7 +146,7 @@ export class FarmingSystem {
           this.scene,
           worldX,
           worldY,
-          this.selectedSeedType as EFarmingCropTypes
+          this.selectedSeedType as EFarmingCrops
         );
         this.crops[tileKey] = crop;
         // Check if last item then clear selected item
@@ -130,12 +167,14 @@ export class FarmingSystem {
         this.player.startHarvesting(() => {
           // Get the frame index for the harvested crop animation
           const frameIndex = this.getHarvestedCropFrame(
-            crop.cropType as EFarmingCropTypes
+            crop.cropType as EFarmingCrops
           );
 
           // Play harvest sound
           this.harvestCropSound.play();
-
+          const harvestedAmount = this.calculateHarvestYield(
+            crop.cropType as EFarmingCrops
+          );
           // Animate the crop being harvested
           this.animateHarvestedCrop(
             crop.sprite.x,
@@ -151,13 +190,13 @@ export class FarmingSystem {
           // Add crop to inventory
 
           this.player.pickUpItem({
-            id: crop.cropType,
+            id: this.CROP_HARVEST_CONFIG[crop.cropType as EFarmingCrops].cropId,
             name: `${crop.cropType}`,
-            quantity: 1,
+            quantity: harvestedAmount,
             category: "crop",
           });
           console.log("INVENTORY: ", this.player.inventory.getAllItems());
-          console.log(`Harvested ${crop}!`);
+          console.log(crop);
         });
       } else {
         console.log(`${crop.cropType} is still growing.`);
@@ -194,7 +233,7 @@ export class FarmingSystem {
     return null;
   }
 
-  private changeSelectedSeed(seedType: EFarmingCropTypes) {
+  private changeSelectedSeed(seedType: EFarmingCrops) {
     this.selectedSeedType = seedType;
 
     // Update the player's carrying state
