@@ -6,7 +6,8 @@ import {
   AnimationKey,
   AnimationKeyCarry,
 } from "./player-character.interface";
-
+import { PhaserEventBus } from "@/shared/services/phaser.service";
+import { INVENTORY_EVENTS } from "../events/events.types";
 interface PlayerConfig extends BaseCharacterConfig {
   speed: number;
 }
@@ -41,6 +42,11 @@ export class PlayerCharacter extends BaseCharacter {
     this.initializeStartingInventory();
 
     this.inventory.setupKeyboardListeners(this.scene);
+
+    PhaserEventBus.emit(
+      INVENTORY_EVENTS.ITEM_ADDED,
+      this.inventory.getAllItems()
+    );
   }
 
   protected getDefaultAnimations(): Record<string, string> {
@@ -266,6 +272,11 @@ export class PlayerCharacter extends BaseCharacter {
         quantity: item.quantity,
       });
       console.log("INVENTORY GET: ", this.inventory.getAllItems());
+      PhaserEventBus.emit(INVENTORY_EVENTS.ITEM_ADDED, item);
+      PhaserEventBus.emit(
+        INVENTORY_EVENTS.INVENTORY_CHANGED,
+        this.inventory.getAllItems()
+      );
     } else {
       console.log(`Failed to pick up ${item.name}. Inventory might be full.`);
     }
@@ -282,6 +293,11 @@ export class PlayerCharacter extends BaseCharacter {
       console.log(`Used ${quantity} x ${itemId}`);
       // Implement item-specific logic here (e.g., consuming a seed)
       this.scene.events.emit("inventory:update");
+      PhaserEventBus.emit(INVENTORY_EVENTS.ITEM_REMOVED, { itemId, quantity });
+      PhaserEventBus.emit(
+        INVENTORY_EVENTS.INVENTORY_CHANGED,
+        this.inventory.getAllItems()
+      );
       return true;
     } else {
       console.log(`Not enough ${itemId} to use.`);

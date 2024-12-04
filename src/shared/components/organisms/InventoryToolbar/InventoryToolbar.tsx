@@ -2,8 +2,13 @@
 import classes from "./inventory-toolbar.module.css";
 import { SpriteIcon } from "../../atoms/SpriteIcon";
 import { PhaserEventBus } from "@services/phaser.service";
+import { useInventory } from "./InventoryContext";
 
 const InventoryToolbar = () => {
+  const { items, selectedItem, selectItem } = useInventory();
+  console.log("ITEMS: ", items);
+  console.log("SELECTED ITEM: ", selectedItem);
+  console.log("SELECT ITEM: ", selectItem);
   const handleOnClickToolbar = (_data: any) => {
     console.log("DATA: ", _data);
     //  scene.events.emit("inventory:seedSelected", seedId);
