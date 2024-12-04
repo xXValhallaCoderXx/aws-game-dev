@@ -9,7 +9,7 @@ import {
   CropHarvestMapping,
 } from "./farming.interface";
 import { InventoryItem } from "@slices/character/player-character.interface";
-
+import { PhaserEventBus } from "@/shared/services/phaser.service";
 interface FarmingConfig {
   scene: Phaser.Scene;
   map: Phaser.Tilemaps.Tilemap;
@@ -90,6 +90,18 @@ export class FarmingSystem {
     this.scene.events.on(
       "inventory:seedSelected",
       (selectedSeedId: string | null) => {
+        console.log("BLAAH");
+        if (selectedSeedId) {
+          this.changeSelectedSeed(selectedSeedId as EFarmingCrops);
+        } else {
+          this.clearSelectedSeed();
+        }
+      }
+    );
+    PhaserEventBus.on(
+      "inventory:seedSelected",
+      (selectedSeedId: string | null) => {
+        console.log("Seed selected:", selectedSeedId);
         if (selectedSeedId) {
           this.changeSelectedSeed(selectedSeedId as EFarmingCrops);
         } else {
