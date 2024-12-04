@@ -1,0 +1,39 @@
+/* src/Toolbar.css */
+.toolbar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #a26336;
+    border: 4px solid #623b1c;
+    border-radius: 8px;
+    box-shadow: inset -4px -4px 0px #543418;
+    font-family: 'Press Start 2P', cursive;
+  }
+  
+  .toolbarButton {
+    background-color: #d4a374;
+    border: 2px solid #623b1c;
+    margin: 0 4px;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 2px #623b1c;
+    transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+  }
+  
+  .toolbarButton img {
+    width: 24px;
+    height: 24px;
+    image-rendering: pixelated; /* Helps give a pixelated look */
+  }
+  
+  .toolbarButton:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 #623b1c;
+  }
+  
+  .toolbarButton:hover {
+    background-color: #e5b885;
+  }
+  
