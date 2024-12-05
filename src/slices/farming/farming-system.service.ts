@@ -187,6 +187,9 @@ export class FarmingSystem {
           const harvestedAmount = this.calculateHarvestYield(
             crop.cropType as EFarmingCrops
           );
+
+          console.log("HARVESTED AMOUNT: ", harvestedAmount);
+          console.log("CROP HARVESTED: ", crop);
           // Animate the crop being harvested
           this.animateHarvestedCrop(
             crop.sprite.x,

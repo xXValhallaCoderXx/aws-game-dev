@@ -78,7 +78,7 @@ export class Inventory {
    */
   public setupKeyboardListeners(scene: Phaser.Scene): void {
     if (scene.input.keyboard) {
-      console.log("KEYBOARD LISTENING", scene.input.keyboard);
+
       // Define key mappings: keys 1, 2, 3 correspond to seed slots
       const keyMappings: { [keyCode: string]: string } = {
         ONE: "carrot-seed",
@@ -90,8 +90,6 @@ export class Inventory {
       Object.entries(keyMappings).forEach(([keyCode, seedId]) => {
         if (scene?.input?.keyboard) {
           scene.input.keyboard.on(`keydown-${keyCode}`, () => {
-            console.log("keyCode: ", keyCode);
-            console.log("seedId: ", seedId);
             if (this.items.has(seedId)) {
               scene.events.emit("inventory:seedSelected", seedId);
             } else {
