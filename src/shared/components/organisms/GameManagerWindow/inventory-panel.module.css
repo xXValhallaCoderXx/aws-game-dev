@@ -1,0 +1,97 @@
+.inventoryPanel {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: #d4a374;
+    border: 5px solid #a26336;
+   
+    border-radius: 12px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    min-width: 800px;
+    height: 500px;
+  }
+  
+  .tabsContainer {
+    display: flex;
+    margin-bottom: 15px;
+  }
+  
+  .tabButton {
+    flex: 1;
+    padding: 10px;
+    background: #e5b885;
+    border: 2px solid #a26336;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .tabButton:hover {
+    background: #d4a374;
+  }
+  
+  .activeTab {
+    background: #a26336;
+    color: #fff;
+  }
+  
+  .topSection {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .toolsContainer {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .toolSlot {
+    background: #e5b885;
+    border: 2px solid #a26336;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  
+  .currencyInfo {
+    font-size: 14px;
+    text-align: right;
+  }
+  
+  .itemsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .itemSlot {
+    background: #d4a374;
+    border: 2px solid #a26336;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  
+  .playerInfo {
+    text-align: center;
+  }
+  
+  .avatar {
+    font-size: 40px;
+    margin-bottom: 10px;
+  }
+  
+  .statsContainer {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .settingsContainer {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  

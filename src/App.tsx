@@ -5,7 +5,7 @@ import { useRef } from "react";
 import Dialogue from "@components/molecules/Dialogue";
 import useKeyEventManager from "./shared/hooks/useKeyEventManager";
 import { InventoryToolbar } from "./shared/components/organisms/InventoryToolbar";
-import { InventoryPanel } from "./shared/components/organisms/InventoryPanel";
+import { GameManagerWindow } from "./shared/components/organisms/GameManagerWindow";
 import { AvatarDropdown } from "./shared/components/organisms/AvatarDropdown";
 
 const App = () => {
@@ -47,7 +47,7 @@ const App = () => {
             zIndex: 10,
           }}
         >
-          <InventoryPanel />
+          <GameManagerWindow />
         </div>
 
         {/* Center bottom container */}
