@@ -1,9 +1,4 @@
-export interface InventoryItem {
-  id: string;
-  name: string;
-  quantity: number;
-  category?: string; // Optional: e.g., 'seed', 'tool'
-}
+import { InventoryItem } from "./inventory.interface";
 
 interface InventoryConfig {
   maxCapacity?: number;
@@ -19,20 +14,17 @@ export class Inventory {
     // Default capacity
     this.maxCapacity = maxCapacity;
     this.scene = scene;
- 
   }
-
-
 
   addItem(item: InventoryItem): boolean {
     const existingItem = this.items.get(item.id);
     const additionalCapacity = item.quantity;
-  
+
     if (this.getCurrentCapacity() + additionalCapacity > this.maxCapacity) {
       console.warn("Inventory is full. Cannot add more items.");
       return false;
     }
-  
+
     if (existingItem) {
       // Create new object when updating existing item
       this.items.set(item.id, {

@@ -205,7 +205,7 @@ export class FarmingSystem {
             id: this.CROP_HARVEST_CONFIG[crop.cropType as EFarmingCrops].cropId,
             name: `${crop.cropType}`,
             quantity: harvestedAmount,
-            category: "crop",
+            category: "crops",
           });
 
           console.log(crop);

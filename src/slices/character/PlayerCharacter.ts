@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BaseCharacter } from "./BaseChracter";
-import { Inventory, InventoryItem } from "../inventory/inventory.service";
+import { InventoryItem } from "../inventory/inventory.interface";
+import { Inventory } from "../inventory/inventory.service";
 import {
   BaseCharacterConfig,
   AnimationKey,
@@ -243,16 +244,19 @@ export class PlayerCharacter extends BaseCharacter {
       id: "carrot-seed",
       name: "Carrot Seed",
       quantity: 5,
+      category: "seeds",
     });
     this.inventory.addItem({
       id: "radish-seed",
       name: "Radish Seed",
       quantity: 3,
+      category: "seeds",
     });
     this.inventory.addItem({
       id: "cauliflower-seed",
       name: "Cauliflower Seed",
       quantity: 2,
+      category: "seeds",
     });
   }
 
@@ -270,10 +274,11 @@ export class PlayerCharacter extends BaseCharacter {
         id: item.name,
         name: item.name,
         quantity: item.quantity,
+        category: item.category,
       });
 
       PhaserEventBus.emit(
-        INVENTORY_EVENTS.INVENTORY_CHANGED,
+        INVENTORY_EVENTS.GET_ALL_ITEMS,
         this.inventory.getAllItems()
       );
     } else {
@@ -289,8 +294,6 @@ export class PlayerCharacter extends BaseCharacter {
   public useItem(itemId: string, quantity: number): boolean {
     const success = this.inventory.removeItem(itemId, quantity);
     if (success) {
-      console.log(`Used ${quantity} x ${itemId}`);
-        console.log("USING AN ITEM: ", itemId);
       this.scene.events.emit("inventory:update");
       PhaserEventBus.emit(
         INVENTORY_EVENTS.GET_ALL_ITEMS,

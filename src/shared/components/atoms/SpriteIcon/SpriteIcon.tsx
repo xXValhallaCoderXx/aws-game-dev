@@ -1,12 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC } from "react";
 import classes from "./sprite-icon.module.css";
+import { IFarmingInventoryCategories } from "@/slices/inventory/inventory.interface";
 
-type ISpriteSheets = "seeds" | "crops";
-
-const spriteSheetMap = {
-  crops: "url(sprites/crops/seed-packets.png)",
-  seeds: "url(/sprites/crops/seed-packets.png)",
+const SPRITE_SHEET_MAP = {
+  crops: {
+    rowCount: 1,
+    spriteSheet: "url(/sprites/crops/crops-harvested.png)",
+  },
+  seeds: {
+    rowCount: 3,
+    spriteSheet: "url(/sprites/crops/seed-packets.png)",
+  },
 };
 interface ISpriteIconProps {
   iconIndex: number;
@@ -17,7 +22,7 @@ interface ISpriteIconProps {
   data?: any;
   isEmpty?: boolean;
   onClick?: (iconInfo: any) => void;
-  spriteSheet: ISpriteSheets;
+  spriteSheet: IFarmingInventoryCategories;
 }
 
 const SpriteIcon: FC<ISpriteIconProps> = ({
@@ -31,7 +36,7 @@ const SpriteIcon: FC<ISpriteIconProps> = ({
   spriteSheet = "seeds",
   isEmpty = false,
 }) => {
-  const rowCount = 3; // Number of icons per row in the sprite sheet (adjust based on your sprite sheet)
+  const rowCount = SPRITE_SHEET_MAP[spriteSheet].rowCount; // Number of icons per row in the sprite sheet (adjust based on your sprite sheet)
   const scale = 2;
   const x = -(iconIndex % rowCount) * iconWidth;
   const y = -Math.floor(iconIndex / rowCount) * iconHeight;
@@ -57,7 +62,7 @@ const SpriteIcon: FC<ISpriteIconProps> = ({
         style={{
           width: "100%",
           height: "100%",
-          backgroundImage: spriteSheetMap[spriteSheet],
+          backgroundImage: SPRITE_SHEET_MAP[spriteSheet].spriteSheet,
           backgroundPosition: isEmpty ? "0 0" : `${x * scale}px ${y * scale}px`,
           backgroundSize: `${rowCount * iconWidth * scale}px auto`,
           // Add some visual indication for empty slots
