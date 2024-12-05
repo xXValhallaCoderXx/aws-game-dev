@@ -19,39 +19,28 @@ export class Inventory {
     // Default capacity
     this.maxCapacity = maxCapacity;
     this.scene = scene;
-    this.setupEventListeners();
+ 
   }
 
-  private setupEventListeners() {
-    this.scene.events.on("inventory:update", () => {
-      console.log("INVENTORY UPDATE");
-      console.log("WHAT IS THIS: ", this.getAllItems());
-    });
-  }
+
 
   addItem(item: InventoryItem): boolean {
     const existingItem = this.items.get(item.id);
-    console.log("INVENTORY ADD ITEM: ", item);
-    const additionalCapacity = item.quantity; // Assuming each item takes 1 unit
-    console.log(
-      "INVENTORY - GET CURRENT CAPACITY: ",
-      this.getCurrentCapacity()
-    );
+    const additionalCapacity = item.quantity;
+  
     if (this.getCurrentCapacity() + additionalCapacity > this.maxCapacity) {
       console.warn("Inventory is full. Cannot add more items.");
       return false;
     }
-
+  
     if (existingItem) {
-      console.log("INVENTORY - EXISTING ITEM", existingItem);
-      console.log("INVENTORY - EXISTING ITEM QUANTITY", existingItem.quantity);
-      console.log(
-        "INVENTORY - NEW AMOUNT: ",
-        (existingItem.quantity += item.quantity)
-      );
-      existingItem.quantity += item.quantity;
+      // Create new object when updating existing item
+      this.items.set(item.id, {
+        ...existingItem,
+        quantity: existingItem.quantity + item.quantity,
+      });
     } else {
-      console.log("INVENTORY - NEW ITEM");
+      // Create new object for new item (this part is already correct)
       this.items.set(item.id, { ...item });
     }
     return true;
@@ -60,13 +49,18 @@ export class Inventory {
   removeItem(itemId: string, quantity: number): boolean {
     const existingItem = this.items.get(itemId);
     if (existingItem && existingItem.quantity >= quantity) {
-      existingItem.quantity -= quantity;
-      if (existingItem.quantity === 0) {
+      // Create new object with updated quantity
+      const newQuantity = existingItem.quantity - quantity;
+      if (newQuantity === 0) {
         this.items.delete(itemId);
+      } else {
+        this.items.set(itemId, {
+          ...existingItem,
+          quantity: newQuantity,
+        });
       }
       return true;
     }
-    console.warn(`Cannot remove ${quantity} x ${itemId}. Not enough quantity.`);
     return false;
   }
 
@@ -124,5 +118,13 @@ export class Inventory {
         scene.events.emit("inventory:seedSelected", null);
       });
     }
+  }
+
+  debugItems(): void {
+    console.log("Current inventory items:");
+    this.items.forEach((item, key) => {
+      console.log(`Item ${key}:`, item);
+      console.log("Is frozen:", Object.isFrozen(item));
+    });
   }
 }

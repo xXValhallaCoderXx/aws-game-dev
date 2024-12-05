@@ -2,47 +2,44 @@
 import classes from "./inventory-toolbar.module.css";
 import { SpriteIcon } from "../../atoms/SpriteIcon";
 import { PhaserEventBus } from "@services/phaser.service";
-import { useInventory } from "./InventoryContext";
+import { RootState } from "@/shared/services/redux-store.service";
+import { INVENTORY_SPRITE_MAPPING } from "@/slices/inventory/inventory-sprite-map";
+import { useSelector } from "react-redux";
 
 const InventoryToolbar = () => {
-  const { items, selectedItem, selectItem } = useInventory();
-  console.log("ITEMS: ", items);
-  console.log("SELECTED ITEM: ", selectedItem);
-  console.log("SELECT ITEM: ", selectItem);
-  const handleOnClickToolbar = (_data: any) => {
-    console.log("DATA: ", _data);
-    //  scene.events.emit("inventory:seedSelected", seedId);
-    PhaserEventBus.emit("inventory:seedSelected", "carrot-seed");
-  };
-  return (
-    <div className={classes.toolbar}>
-      {/* Add multiple buttons */}
-      <button className={classes.toolbarButton} title="Open Magic Menu">
-        <SpriteIcon
-          onClick={handleOnClickToolbar}
-          iconIndex={0}
-          hotkeyNumber={0}
-          itemCount={2}
-        />
-      </button>
-      <button className={classes.toolbarButton}>
-        <SpriteIcon
-          onClick={handleOnClickToolbar}
-          iconIndex={1}
-          hotkeyNumber={1}
-          itemCount={4}
-        />
-      </button>
-      <button className={classes.toolbarButton}>
-        <SpriteIcon
-          onClick={handleOnClickToolbar}
-          iconIndex={2}
-          hotkeyNumber={2}
-          itemCount={5}
-        />
-      </button>
-    </div>
-  );
+  const { items } = useSelector((state: RootState) => state.inventory);
+  const TOTAL_SLOTS = 9;
+
+  const handleOnClickToolbar = (_data: any) =>
+    PhaserEventBus.emit("inventory:seedSelected", _data?.data?.id);
+
+  const slots = Array(TOTAL_SLOTS)
+    .fill(null)
+    .map((_, index) => {
+      const item = items[index];
+      console.log("ITEM: ", item);
+      return (
+        <button key={index} className={classes.toolbarButton}>
+          <SpriteIcon
+            data={item || null}
+            spriteSheet="seeds"
+            onClick={item ? handleOnClickToolbar : undefined}
+            iconIndex={
+              item
+                ? INVENTORY_SPRITE_MAPPING[
+                    item.id as keyof typeof INVENTORY_SPRITE_MAPPING
+                  ]
+                : -1 // or some default sprite index for empty slot
+            }
+            hotkeyNumber={index + 1}
+            itemCount={item?.quantity || 0}
+            isEmpty={!item} // Add this prop to SpriteIcon if you want to style empty slots differently
+          />
+        </button>
+      );
+    });
+
+  return <div className={classes.toolbar}>{slots}</div>;
 };
 
 export default InventoryToolbar;

@@ -373,7 +373,7 @@ export class HomeMap extends BaseScene {
       targetScene: ESCENE_KEYS.HOME_HOUSE, // Example indoor scene
       targetStartingPosition: { x: 245, y: 300 }, // Starting position in HomeHouse
       comingFrom: ESCENE_KEYS.HOME_MAP,
-      debug: true,
+      debug: false,
       canTransition: () => this.isDoorOpen, // Only allow transition if door is open
       feedbackMessage: "The door is closed.", // Message if door is closed
     };

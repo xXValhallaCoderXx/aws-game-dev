@@ -42,9 +42,9 @@ export class PlayerCharacter extends BaseCharacter {
     this.initializeStartingInventory();
 
     this.inventory.setupKeyboardListeners(this.scene);
-
+    console.log("PLAYER MIT");
     PhaserEventBus.emit(
-      INVENTORY_EVENTS.ITEM_ADDED,
+      INVENTORY_EVENTS.GET_ALL_ITEMS,
       this.inventory.getAllItems()
     );
   }
@@ -271,8 +271,7 @@ export class PlayerCharacter extends BaseCharacter {
         name: item.name,
         quantity: item.quantity,
       });
-      console.log("INVENTORY GET: ", this.inventory.getAllItems());
-      PhaserEventBus.emit(INVENTORY_EVENTS.ITEM_ADDED, item);
+
       PhaserEventBus.emit(
         INVENTORY_EVENTS.INVENTORY_CHANGED,
         this.inventory.getAllItems()
@@ -291,11 +290,10 @@ export class PlayerCharacter extends BaseCharacter {
     const success = this.inventory.removeItem(itemId, quantity);
     if (success) {
       console.log(`Used ${quantity} x ${itemId}`);
-      // Implement item-specific logic here (e.g., consuming a seed)
+        console.log("USING AN ITEM: ", itemId);
       this.scene.events.emit("inventory:update");
-      PhaserEventBus.emit(INVENTORY_EVENTS.ITEM_REMOVED, { itemId, quantity });
       PhaserEventBus.emit(
-        INVENTORY_EVENTS.INVENTORY_CHANGED,
+        INVENTORY_EVENTS.GET_ALL_ITEMS,
         this.inventory.getAllItems()
       );
       return true;

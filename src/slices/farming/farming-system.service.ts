@@ -207,7 +207,7 @@ export class FarmingSystem {
             quantity: harvestedAmount,
             category: "crop",
           });
-          console.log("INVENTORY: ", this.player.inventory.getAllItems());
+
           console.log(crop);
         });
       } else {
@@ -251,13 +251,12 @@ export class FarmingSystem {
     // Update the player's carrying state
     this.player.isCarrying = true;
     this.player.carriedItem = seedType;
-    console.log("SEED PACKET SPRITE: ", this.seedPacketSprite);
+
     // Remove existing seed packet sprite if it exists
     if (this.seedPacketSprite) {
       this.seedPacketSprite.destroy();
     }
-    console.log("SEED PACKET FRAME INDEX: ", this.SEED_PACKET_FRAME_INDEX);
-    console.log("SEED TYPE: ", seedType);
+
     // Create a new seed packet sprite
     this.seedPacketSprite = this.scene.add.sprite(
       this.player.x,

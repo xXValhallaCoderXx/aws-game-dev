@@ -4,7 +4,7 @@ import { PhaserGame } from "@components/organisms/PhaserGame";
 import { useRef, useState } from "react";
 import Dialogue from "@components/molecules/Dialogue";
 import { InventoryToolbar } from "./shared/components/organisms/InventoryToolbar";
-import { InventoryProvider } from "./shared/components/organisms/InventoryToolbar/InventoryContext";
+
 
 const App = () => {
   //  References to the PhaserGame component (game and scene are exposed)
@@ -45,9 +45,8 @@ const App = () => {
           }}
         >
           <Dialogue />
-          <InventoryProvider>
-            <InventoryToolbar />
-          </InventoryProvider>
+
+          <InventoryToolbar />
         </div>
       </div>
     </div>

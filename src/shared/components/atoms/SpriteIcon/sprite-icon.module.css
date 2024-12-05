@@ -3,13 +3,17 @@
     position: relative;
     display: inline-block;
     margin: 5px;
+    
   }
   
 
 .icon {
-    background-image: url('./sprites/crops/seed-packets.png'); /* Update to your sprite sheet path */
+  
+    background-repeat: no-repeat;
     image-rendering: pixelated; /* For pixel effect */
+    image-rendering: crisp-edges;  /* Firefox alternative */
     display: block;
+    
   
   }
 
@@ -29,8 +33,10 @@
     right: -10px;
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
-    font-size: 6px;
+    font-size: 7px;
     padding: 4px;
+    padding-left: 6px;
+    padding-right: 6px;
     border-radius: 50%;
     font-family: 'Press Start 2P', cursive; /* Retro font */
   }

@@ -1,11 +1,20 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { counterSlice } from "@slices/game/game.slice";
+import {
+  phaserSyncMiddleware,
+  initializePhaserSync,
+} from "@/middleware/phaser-sync.middleware";
+import { inventorySlice } from "@/slices/inventory/inventory.slice";
 
 export const store = configureStore({
   reducer: {
-    counter: counterSlice.reducer,
+    inventory: inventorySlice.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(phaserSyncMiddleware),
 });
+
+// Initialize Phaser sync
+initializePhaserSync(store);
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
