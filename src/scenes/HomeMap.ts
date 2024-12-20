@@ -174,6 +174,7 @@ export class HomeMap extends BaseScene {
   create() {
     // First create the map
     this.createMap();
+    // You might want to wait for the load to complete
 
     // Then call parent's create which will handle player creation and camera setup
     super.create();

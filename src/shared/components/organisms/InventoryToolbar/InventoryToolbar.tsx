@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 const InventoryToolbar = () => {
   const { items } = useSelector((state: RootState) => state.inventory);
   const TOTAL_SLOTS = 9;
-  console.log("ITEMS: ", items);
+
 
 
   const handleOnClickToolbar = (_data: any) =>

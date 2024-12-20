@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
+import MusicManager from "@slices/music-manager/music-manager.service";
 
 export class Preloader extends Scene {
   constructor() {
@@ -10,9 +11,15 @@ export class Preloader extends Scene {
   init() {}
 
   preload() {
+    // Initialize only if needed. After the first initialization, MusicManager should retain the scene reference.
+    MusicManager.initialize(this);
+
     this.load.image("grass", "tiles/grass.png");
     this.load.image("hills", "tiles/hills.png");
     this.load.image("tilled_dirt", "tiles/tilled_dirt.png");
+
+    MusicManager.addMusic("mainBgMusic", "sounds/main-bgm.mp3");
+    MusicManager.addMusic("battleMusic", "sounds/main-bgm.mp3");
 
     this.load.spritesheet(
       "guide-walk",
@@ -84,7 +91,6 @@ export class Preloader extends Scene {
       frameHeight: 16,
     });
 
-
     this.load.spritesheet(
       "harvested-crops",
       "sprites/crops/crops-harvested.png",
@@ -96,6 +102,12 @@ export class Preloader extends Scene {
   }
 
   create() {
+    // Start playing main background music
+    MusicManager.create();
+    // You might want to wait for the load to complete
+    this.load.once("complete", () => {
+      MusicManager.crossFade("mainBgMusic");
+    });
     this.scene.start(ESCENE_KEYS.HOME_MAP);
   }
 }

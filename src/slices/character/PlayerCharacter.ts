@@ -43,7 +43,7 @@ export class PlayerCharacter extends BaseCharacter {
     this.initializeStartingInventory();
 
     this.inventory.setupKeyboardListeners(this.scene);
-    console.log("PLAYER MIT");
+
     PhaserEventBus.emit(
       INVENTORY_EVENTS.GET_ALL_ITEMS,
       this.inventory.getAllItems()
