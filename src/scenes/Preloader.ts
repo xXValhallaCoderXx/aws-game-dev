@@ -14,12 +14,18 @@ export class Preloader extends Scene {
     // Initialize only if needed. After the first initialization, MusicManager should retain the scene reference.
     MusicManager.initialize(this);
 
+    // // Load Music Files
+    // MusicManager.addMusic("mainBgMusic", "sounds/main-bgm.mp3");
+    // MusicManager.addMusic("battleMusic", "sounds/main-bgm.mp3");
+
+    // Load Music Files directly using Phaser's loader
+    this.load.audio("mainBgMusic", "sounds/main-bgm.mp3");
+    this.load.audio("battleMusic", "sounds/main-bgm.mp3");
+
+    // Load Assets
     this.load.image("grass", "tiles/grass.png");
     this.load.image("hills", "tiles/hills.png");
     this.load.image("tilled_dirt", "tiles/tilled_dirt.png");
-
-    MusicManager.addMusic("mainBgMusic", "sounds/main-bgm.mp3");
-    MusicManager.addMusic("battleMusic", "sounds/main-bgm.mp3");
 
     this.load.spritesheet(
       "guide-walk",
@@ -102,12 +108,18 @@ export class Preloader extends Scene {
   }
 
   create() {
-    // Start playing main background music
-    MusicManager.create();
-    // You might want to wait for the load to complete
+    // Wait for all assets to be loaded first
     this.load.once("complete", () => {
+      // Then create the music
+      MusicManager.create();
+      // After music is created, start playing
       MusicManager.crossFade("mainBgMusic");
     });
+
+    // Start loading all assets
+    this.load.start();
+
+    // Start the next scene
     this.scene.start(ESCENE_KEYS.HOME_MAP);
   }
 }

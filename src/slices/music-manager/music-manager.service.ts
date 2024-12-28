@@ -41,18 +41,14 @@ class MusicManager {
 
     this.isLoading = true;
 
-    this.scene.load.once("complete", () => {
-      for (const [key] of this.musicKeys) {
-        if (!this.scene?.sound.get(key)) {
-          this.scene?.sound.add(key, {
-            loop: true,
-            volume: this.musicVolume,
-          });
-        }
-        this.musicKeys.set(key, true);
+    ["mainBgMusic", "battleMusic"].forEach((key) => {
+      if (!this.scene?.sound.get(key)) {
+        this.scene?.sound.add(key, {
+          loop: true,
+          volume: this.musicVolume,
+        });
       }
-      this.isLoading = false;
-      console.log("Music loading complete");
+      this.musicKeys.set(key, true);
     });
 
     this.scene.load.start();
@@ -66,17 +62,6 @@ class MusicManager {
       throw new Error("MusicManager not initialized");
     }
     console.log("CROSSFADE: ", newMusicKey);
-    console.log("MUSIC KEYS: ", this.musicKeys);
-    console.log("LOADED STATUS: ", this.musicKeys.get(newMusicKey));
-
-    // Check if the music is loaded
-
-    if (this.isLoading) {
-      console.log("Waiting for music to load...");
-      await new Promise((resolve) => {
-        this.scene!.load.once("complete", resolve);
-      });
-    }
 
     // Check if the music exists in the sound manager directly
     const newMusic = this.scene.sound.get(newMusicKey);
