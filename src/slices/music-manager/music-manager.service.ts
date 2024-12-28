@@ -4,7 +4,6 @@ class MusicManager {
   private scene: Phaser.Scene | null = null;
   private musicVolume: number = 0.5;
   private musicKeys: Map<string, boolean> = new Map(); // Track loaded music
-  private isLoading: boolean = false;
 
   private constructor() {}
 
@@ -39,8 +38,6 @@ class MusicManager {
       throw new Error("MusicManager not initialized. Call initialize() first.");
     }
 
-    this.isLoading = true;
-
     ["mainBgMusic", "battleMusic"].forEach((key) => {
       if (!this.scene?.sound.get(key)) {
         this.scene?.sound.add(key, {
@@ -61,7 +58,6 @@ class MusicManager {
     if (!this.scene) {
       throw new Error("MusicManager not initialized");
     }
-    console.log("CROSSFADE: ", newMusicKey);
 
     // Check if the music exists in the sound manager directly
     const newMusic = this.scene.sound.get(newMusicKey);
@@ -75,9 +71,7 @@ class MusicManager {
         targets: this.currentMusic,
         volume: 0,
         duration: duration,
-        //   onUpdate: (tween: Phaser.Tweens.Tween) => {
-        //     this.currentMusic?.setVolume(tween.getValue());
-        //   },
+
         onComplete: () => {
           this.currentMusic?.stop();
         },
@@ -86,14 +80,11 @@ class MusicManager {
 
     // Start new music and fade it in
     newMusic.play();
-    // newMusic.setVolume(0);
+
     this.scene.tweens.add({
       targets: newMusic,
       volume: this.musicVolume,
       duration: duration,
-      //   onUpdate: (tween: Phaser.Tweens.Tween) => {
-      //     newMusic.setVolume(tween.getValue());
-      //   }
     });
 
     this.currentMusic = newMusic;
