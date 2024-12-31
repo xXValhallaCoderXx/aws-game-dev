@@ -14,13 +14,8 @@ const ProfileAvatar = () => {
   const isSettingsOpen = useSelector(
     (state: RootState) => state.platform.isSettingsOpen
   );
-  // Handler for the toggle button
-  // const handleToggleMute = () => {
-  //     if (phaserRef.current) {
-  //       phaserRef.current.game.sound.mute = !phaserRef.current.game.sound.mute;
-  //       setIsMuted(() => !phaserRef.current.game.sound.mute);
-  //     }
-  //   };
+
+  console.log("SETTINGS IS SOUND ENABLKED: ", isSoundEnabled);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);

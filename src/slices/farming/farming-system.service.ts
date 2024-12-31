@@ -9,7 +9,7 @@ import {
   CropHarvestMapping,
 } from "./farming.interface";
 import { InventoryItem } from "@slices/character/player-character.interface";
-import { PhaserEventBus } from "@/shared/services/phaser.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 interface FarmingConfig {
   scene: Phaser.Scene;
   map: Phaser.Tilemaps.Tilemap;

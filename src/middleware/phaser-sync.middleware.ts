@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/shared/middleware/phaser-sync.middleware.ts
 import { Middleware } from "@reduxjs/toolkit";
-import { PhaserEventBus } from "@services/phaser.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import {
   INVENTORY_EVENTS,
   PLATFORM_EVENTS,

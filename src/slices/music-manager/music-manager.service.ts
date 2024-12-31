@@ -1,4 +1,4 @@
-import { PhaserEventBus } from "@/shared/services/phaser.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { PLATFORM_EVENTS } from "../events/events.types";
 class MusicManager {
   private static instance: MusicManager;

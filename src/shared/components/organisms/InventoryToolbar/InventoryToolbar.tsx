@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import classes from "./inventory-toolbar.module.css";
 import { SpriteIcon } from "../../atoms/SpriteIcon";
-import { PhaserEventBus } from "@services/phaser.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { RootState } from "@/shared/services/redux-store.service";
 import { INVENTORY_SPRITE_MAPPING } from "@/slices/inventory/inventory-sprite-map";
 import { useSelector } from "react-redux";

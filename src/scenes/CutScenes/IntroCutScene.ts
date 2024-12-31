@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseScene } from "../BaseScene";
 import { ESCENE_KEYS } from "../../shared/scene-keys";
 import { GuideCharacter } from "../../slices/character/GuideCharacter";
-import { PhaserEventBus } from "../../shared/services/phaser.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 
 export class IntroCutScene extends BaseScene {
   private guideNPC!: GuideCharacter;
@@ -14,9 +15,8 @@ export class IntroCutScene extends BaseScene {
     super(ESCENE_KEYS.INTRO_CUTSCENE);
   }
 
-  init() {
-    super.init();
-
+  init(data: any) {
+    super.init(data);
   }
 
   preload() {

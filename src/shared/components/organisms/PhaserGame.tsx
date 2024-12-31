@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Phaser, { Scene } from "phaser";
 import { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
-import { phaserConfig, PhaserEventBus } from "@services/phaser.service";
-
+import { phaserConfig } from "@services/phaser.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 interface PhaserGameProps {
   currentActiveScene?: (scene: any) => void; // Adjust type `any` to match the actual type of the scene
 }

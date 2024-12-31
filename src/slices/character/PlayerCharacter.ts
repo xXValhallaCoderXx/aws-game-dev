@@ -7,7 +7,7 @@ import {
   AnimationKey,
   AnimationKeyCarry,
 } from "./player-character.interface";
-import { PhaserEventBus } from "@/shared/services/phaser.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { INVENTORY_EVENTS } from "../events/events.types";
 interface PlayerConfig extends BaseCharacterConfig {
   speed: number;

@@ -4,6 +4,7 @@ import { HomeMap } from "@scenes/HomeMap";
 import { HomeBuilding } from "@scenes/HomeBuilding";
 import { IntroCutScene } from "@scenes/CutScenes/IntroCutScene";
 import { TownMap } from "@/scenes/TownMap";
+import { soundManager } from "@/slices/music-manager/SoundManager";
 
 export const phaserConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -23,8 +24,10 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
     },
   },
   scene: [Preloader, IntroCutScene, HomeMap, HomeBuilding, TownMap],
+  callbacks: {
+    postBoot: (game) => {
+      soundManager.init(game);
+    },
+  },
 };
 
-// Used to emit events between React components and Phaser scenes
-// https://newdocs.phaser.io/docs/3.70.0/Phaser.Events.EventEmitter
-export const PhaserEventBus = new Phaser.Events.EventEmitter();
