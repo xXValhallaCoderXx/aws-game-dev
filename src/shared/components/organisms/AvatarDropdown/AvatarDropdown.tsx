@@ -1,9 +1,19 @@
+import { RootState } from "@/shared/services/redux-store.service";
 import React, { useState } from "react";
+import { toggleSound, toggleSettings } from "@/slices/platform/game.slice";
 import styles from "./avatar-dropdown.module.css";
+import { useSelector, useDispatch } from "react-redux";
 
 const ProfileAvatar = () => {
+  const dispatch = useDispatch();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const isSoundEnabled = useSelector(
+    (state: RootState) => state.platform.isSoundEnabled
+  );
 
+  const isSettingsOpen = useSelector(
+    (state: RootState) => state.platform.isSettingsOpen
+  );
   // Handler for the toggle button
   // const handleToggleMute = () => {
   //     if (phaserRef.current) {
@@ -14,6 +24,14 @@ const ProfileAvatar = () => {
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleToggleSound = () => {
+    dispatch(toggleSound(!isSoundEnabled));
+  };
+
+  const handleToggleSettings = () => {
+    dispatch(toggleSettings(!isSettingsOpen));
   };
 
   return (
@@ -31,8 +49,15 @@ const ProfileAvatar = () => {
       </button>
       {isDropdownOpen && (
         <div className={styles.dropdownMenu}>
-          <button className={styles.dropdownItem}>Toggle Sound</button>
-          <button className={styles.dropdownItem}>Settings</button>
+          <button className={styles.dropdownItem} onClick={handleToggleSound}>
+            Sound {isSoundEnabled ? "On" : "Off"}
+          </button>
+          <button
+            className={styles.dropdownItem}
+            onClick={handleToggleSettings}
+          >
+            Settings
+          </button>
           <button className={styles.dropdownItem}>Log Out</button>
         </div>
       )}

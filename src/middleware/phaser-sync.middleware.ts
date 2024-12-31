@@ -36,6 +36,7 @@ export const initializePhaserSync = (store: any) => {
   );
 
   PhaserEventBus.on("inventory:itemSelected", (itemId: any) => {
+
     store.dispatch(setSelectedItem(itemId));
   });
 };

@@ -1,14 +1,18 @@
+import { RootState } from "../services/redux-store.service";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleSettings } from "@/slices/platform/game.slice";
 
 const useKeyEventManager = () => {
+  const isSettingsOpen = useSelector(
+    (state: RootState) => state.platform.isSettingsOpen
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() === "i") {
-        dispatch(toggleSettings());
+        dispatch(toggleSettings(!isSettingsOpen));
       }
     };
 
@@ -16,7 +20,7 @@ const useKeyEventManager = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [dispatch]);
+  }, [dispatch, isSettingsOpen]);
 };
 
 export default useKeyEventManager;

@@ -62,11 +62,12 @@ const SpriteIcon: FC<ISpriteIconProps> = ({
         style={{
           width: "100%",
           height: "100%",
-          backgroundImage: SPRITE_SHEET_MAP[spriteSheet].spriteSheet,
+          backgroundImage: isEmpty
+            ? ""
+            : SPRITE_SHEET_MAP[spriteSheet].spriteSheet,
           backgroundPosition: isEmpty ? "0 0" : `${x * scale}px ${y * scale}px`,
           backgroundSize: `${rowCount * iconWidth * scale}px auto`,
-          // Add some visual indication for empty slots
-          opacity: isEmpty ? "0.3" : "1",
+          opacity: "1",
         }}
       >
         {hotkeyNumber !== undefined && (

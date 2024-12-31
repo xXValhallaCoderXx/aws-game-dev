@@ -6,58 +6,43 @@ import { InventoryPanel } from "../InventoryPanel";
 import { SettingsPanel } from "../SettingsPanel";
 import { StatsPanel } from "../StatsPanel";
 
+const TABS = [
+  { key: "inventory", label: "Inventory", component: InventoryPanel },
+  { key: "stats", label: "Stats", component: StatsPanel },
+  { key: "settings", label: "Settings", component: SettingsPanel },
+];
+
 const GameManagerWindow = () => {
   const { isSettingsOpen } = useSelector((state: RootState) => state.platform);
   const [activeTab, setActiveTab] = useState("inventory");
+  console.log("IS SEEEINTS OPEN: ", isSettingsOpen);
+  if (!isSettingsOpen) return null;
 
-  const petInfo = {
-    petName: "Whiskers",
-    petType: "Cat",
-    horse: true,
-  };
-
-  if (!isSettingsOpen) {
-    return null;
-  }
+  const ActiveTabComponent = TABS.find(
+    (tab) => tab.key === activeTab
+  )?.component;
 
   return (
     <div className={styles.inventoryPanel}>
       <div className={styles.tabsContainer}>
-        <button
-          className={`${styles.tabButton} ${
-            activeTab === "inventory" ? styles.activeTab : ""
-          }`}
-          onClick={() => setActiveTab("inventory")}
-        >
-          Inventory
-        </button>
-        <button
-          className={`${styles.tabButton} ${
-            activeTab === "stats" ? styles.activeTab : ""
-          }`}
-          onClick={() => setActiveTab("stats")}
-        >
-          Stats
-        </button>
-        <button
-          className={`${styles.tabButton} ${
-            activeTab === "settings" ? styles.activeTab : ""
-          }`}
-          onClick={() => setActiveTab("settings")}
-        >
-          Settings
-        </button>
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            className={`${styles.tabButton} ${
+              activeTab === tab.key ? styles.activeTab : ""
+            }`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
-      {activeTab === "inventory" && <InventoryPanel />}
-      {activeTab === "stats" && <StatsPanel />}
-      {activeTab === "settings" && <SettingsPanel />}
+      {ActiveTabComponent && <ActiveTabComponent />}
       <div className={styles.playerInfo}>
         <div className={styles.avatar}>👒</div>
         <p>Farm Name: Whisper Garden</p>
-        <p>
-          Pet: {petInfo.petType} - {petInfo.petName}
-        </p>
-        {petInfo.horse && <p>Horse: Available</p>}
+        <p>Current Funds: 6,233,124g</p>
+        <p>Total Earnings: 22,451,346g</p>
       </div>
     </div>
   );
