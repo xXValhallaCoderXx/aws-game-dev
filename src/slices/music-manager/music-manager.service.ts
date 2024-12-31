@@ -1,3 +1,5 @@
+import { PhaserEventBus } from "@/shared/services/phaser.service";
+import { PLATFORM_EVENTS } from "../events/events.types";
 class MusicManager {
   private static instance: MusicManager;
   private currentMusic: Phaser.Sound.BaseSound | null = null;
@@ -15,6 +17,8 @@ class MusicManager {
   }
   public initialize(scene: Phaser.Scene): void {
     this.scene = scene;
+    PhaserEventBus.on(PLATFORM_EVENTS.DISABLE_MUSIC, this.stop, this);
+    PhaserEventBus.on(PLATFORM_EVENTS.ENABLE_MUSIC, this.start, this);
   }
 
   public isInitialized(): boolean {
@@ -101,6 +105,14 @@ class MusicManager {
     if (this.currentMusic) {
       this.currentMusic.stop();
       this.currentMusic = null;
+    }
+  }
+
+  public start(): void {
+    console.log("START MUSIC");
+    if (this.scene) {
+      const newMusic = this.scene.sound.get("mainBgMusic");
+      newMusic.play();
     }
   }
 }

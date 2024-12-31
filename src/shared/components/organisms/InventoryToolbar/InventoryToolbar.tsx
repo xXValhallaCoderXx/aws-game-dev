@@ -19,7 +19,7 @@ const InventoryToolbar = () => {
     .fill(null)
     .map((_, index) => {
       const item = items[index];
-      console.log("ITEM: ", item);
+
       return (
         <button key={index} className={classes.toolbarButton}>
           <SpriteIcon

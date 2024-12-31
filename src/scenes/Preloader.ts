@@ -3,6 +3,7 @@ import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
 import MusicManager from "@slices/music-manager/music-manager.service";
 
+
 export class Preloader extends Scene {
   constructor() {
     super(ESCENE_KEYS.PRELOADER);
@@ -121,5 +122,9 @@ export class Preloader extends Scene {
 
     // Start the next scene
     this.scene.start(ESCENE_KEYS.HOME_MAP);
+  }
+
+  toggleMusic() {
+    console.log("LETS TOGGLE");
   }
 }
