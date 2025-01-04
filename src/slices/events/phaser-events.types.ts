@@ -6,11 +6,7 @@ export const INVENTORY_EVENTS = {
   GET_ALL_ITEMS: "inventory:getAllItems",
 } as const;
 
-
-export const PLATFORM_EVENTS = {
+export const SYSTEM_EVENTS = {
   ENABLE_MUSIC: "game:disableMusic",
   DISABLE_MUSIC: "game:enableMusic",
 };
-
-
-

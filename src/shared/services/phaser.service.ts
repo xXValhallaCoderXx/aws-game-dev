@@ -4,7 +4,8 @@ import { HomeMap } from "@scenes/HomeMap";
 import { HomeBuilding } from "@scenes/HomeBuilding";
 import { IntroCutScene } from "@scenes/CutScenes/IntroCutScene";
 import { TownMap } from "@/scenes/TownMap";
-import { soundManager } from "@/slices/music-manager/SoundManager";
+import { ESCENE_KEYS } from "../scene-keys";
+import { SoundManager } from "@/slices/music-manager/sound-manager.service";
 
 export const phaserConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -26,7 +27,12 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
   scene: [Preloader, IntroCutScene, HomeMap, HomeBuilding, TownMap],
   callbacks: {
     postBoot: (game) => {
-      soundManager.init(game);
+      console.log("Post Boot Callback");
+      // SoundManager.initialize(game);
+      const preloaderScene = game.scene.getScene(ESCENE_KEYS.PRELOADER);
+      preloaderScene.events.once("create", () => {
+        SoundManager.initialize(game);
+      });
     },
   },
 };

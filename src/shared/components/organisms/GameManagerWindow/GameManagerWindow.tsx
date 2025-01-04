@@ -15,7 +15,7 @@ const TABS = [
 const GameManagerWindow = () => {
   const { isSettingsOpen } = useSelector((state: RootState) => state.platform);
   const [activeTab, setActiveTab] = useState("inventory");
-  console.log("IS SEEEINTS OPEN: ", isSettingsOpen);
+
   if (!isSettingsOpen) return null;
 
   const ActiveTabComponent = TABS.find(

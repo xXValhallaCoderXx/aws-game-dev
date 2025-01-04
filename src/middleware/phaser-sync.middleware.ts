@@ -4,8 +4,8 @@ import { Middleware } from "@reduxjs/toolkit";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import {
   INVENTORY_EVENTS,
-  PLATFORM_EVENTS,
-} from "@/slices/events/events.types";
+  SYSTEM_EVENTS,
+} from "@/slices/events/phaser-events.types";
 import {
   updateItems,
   setSelectedItem,
@@ -27,9 +27,9 @@ export const phaserSyncMiddleware: Middleware =
 
     if (action.type === toggleSound.type) {
       if (action.payload) {
-        PhaserEventBus.emit(PLATFORM_EVENTS.ENABLE_MUSIC);
+        PhaserEventBus.emit(SYSTEM_EVENTS.ENABLE_MUSIC);
       } else {
-        PhaserEventBus.emit(PLATFORM_EVENTS.DISABLE_MUSIC);
+        PhaserEventBus.emit(SYSTEM_EVENTS.DISABLE_MUSIC);
       }
     }
 
@@ -51,12 +51,12 @@ export const initializePhaserSync = (store: any) => {
     }
   );
 
-  PhaserEventBus.on(PLATFORM_EVENTS.ENABLE_MUSIC, () => {
+  PhaserEventBus.on(SYSTEM_EVENTS.ENABLE_MUSIC, () => {
     console.log("PHASER MIDDLEWARE - EVENT ON - ENABLE MUSIC");
     store.dispatch(enableSound());
   });
 
-  PhaserEventBus.on(PLATFORM_EVENTS.DISABLE_MUSIC, () => {
+  PhaserEventBus.on(SYSTEM_EVENTS.DISABLE_MUSIC, () => {
     console.log("PHASER MIDDLEWARE - EVENT ON - DISABLE_MUSIC");
     store.dispatch(disableSound());
   });

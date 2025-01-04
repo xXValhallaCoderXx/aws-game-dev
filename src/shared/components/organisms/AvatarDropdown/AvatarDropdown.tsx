@@ -15,7 +15,6 @@ const ProfileAvatar = () => {
     (state: RootState) => state.platform.isSettingsOpen
   );
 
-  console.log("SETTINGS IS SOUND ENABLKED: ", isSoundEnabled);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);

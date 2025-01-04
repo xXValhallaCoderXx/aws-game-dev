@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
-import MusicManager from "@slices/music-manager/music-manager.service";
-
+import { ESOUND_NAMES } from "@/slices/music-manager/sound-manager.types";
 
 export class Preloader extends Scene {
   constructor() {
@@ -12,16 +11,10 @@ export class Preloader extends Scene {
   init() {}
 
   preload() {
-    // Initialize only if needed. After the first initialization, MusicManager should retain the scene reference.
-    MusicManager.initialize(this);
-
-    // // Load Music Files
-    // MusicManager.addMusic("mainBgMusic", "sounds/main-bgm.mp3");
-    // MusicManager.addMusic("battleMusic", "sounds/main-bgm.mp3");
-
-    // Load Music Files directly using Phaser's loader
-    this.load.audio("mainBgMusic", "sounds/main-bgm.mp3");
-    this.load.audio("battleMusic", "sounds/main-bgm.mp3");
+    console.log("PRELOADER STARTING");
+    this.load.audio(ESOUND_NAMES.MAIN_BG, "sounds/main-bgm.mp3");
+    this.load.audio(ESOUND_NAMES.PLACE_SEED, "sounds/seed-place.wav");
+    this.load.audio(ESOUND_NAMES.HARVEST_CROP, "sounds/harvest-crop-sound.wav");
 
     // Load Assets
     this.load.image("grass", "tiles/grass.png");
@@ -106,25 +99,18 @@ export class Preloader extends Scene {
         frameHeight: 16, // Height of each frame
       }
     );
+    console.log("PRELOADER ENDING");
   }
 
   create() {
-    // Wait for all assets to be loaded first
-    this.load.once("complete", () => {
-      // Then create the music
-      MusicManager.create();
-      // After music is created, start playing
-      MusicManager.crossFade("mainBgMusic");
-    });
-
     // Start loading all assets
-    this.load.start();
+    // this.load.start();
+
+    if (this.sound.get(ESOUND_NAMES.MAIN_BG)) {
+      console.log("Audio loaded successfully");
+    }
 
     // Start the next scene
     this.scene.start(ESCENE_KEYS.HOME_MAP);
-  }
-
-  toggleMusic() {
-    console.log("LETS TOGGLE");
   }
 }

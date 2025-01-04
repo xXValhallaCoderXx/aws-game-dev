@@ -10,13 +10,13 @@ import {
 } from "./farming.interface";
 import { InventoryItem } from "@slices/character/player-character.interface";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
+import { SoundManager } from "../music-manager/sound-manager.service";
+import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 interface FarmingConfig {
   scene: Phaser.Scene;
   map: Phaser.Tilemaps.Tilemap;
   farmableLayer: Phaser.Tilemaps.TilemapLayer;
   player: PlayerCharacter;
-  plantSeedSound: Phaser.Sound.BaseSound;
-  harvestCropSound: Phaser.Sound.BaseSound;
 }
 
 export class FarmingSystem {
@@ -24,8 +24,7 @@ export class FarmingSystem {
   private map: Phaser.Tilemaps.Tilemap;
   private farmableLayer: Phaser.Tilemaps.TilemapLayer;
   private player: PlayerCharacter;
-  private plantSeedSound: Phaser.Sound.BaseSound;
-  private harvestCropSound: Phaser.Sound.BaseSound;
+  private soundManager: SoundManager;
 
   private crops: { [key: string]: Crop } = {};
   private selectedSeedType: EFarmingCrops | "" = EFarmingCrops.CARROT; // Default seed type
@@ -66,8 +65,7 @@ export class FarmingSystem {
     this.map = config.map;
     this.farmableLayer = config.farmableLayer;
     this.player = config.player;
-    this.plantSeedSound = config.plantSeedSound;
-    this.harvestCropSound = config.harvestCropSound;
+    this.soundManager = SoundManager.getInstance();
 
     this.setupInput();
     this.setupEventListeners();
@@ -166,7 +164,7 @@ export class FarmingSystem {
           this.clearSelectedSeed();
         }
 
-        this.plantSeedSound.play();
+        this.soundManager.playSFX(ESOUND_NAMES.PLACE_SEED);
       } else {
         // Notify player they have no seeds of this type
         // this.scene.sound.play("errorSound"); // Optionally, play an error sound
@@ -183,7 +181,7 @@ export class FarmingSystem {
           );
 
           // Play harvest sound
-          this.harvestCropSound.play();
+          this.soundManager.playSFX(ESOUND_NAMES.HARVEST_CROP);
           const harvestedAmount = this.calculateHarvestYield(
             crop.cropType as EFarmingCrops
           );
