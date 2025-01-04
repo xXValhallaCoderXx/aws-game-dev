@@ -10,22 +10,29 @@ const InventoryToolbar = () => {
   const { items } = useSelector((state: RootState) => state.inventory);
   const TOTAL_SLOTS = 9;
 
-
-
-  const handleOnClickToolbar = (_data: any) =>
-    PhaserEventBus.emit("inventory:seedSelected", _data?.data?.id);
-
-  const slots = Array(TOTAL_SLOTS)
+  const toolbarItems = Array(TOTAL_SLOTS)
     .fill(null)
-    .map((_, index) => {
-      const item = items[index];
+    .map((_, index) => items[index]);
 
-      return (
-        <button key={index} className={classes.toolbarButton}>
+  const handleOnClickToolbar = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const index = Number(event.currentTarget.id);
+    const item = toolbarItems[index];
+
+    PhaserEventBus.emit("inventory:seedSelected", item?.id);
+  };
+
+  return (
+    <div className={classes.toolbar}>
+      {toolbarItems?.map((item, index) => (
+        <button
+          key={index}
+          id={String(index)}
+          className={classes.toolbarButton}
+          onClick={item ? handleOnClickToolbar : undefined}
+        >
           <SpriteIcon
             data={item || null}
             spriteSheet={item?.category ?? "seeds"}
-            onClick={item ? handleOnClickToolbar : undefined}
             iconIndex={
               item
                 ? INVENTORY_SPRITE_MAPPING[
@@ -38,10 +45,9 @@ const InventoryToolbar = () => {
             isEmpty={!item} // Add this prop to SpriteIcon if you want to style empty slots differently
           />
         </button>
-      );
-    });
-
-  return <div className={classes.toolbar}>{slots}</div>;
+      ))}
+    </div>
+  );
 };
 
 export default InventoryToolbar;
