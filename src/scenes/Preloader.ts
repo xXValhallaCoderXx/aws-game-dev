@@ -49,6 +49,15 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
+      "player-roll",
+      "sprites/characters/player/player-roll.png",
+      {
+        frameWidth: 80,
+        frameHeight: 80,
+      }
+    );
+
+    this.load.spritesheet(
       "player-idle",
       "sprites/characters/player/player-idle.png",
       {

@@ -18,6 +18,7 @@ export class PlayerCharacter extends BaseCharacter {
   public carriedItem?: string;
   public isCarrying: boolean = false;
   public isHarvesting: boolean = false;
+  public isRolling: boolean = false;
   public inventory: Inventory;
   protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private speed: number;
@@ -44,6 +45,12 @@ export class PlayerCharacter extends BaseCharacter {
 
     this.inventory.setupKeyboardListeners(this.scene);
 
+    this.scene.input.keyboard
+      ?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
+      .on("down", () => {
+        this.roll();
+      });
+
     PhaserEventBus.emit(
       INVENTORY_EVENTS.GET_ALL_ITEMS,
       this.inventory.getAllItems()
@@ -64,6 +71,10 @@ export class PlayerCharacter extends BaseCharacter {
       harvestDown: "player-harvest-down",
       harvestLeft: "player-harvest-left",
       harvestRight: "player-harvest-right",
+      rollUp: "player-roll-up",
+      rollDown: "player-roll-down",
+      rollLeft: "player-roll-left",
+      rollRight: "player-roll-right",
     };
   }
 
@@ -85,20 +96,32 @@ export class PlayerCharacter extends BaseCharacter {
 
     directions.forEach((direction, directionIndex) => {
       // Regular animations
-      ["walk", "idle"].forEach((action) => {
+      ["walk", "idle", "roll"].forEach((action) => {
         const baseKey = `player-${action}-${direction}`;
         const spritesheet = `player-${action}`;
 
         if (!this.scene.anims.exists(baseKey)) {
-          this.scene.anims.create({
-            key: baseKey,
-            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
-              start: directionIndex * 6,
-              end: directionIndex * 6 + 5,
-            }),
-            frameRate: action === "walk" ? 10 : 8,
-            repeat: -1,
-          });
+          if (action === "roll") {
+            this.scene.anims.create({
+              key: baseKey,
+              frames: this.scene.anims.generateFrameNumbers(spritesheet, {
+                start: directionIndex * 9, // Multiply by 9 since each direction has 9 frames
+                end: directionIndex * 9 + 8, // Add 8 to get to the last frame (0-8 = 9 frames)
+              }),
+              frameRate: 15,
+              repeat: 0,
+            });
+          } else {
+            this.scene.anims.create({
+              key: baseKey,
+              frames: this.scene.anims.generateFrameNumbers(spritesheet, {
+                start: directionIndex * 6,
+                end: directionIndex * 6 + 5,
+              }),
+              frameRate: action === "walk" ? 10 : 8,
+              repeat: -1,
+            });
+          }
         }
       });
 
@@ -144,7 +167,7 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   public handleMovement(): void {
-    if (!this.cursors) return;
+    if (!this.cursors || this.isRolling) return;
 
     if (this.isHarvesting) {
       this.setVelocity(0);
@@ -205,6 +228,51 @@ export class PlayerCharacter extends BaseCharacter {
     if (this.anims.currentAnim?.key !== animationKey) {
       this.play(animationKey, true);
     }
+  }
+
+  public roll(): void {
+    if (this.isRolling || this.isHarvesting) return;
+
+    this.isRolling = true;
+    const rollAnim =
+      this.animations[
+        `roll${this.capitalize(this.facingDirection)}` as AnimationKey
+      ];
+
+    // Add a speed boost during roll
+    const rollSpeed = this.speed * 1.5;
+
+    // Apply velocity based on facing direction
+    switch (this.facingDirection) {
+      case "up":
+        this.setVelocity(0, -rollSpeed);
+        break;
+      case "down":
+        this.setVelocity(0, rollSpeed);
+        break;
+      case "left":
+        this.setVelocity(-rollSpeed, 0);
+        break;
+      case "right":
+        this.setVelocity(rollSpeed, 0);
+        break;
+    }
+
+    this.play(rollAnim, true).once("animationcomplete", () => {
+      this.isRolling = false;
+      this.setVelocity(0, 0);
+
+      // Return to idle animation
+      const idleAnim = this.isCarrying
+        ? this.carryAnimations[
+            `idle${this.capitalize(this.facingDirection)}` as AnimationKeyCarry
+          ]
+        : this.animations[
+            `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+          ];
+
+      this.play(idleAnim, true);
+    });
   }
 
   public startHarvesting(onComplete?: () => void): void {
