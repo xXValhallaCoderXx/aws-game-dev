@@ -28,7 +28,7 @@ const InventoryToolbar = () => {
           key={index}
           id={String(index)}
           className={classes.toolbarButton}
-          onClick={item ? handleOnClickToolbar : undefined}
+          onClick={handleOnClickToolbar}
         >
           <SpriteIcon
             data={item || null}
