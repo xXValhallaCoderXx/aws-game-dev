@@ -57,6 +57,17 @@ export class Preloader extends Scene {
       }
     );
 
+
+    this.load.spritesheet(
+      "player-attack-one-hand",
+      "sprites/characters/player/player-attack-one-hand.png",
+      {
+        frameWidth: 80,
+        frameHeight: 80,
+      }
+    );
+
+
     this.load.spritesheet(
       "player-idle",
       "sprites/characters/player/player-idle.png",

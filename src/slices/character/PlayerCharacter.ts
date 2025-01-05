@@ -19,6 +19,7 @@ export class PlayerCharacter extends BaseCharacter {
   public isCarrying: boolean = false;
   public isHarvesting: boolean = false;
   public isRolling: boolean = false;
+  public isAttacking: boolean = false;
   public inventory: Inventory;
   protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private speed: number;
@@ -51,6 +52,12 @@ export class PlayerCharacter extends BaseCharacter {
         this.roll();
       });
 
+    this.scene.input.keyboard
+      ?.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL)
+      .on("down", () => {
+        this.attackOneHand();
+      });
+
     PhaserEventBus.emit(
       INVENTORY_EVENTS.GET_ALL_ITEMS,
       this.inventory.getAllItems()
@@ -75,6 +82,10 @@ export class PlayerCharacter extends BaseCharacter {
       rollDown: "player-roll-down",
       rollLeft: "player-roll-left",
       rollRight: "player-roll-right",
+      attackOneHandUp: "player-attack-one-hand-up",
+      attackOneHandDown: "player-attack-one-hand-down",
+      attackOneHandLeft: "player-attack-one-hand-left",
+      attackOneHandRight: "player-attack-one-hand-right",
     };
   }
 
@@ -96,12 +107,12 @@ export class PlayerCharacter extends BaseCharacter {
 
     directions.forEach((direction, directionIndex) => {
       // Regular animations
-      ["walk", "idle", "roll"].forEach((action) => {
+      ["walk", "idle", "roll", "attack-one-hand"].forEach((action) => {
         const baseKey = `player-${action}-${direction}`;
         const spritesheet = `player-${action}`;
 
         if (!this.scene.anims.exists(baseKey)) {
-          if (action === "roll") {
+          if (action === "roll" || action === "attack-one-hand") {
             this.scene.anims.create({
               key: baseKey,
               frames: this.scene.anims.generateFrameNumbers(spritesheet, {
@@ -167,7 +178,7 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   public handleMovement(): void {
-    if (!this.cursors || this.isRolling) return;
+    if (!this.cursors || this.isRolling || this.isAttacking) return;
 
     if (this.isHarvesting) {
       this.setVelocity(0);
@@ -372,5 +383,36 @@ export class PlayerCharacter extends BaseCharacter {
       console.log(`Not enough ${itemId} to use.`);
       return false;
     }
+  }
+
+  public attackOneHand(): void {
+    // Don't attack if already attacking, rolling, harvesting, or carrying something
+    if (
+      this.isAttacking ||
+      this.isRolling ||
+      this.isHarvesting ||
+      this.isCarrying
+    )
+      return;
+
+    this.isAttacking = true;
+    const attackAnim =
+      this.animations[
+        `attackOneHand${this.capitalize(this.facingDirection)}` as AnimationKey
+      ];
+
+    // Stop any movement during attack
+    this.setVelocity(0, 0);
+
+    this.play(attackAnim, true).once("animationcomplete", () => {
+      this.isAttacking = false;
+
+      // Return to idle animation
+      const idleAnim =
+        this.animations[
+          `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+        ];
+      this.play(idleAnim, true);
+    });
   }
 }
