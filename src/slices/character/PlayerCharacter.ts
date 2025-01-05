@@ -23,6 +23,8 @@ export class PlayerCharacter extends BaseCharacter {
   public inventory: Inventory;
   protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private speed: number;
+  private weaponSprite: Phaser.GameObjects.Sprite;
+  private isUnarmed: boolean = true; // For testing purposes
 
   constructor(config: PlayerConfig) {
     super(config);
@@ -43,6 +45,13 @@ export class PlayerCharacter extends BaseCharacter {
       scene: this.scene,
     });
     this.initializeStartingInventory();
+
+    this.weaponSprite = this.scene.add.sprite(
+      this.x,
+      this.y,
+      "player-attack-one-hand-sword"
+    );
+    this.weaponSprite.setVisible(false); // Hide initially
 
     this.inventory.setupKeyboardListeners(this.scene);
 
@@ -171,6 +180,24 @@ export class PlayerCharacter extends BaseCharacter {
           });
         }
       });
+    });
+
+    ["up", "down", "left", "right"].forEach((direction, directionIndex) => {
+      const baseKey = `weapon-attack-${direction}`;
+      if (!this.scene.anims.exists(baseKey)) {
+        this.scene.anims.create({
+          key: baseKey,
+          frames: this.scene.anims.generateFrameNumbers(
+            "player-attack-one-hand-sword",
+            {
+              start: directionIndex * 9,
+              end: directionIndex * 9 + 8,
+            }
+          ),
+          frameRate: 15,
+          repeat: 0,
+        });
+      }
     });
 
     // Start with idle animation
@@ -396,23 +423,52 @@ export class PlayerCharacter extends BaseCharacter {
       return;
 
     this.isAttacking = true;
+    const direction = this.facingDirection;
     const attackAnim =
       this.animations[
-        `attackOneHand${this.capitalize(this.facingDirection)}` as AnimationKey
+        `attackOneHand${this.capitalize(direction)}` as AnimationKey
       ];
 
     // Stop any movement during attack
     this.setVelocity(0, 0);
 
-    this.play(attackAnim, true).once("animationcomplete", () => {
+    this.weaponSprite.setVisible(true);
+    this.weaponSprite.setPosition(this.x, this.y);
+
+    // Play both animations
+    this.play(attackAnim, true);
+    this.weaponSprite.play(`weapon-attack-${direction}`);
+
+    // Listen for animation completion
+    this.weaponSprite.once("animationcomplete", () => {
+      this.weaponSprite.setVisible(false);
+    });
+
+    this.once("animationcomplete", () => {
       this.isAttacking = false;
 
       // Return to idle animation
       const idleAnim =
-        this.animations[
-          `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-        ];
+        this.animations[`idle${this.capitalize(direction)}` as AnimationKey];
       this.play(idleAnim, true);
     });
+  }
+
+  update() {
+    super.update();
+
+    // Keep weapon sprite aligned with player
+    if (this.weaponSprite) {
+      this.weaponSprite.setPosition(this.x, this.y);
+      this.weaponSprite.setDepth(this.depth);
+    }
+  }
+
+  // Clean up when destroying the player
+  destroy() {
+    if (this.weaponSprite) {
+      this.weaponSprite.destroy();
+    }
+    super.destroy();
   }
 }
