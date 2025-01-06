@@ -6,6 +6,7 @@ import { FarmingSystem } from "../slices/farming/farming-system.service";
 import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 import { EnemyCharacter } from "@/slices/character/EnemyCharacter";
+import { PlayerCharacter } from "@/slices/character/PlayerCharacter";
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
@@ -21,6 +22,8 @@ export class HomeMap extends BaseScene {
   private buildingRoofLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private buildingRoofAccessoriesLayer: Phaser.Tilemaps.TilemapLayer | null =
     null;
+
+  private enemies: EnemyCharacter[] = [];
 
   // Sound Assets
   private plantSeedSound: Phaser.Sound.BaseSound | null = null;
@@ -243,8 +246,6 @@ export class HomeMap extends BaseScene {
       ],
     });
 
-    this.physics.add.collider(enemy, this.player);
-
     if (
       this.buildingBaseLayer &&
       this.buildingRoofLayer &&
@@ -255,10 +256,17 @@ export class HomeMap extends BaseScene {
       this.physics.add.collider(enemy, this.buildingRoofLayer);
       this.physics.add.collider(enemy, this.buildingRoofAccessoriesLayer);
     }
+
+    enemy.setTarget(this.player);
+    this.enemies.push(enemy);
+
+    this.physics.add.collider(this.player, enemy);
   }
 
   update(time: number, delta: number) {
     super.update(time, delta);
+    this.player.update(time, delta);
+    this.enemies.forEach((enemy) => enemy.update(time, delta));
 
     // Update the farming system
     this.farmingSystem.update(delta);

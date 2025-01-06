@@ -1,4 +1,5 @@
 import { BaseCharacter } from "./BaseChracter";
+import { PlayerCharacter } from "./PlayerCharacter";
 import {
   EnemyConfig,
   CharacterStats,
@@ -17,6 +18,12 @@ export class EnemyCharacter extends BaseCharacter {
   private currentPatrolIndex: number = 0;
   private isWaiting: boolean = false;
   private waitTimer: Phaser.Time.TimerEvent | null = null;
+
+  private detectionRadius: number = 100; // Adjust this value as needed
+  private attackRange: number = 30; // Adjust based on your game's scale
+  private attackCooldown: number = 1000; // 1 second cooldown between attacks
+  private canAttack: boolean = true;
+  private target: PlayerCharacter | null = null;
   private moveEvent: Phaser.Time.TimerEvent | null = null;
 
   constructor(config: EnemyConfig) {
@@ -152,6 +159,99 @@ export class EnemyCharacter extends BaseCharacter {
     });
   }
 
+  // Method to set the player as target
+  public setTarget(player: PlayerCharacter): void {
+    this.target = player;
+  }
+
+  private isPlayerInDetectionRange(): boolean {
+    if (!this.target) return false;
+
+    const distance = Phaser.Math.Distance.Between(
+      this.x,
+      this.y,
+      this.target.x,
+      this.target.y
+    );
+
+    return distance <= this.detectionRadius;
+  }
+
+  private isPlayerInAttackRange(): boolean {
+    if (!this.target) return false;
+
+    const distance = Phaser.Math.Distance.Between(
+      this.x,
+      this.y,
+      this.target.x,
+      this.target.y
+    );
+
+    return distance <= this.attackRange;
+  }
+
+  private moveTowardsPlayer(): void {
+    if (!this.target) return;
+
+    // Calculate angle to player
+    const angle = Phaser.Math.Angle.Between(
+      this.x,
+      this.y,
+      this.target.x,
+      this.target.y
+    );
+
+    // Set velocity based on angle
+    const speed = this.stats.speed;
+    const velocityX = Math.cos(angle) * speed;
+    const velocityY = Math.sin(angle) * speed;
+
+    this.body?.setVelocity(velocityX, velocityY);
+
+    // Update facing direction
+    if (Math.abs(velocityX) > Math.abs(velocityY)) {
+      this.facingDirection = velocityX > 0 ? "right" : "left";
+    } else {
+      this.facingDirection = velocityY > 0 ? "down" : "up";
+    }
+
+    // Play walking animation
+    const walkAnim =
+      this.animations[
+        `walk${this.capitalize(this.facingDirection)}` as AnimationKey
+      ];
+    this.play(walkAnim, true);
+  }
+
+  private async attackPlayer(): Promise<void> {
+    if (!this.canAttack || !this.target) return;
+
+    this.canAttack = false;
+    this.isAttacking = true;
+
+    // Play attack animation
+    const attackAnim =
+      this.animations[
+        `attack${this.capitalize(this.facingDirection)}` as AnimationKey
+      ];
+
+    // Deal damage to player
+    this.target.takeDamage(this.stats.strength);
+
+    // Play attack animation and wait for it to complete
+    await new Promise<void>((resolve) => {
+      this.play(attackAnim, true).once("animationcomplete", () => {
+        this.isAttacking = false;
+        resolve();
+      });
+    });
+
+    // Start cooldown
+    this.scene.time.delayedCall(this.attackCooldown, () => {
+      this.canAttack = true;
+    });
+  }
+
   public attack(): void {
     if (this.isAttacking || this.isHit) return;
 
@@ -172,33 +272,42 @@ export class EnemyCharacter extends BaseCharacter {
     });
   }
 
-  update(): void {
+  update(time: number, delta: number): void {
+    // Check for states that prevent movement
     if (this.isHit || this.isAttacking || this.isWaiting) {
       this.body?.setVelocity(0, 0);
       return;
     }
 
-    // Handle movement and state changes here
-    // if (this.body?.velocity.x === 0 && this.body?.velocity.y === 0) {
-    //   const idleAnim =
-    //     this.animations[
-    //       `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-    //     ];
-    //   this.play(idleAnim, true);
-    // }
-
-    // If not patrolling and not moving, play idle animation
-    if (
-      this.patrolPoints.length === 0 &&
-      this.body?.velocity.x === 0 &&
-      this.body?.velocity.y === 0
-    ) {
-      const idleAnim =
-        this.animations[
-          `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-        ];
-      this.play(idleAnim, true);
+    // If we have a target (player), check if they're in range
+    if (this.target && this.isPlayerInDetectionRange()) {
+      if (this.isPlayerInAttackRange()) {
+        // Stop and attack
+        this.body?.setVelocity(0, 0);
+        this.attackPlayer();
+      } else {
+        // Move towards player
+        this.moveTowardsPlayer();
+      }
+    } else {
+      // No player in range, handle normal patrol behavior
+      if (this.patrolPoints.length === 0) {
+        // If not patrolling and not moving, play idle animation
+        if (this.body?.velocity.x === 0 && this.body?.velocity.y === 0) {
+          const idleAnim =
+            this.animations[
+              `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+            ];
+          this.play(idleAnim, true);
+        }
+      } else {
+        // Continue with patrol behavior
+        this.moveToNextPoint();
+      }
     }
+
+    // Call parent update if needed
+    super.update(time, delta);
   }
 
   private startPatrol(): void {
