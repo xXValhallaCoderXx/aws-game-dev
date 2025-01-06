@@ -3,7 +3,7 @@ import {
   EnemyConfig,
   EnemyStats,
   AnimationKey,
-  //   PatrolPoint
+  PatrolPoint,
 } from "./player-character.interface";
 
 export class EnemyCharacter extends BaseCharacter {
@@ -12,12 +12,26 @@ export class EnemyCharacter extends BaseCharacter {
   public isHit: boolean = false;
   public isAttacking: boolean = false;
 
+  // Add new patrol-related properties
+  private patrolPoints: PatrolPoint[] = [];
+  private currentPatrolIndex: number = 0;
+  private isWaiting: boolean = false;
+  private waitTimer: Phaser.Time.TimerEvent | null = null;
+  private moveEvent: Phaser.Time.TimerEvent | null = null;
+
   constructor(config: EnemyConfig) {
     super(config);
     this.stats = { ...config.stats };
     this.enemyType = config.enemyType;
     this.setupAnimations();
-    this.play(this.animations.idleDown, true);
+
+    // Set up patrol points if provided
+    if (config.patrolPoints && config.patrolPoints.length > 0) {
+      this.patrolPoints = [...config.patrolPoints];
+      this.startPatrol();
+    } else {
+      this.play(this.animations.idleDown, true);
+    }
   }
 
   protected setupAnimations(): void {
@@ -159,15 +173,136 @@ export class EnemyCharacter extends BaseCharacter {
   }
 
   update(): void {
-    if (this.isHit || this.isAttacking) return;
+    if (this.isHit || this.isAttacking || this.isWaiting) {
+      this.body?.setVelocity(0, 0);
+      return;
+    }
 
     // Handle movement and state changes here
-    if (this.body?.velocity.x === 0 && this.body?.velocity.y === 0) {
+    // if (this.body?.velocity.x === 0 && this.body?.velocity.y === 0) {
+    //   const idleAnim =
+    //     this.animations[
+    //       `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+    //     ];
+    //   this.play(idleAnim, true);
+    // }
+
+    // If not patrolling and not moving, play idle animation
+    if (
+      this.patrolPoints.length === 0 &&
+      this.body?.velocity.x === 0 &&
+      this.body?.velocity.y === 0
+    ) {
       const idleAnim =
         this.animations[
           `idle${this.capitalize(this.facingDirection)}` as AnimationKey
         ];
       this.play(idleAnim, true);
     }
+  }
+
+  private startPatrol(): void {
+    if (this.patrolPoints.length === 0) return;
+    this.moveToNextPoint();
+  }
+
+  private moveToNextPoint(): void {
+    if (this.isHit || this.isAttacking) return;
+
+    const targetPoint = this.patrolPoints[this.currentPatrolIndex];
+    const distance = Phaser.Math.Distance.Between(
+      this.x,
+      this.y,
+      targetPoint.x,
+      targetPoint.y
+    );
+
+    if (distance < 2) {
+      this.body?.setVelocity(0, 0);
+
+      if (targetPoint.waitTime && targetPoint.waitTime > 0) {
+        this.isWaiting = true;
+        const idleAnim =
+          this.animations[
+            `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+          ];
+        this.play(idleAnim, true);
+
+        this.waitTimer = this.scene.time.delayedCall(
+          targetPoint.waitTime,
+          () => {
+            this.isWaiting = false;
+            this.currentPatrolIndex =
+              (this.currentPatrolIndex + 1) % this.patrolPoints.length;
+            this.moveToNextPoint();
+          }
+        );
+      } else {
+        this.currentPatrolIndex =
+          (this.currentPatrolIndex + 1) % this.patrolPoints.length;
+        this.moveToNextPoint();
+      }
+      return;
+    }
+
+    const angle = Phaser.Math.Angle.Between(
+      this.x,
+      this.y,
+      targetPoint.x,
+      targetPoint.y
+    );
+
+    const speed = this.stats.speed;
+    const velocityX = Math.cos(angle) * speed;
+    const velocityY = Math.sin(angle) * speed;
+
+    this.body?.setVelocity(velocityX, velocityY);
+
+    // Update facing direction based on movement
+    if (Math.abs(velocityX) > Math.abs(velocityY)) {
+      this.facingDirection = velocityX > 0 ? "right" : "left";
+    } else {
+      this.facingDirection = velocityY > 0 ? "down" : "up";
+    }
+
+    // Play walking animation
+    const walkAnim =
+      this.animations[
+        `walk${this.capitalize(this.facingDirection)}` as AnimationKey
+      ];
+    this.play(walkAnim, true);
+
+    this.moveEvent = this.scene.time.delayedCall(100, () => {
+      this.moveToNextPoint();
+    });
+  }
+
+  public stopPatrol(): void {
+    this.body?.setVelocity(0, 0);
+    const idleAnim =
+      this.animations[
+        `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+      ];
+    this.play(idleAnim, true);
+
+    if (this.moveEvent) {
+      this.moveEvent.destroy();
+      this.moveEvent = null;
+    }
+    if (this.waitTimer) {
+      this.waitTimer.destroy();
+      this.waitTimer = null;
+    }
+  }
+
+  public resumePatrol(): void {
+    if (this.patrolPoints.length > 0) {
+      this.moveToNextPoint();
+    }
+  }
+
+  destroy() {
+    this.stopPatrol();
+    super.destroy();
   }
 }

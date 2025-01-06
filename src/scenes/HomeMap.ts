@@ -235,7 +235,26 @@ export class HomeMap extends BaseScene {
         defense: 5,
         speed: 50,
       },
+      patrolPoints: [
+        { x: 100, y: 100, waitTime: 2000 },
+        { x: 200, y: 100 },
+        { x: 200, y: 200, waitTime: 1000 },
+        { x: 100, y: 200 },
+      ],
     });
+
+    this.physics.add.collider(enemy, this.player);
+
+    if (
+      this.buildingBaseLayer &&
+      this.buildingRoofLayer &&
+      this.buildingRoofAccessoriesLayer
+    ) {
+      this.physics.add.collider(enemy, this.buildingBaseLayer);
+
+      this.physics.add.collider(enemy, this.buildingRoofLayer);
+      this.physics.add.collider(enemy, this.buildingRoofAccessoriesLayer);
+    }
   }
 
   update(time: number, delta: number) {
