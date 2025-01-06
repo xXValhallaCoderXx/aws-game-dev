@@ -226,8 +226,8 @@ export class HomeMap extends BaseScene {
       scene: this,
       x: 100,
       y: 100,
-      texture: "slime-epic", // or whatever enemy sprite you're using
-      enemyType: "slime",
+      texture: "zombie-epic", // or whatever enemy sprite you're using
+      enemyType: "rat",
       stats: {
         maxHealth: 100,
         health: 100,

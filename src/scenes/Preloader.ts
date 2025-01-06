@@ -48,6 +48,39 @@ export class Preloader extends Scene {
       }
     );
 
+
+    this.load.spritesheet(
+      "rat-normal",
+      "sprites/characters/enemy/rat-normal.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet("rat-epic", "sprites/characters/enemy/rat-epic.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+
+    this.load.spritesheet(
+      "zombie-normal",
+      "sprites/characters/enemy/zombie-normal.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet(
+      "zombie-epic",
+      "sprites/characters/enemy/zombie-epic.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
     this.load.spritesheet(
       "guide-idle",
       "sprites/characters/guide/guide-idle.png",
