@@ -3,8 +3,10 @@
 import { Middleware } from "@reduxjs/toolkit";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import {
+  PLAYER_EVENTS,
   INVENTORY_EVENTS,
   SYSTEM_EVENTS,
+  EventPayloads,
 } from "@/slices/events/phaser-events.types";
 import {
   updateItems,
@@ -15,6 +17,10 @@ import {
   enableSound,
   disableSound,
 } from "@/slices/platform/game.slice";
+import {
+  updateHealth,
+  updateMaxHealth,
+} from "@/slices/character/player-character.slice";
 import { InventoryItem } from "@/slices/inventory/inventory.interface";
 
 export const phaserSyncMiddleware: Middleware =
@@ -64,4 +70,27 @@ export const initializePhaserSync = (store: any) => {
   PhaserEventBus.on("inventory:itemSelected", (itemId: any) => {
     store.dispatch(setSelectedItem(itemId));
   });
+
+  PhaserEventBus.on(
+    PLAYER_EVENTS.HEALTH_INITIALIZED,
+    (health: EventPayloads[PLAYER_EVENTS.HEALTH_INITIALIZED]) => {
+      store.dispatch(updateHealth(health));
+    }
+  );
+
+  // Listen for health changes
+  PhaserEventBus.on(
+    PLAYER_EVENTS.HEALTH_CHANGED,
+    (health: EventPayloads[PLAYER_EVENTS.HEALTH_CHANGED]) => {
+      store.dispatch(updateHealth(health));
+    }
+  );
+
+  // Listen for max health changes
+  PhaserEventBus.on(
+    PLAYER_EVENTS.MAX_HEALTH_CHANGED,
+    (maxHealth: EventPayloads[PLAYER_EVENTS.MAX_HEALTH_CHANGED]) => {
+      store.dispatch(updateMaxHealth(maxHealth));
+    }
+  );
 };

@@ -5,11 +5,13 @@ import {
 } from "@/middleware/phaser-sync.middleware";
 import { platformSlice } from "@/slices/platform/game.slice";
 import { inventorySlice } from "@/slices/inventory/inventory.slice";
+import playerSlice from "@/slices/character/player-character.slice";
 
 export const store = configureStore({
   reducer: {
     inventory: inventorySlice.reducer,
     platform: platformSlice.reducer,
+    player: playerSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(phaserSyncMiddleware),

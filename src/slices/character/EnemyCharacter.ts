@@ -1,13 +1,13 @@
 import { BaseCharacter } from "./BaseChracter";
 import {
   EnemyConfig,
-  EnemyStats,
+  CharacterStats,
   AnimationKey,
   PatrolPoint,
-} from "./player-character.interface";
+} from "./character.interface";
 
 export class EnemyCharacter extends BaseCharacter {
-  private stats: EnemyStats;
+  private stats: CharacterStats;
   private enemyType: string;
   public isHit: boolean = false;
   public isAttacking: boolean = false;

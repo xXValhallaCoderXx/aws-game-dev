@@ -31,7 +31,7 @@
   
   .healthBar, .staminaBar {
     background: #623b1c;
-    height: 10px;
+  
     border-radius: 5px;
     color: #fff;
     font-size: 10px;
@@ -39,6 +39,7 @@
   }
   
   .healthBar {
+    padding: 5px;
     background: linear-gradient(to right, #e57373, #a26336);
   }
   

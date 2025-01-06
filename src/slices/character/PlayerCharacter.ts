@@ -3,15 +3,14 @@ import { BaseCharacter } from "./BaseChracter";
 import { InventoryItem } from "../inventory/inventory.interface";
 import { Inventory } from "../inventory/inventory.service";
 import {
-  BaseCharacterConfig,
+  CharacterStats,
+  PlayerConfig,
   AnimationKey,
   AnimationKeyCarry,
-} from "./player-character.interface";
+} from "./character.interface";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { INVENTORY_EVENTS } from "../events/phaser-events.types";
-interface PlayerConfig extends BaseCharacterConfig {
-  speed: number;
-}
+import { PLAYER_EVENTS } from "../events/phaser-events.types";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
@@ -21,10 +20,13 @@ export class PlayerCharacter extends BaseCharacter {
   public isRolling: boolean = false;
   public isAttacking: boolean = false;
   public inventory: Inventory;
-  protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  private speed: number;
-  private weaponSprite: Phaser.GameObjects.Sprite;
+
+  private stats: CharacterStats;
+  private isInvincible: boolean = false;
+  private invincibilityDuration: number = 1000; // 1 second of invincibility after being hit
   private isUnarmed: boolean = true; // For testing purposes
+  private weaponSprite: Phaser.GameObjects.Sprite;
+  protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
   constructor(config: PlayerConfig) {
     super(config);
@@ -33,7 +35,7 @@ export class PlayerCharacter extends BaseCharacter {
       // this.cursors = this.scene.input.keyboard?.createCursorKeys();
       this.setDepth(10); // Arbitrary high value
     }
-    this.speed = config.speed;
+    this.stats = { ...config.stats }; // Clone stats to avoid reference issues
 
     // Initialize cursors with proper error handling
     if (!this.scene.input.keyboard) {
@@ -67,12 +69,24 @@ export class PlayerCharacter extends BaseCharacter {
         this.attackOneHand();
       });
 
+    this.emitHealthStats();
+
     PhaserEventBus.emit(
       INVENTORY_EVENTS.GET_ALL_ITEMS,
       this.inventory.getAllItems()
     );
   }
 
+  private emitHealthStats(): void {
+    PhaserEventBus.emit(PLAYER_EVENTS.HEALTH_INITIALIZED, this.stats.health);
+
+    PhaserEventBus.emit(PLAYER_EVENTS.MAX_HEALTH_CHANGED, this.stats.maxHealth);
+  }
+
+  // Add methods to handle stats
+  public getStats(): CharacterStats {
+    return { ...this.stats }; // Return a copy to prevent direct modification
+  }
   protected getDefaultAnimations(): Record<string, string> {
     return {
       walkUp: "player-walk-up",
@@ -221,22 +235,22 @@ export class PlayerCharacter extends BaseCharacter {
 
     // Horizontal movement
     if (this.cursors.left.isDown) {
-      velocityX = -this.speed;
+      velocityX = -this.stats.speed;
       this.facingDirection = "left";
       moving = true;
     } else if (this.cursors.right.isDown) {
-      velocityX = this.speed;
+      velocityX = this.stats.speed;
       this.facingDirection = "right";
       moving = true;
     }
 
     // Vertical movement
     if (this.cursors.up.isDown) {
-      velocityY = -this.speed;
+      velocityY = -this.stats.speed;
       this.facingDirection = "up";
       moving = true;
     } else if (this.cursors.down.isDown) {
-      velocityY = this.speed;
+      velocityY = this.stats.speed;
       this.facingDirection = "down";
       moving = true;
     }
@@ -278,7 +292,7 @@ export class PlayerCharacter extends BaseCharacter {
       ];
 
     // Add a speed boost during roll
-    const rollSpeed = this.speed * 1.5;
+    const rollSpeed = this.stats.speed * 1.5;
 
     // Apply velocity based on facing direction
     switch (this.facingDirection) {
@@ -454,8 +468,35 @@ export class PlayerCharacter extends BaseCharacter {
     });
   }
 
-  update() {
-    super.update();
+  update(time: number, delta: number): void {
+    super.update(time, delta);
+
+    if (this.isRolling || this.isAttacking || this.isHarvesting) return;
+
+    if (this.cursors) {
+      const speed = this.stats.speed;
+
+      // Update movement using speed from stats
+      if (this.cursors.left.isDown) {
+        this.setVelocityX(-speed);
+        this.facingDirection = "left";
+      } else if (this.cursors.right.isDown) {
+        this.setVelocityX(speed);
+        this.facingDirection = "right";
+      } else {
+        this.setVelocityX(0);
+      }
+
+      if (this.cursors.up.isDown) {
+        this.setVelocityY(-speed);
+        this.facingDirection = "up";
+      } else if (this.cursors.down.isDown) {
+        this.setVelocityY(speed);
+        this.facingDirection = "down";
+      } else {
+        this.setVelocityY(0);
+      }
+    }
 
     // Keep weapon sprite aligned with player
     if (this.weaponSprite) {
@@ -470,5 +511,47 @@ export class PlayerCharacter extends BaseCharacter {
       this.weaponSprite.destroy();
     }
     super.destroy();
+  }
+
+  public takeDamage(amount: number): void {
+    if (this.isInvincible) return;
+
+    const actualDamage = Math.max(1, amount - this.stats.defense);
+    this.stats.health = Math.max(0, this.stats.health - actualDamage);
+
+    // Emit event for UI update
+    PhaserEventBus.emit(PLAYER_EVENTS.HEALTH_CHANGED, this.stats.health);
+
+    // Make player invincible briefly
+    this.setInvincible();
+
+    // Handle death if health reaches 0
+    if (this.stats.health <= 0) {
+      this.handleDeath();
+    }
+  }
+
+  private setInvincible(): void {
+    this.isInvincible = true;
+    this.alpha = 0.5; // Visual feedback for invincibility
+
+    this.scene.time.delayedCall(this.invincibilityDuration, () => {
+      this.isInvincible = false;
+      this.alpha = 1;
+    });
+  }
+
+  public heal(amount: number): void {
+    this.stats.health = Math.min(
+      this.stats.maxHealth,
+      this.stats.health + amount
+    );
+    PhaserEventBus.emit(PLAYER_EVENTS.HEALTH_CHANGED, this.stats.health);
+  }
+
+  private handleDeath(): void {
+    // Implement death behavior
+    this.scene.scene.restart();
+    // Or implement your own game over logic
   }
 }

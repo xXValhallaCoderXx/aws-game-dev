@@ -8,7 +8,7 @@ import {
   EFarmingCropYields,
   CropHarvestMapping,
 } from "./farming.interface";
-import { InventoryItem } from "@slices/character/player-character.interface";
+import { InventoryItem } from "@/slices/character/character.interface";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { SoundManager } from "../music-manager/sound-manager.service";
 import { ESOUND_NAMES } from "../music-manager/sound-manager.types";

@@ -2,10 +2,7 @@
 
 import Phaser from "phaser";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
-import {
-  DialogueBranch,
-  BaseCharacterConfig,
-} from "./player-character.interface";
+import { DialogueBranch, BaseCharacterConfig } from "./character.interface";
 import { BaseCharacter } from "./BaseChracter";
 
 interface GuideCharacterConfig extends BaseCharacterConfig {

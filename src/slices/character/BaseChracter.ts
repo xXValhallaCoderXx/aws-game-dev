@@ -3,7 +3,7 @@ import {
   BaseCharacterConfig,
   Direction,
   DirectionCapitalized,
-} from "./player-character.interface";
+} from "./character.interface";
 
 export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
   public scene: Scene;

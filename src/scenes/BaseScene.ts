@@ -3,7 +3,7 @@
 // BaseScene.ts
 import { Scene } from "phaser";
 import { PlayerCharacter } from "../slices/character/PlayerCharacter";
-import { BaseCharacterConfig } from "@/slices/character/player-character.interface";
+import { BaseCharacterConfig } from "@/slices/character/character.interface";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 export abstract class BaseScene extends Scene {
   protected player!: PlayerCharacter;
@@ -71,7 +71,16 @@ export abstract class BaseScene extends Scene {
 
   protected createPlayer(): void {
     const playerConfig: BaseCharacterConfig = this.getPlayerConfig();
-    this.player = new PlayerCharacter({ ...playerConfig, speed: 100 });
+    this.player = new PlayerCharacter({
+      ...playerConfig,
+      stats: {
+        maxHealth: 120,
+        health: 120,
+        strength: 10,
+        defense: 5,
+        speed: 100,
+      },
+    });
 
     // this.player.anims.play(this.player.animations.idleDown);
   }
