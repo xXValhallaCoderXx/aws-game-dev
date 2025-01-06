@@ -236,10 +236,10 @@ export class HomeMap extends BaseScene {
         speed: 50,
       },
       patrolPoints: [
-        { x: 100, y: 100, waitTime: 2000 },
-        { x: 200, y: 100 },
-        { x: 200, y: 200, waitTime: 1000 },
-        { x: 100, y: 200 },
+        { x: 50, y: 100, waitTime: 750 },
+        { x: 100, y: 100 },
+        { x: 50, y: 100, waitTime: 750 },
+        { x: 100, y: 100 },
       ],
     });
 
