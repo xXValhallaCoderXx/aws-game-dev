@@ -5,7 +5,7 @@ import { ESCENE_KEYS } from "../shared/scene-keys";
 import { FarmingSystem } from "../slices/farming/farming-system.service";
 import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
-
+import { EnemyCharacter } from "@/slices/character/EnemyCharacter";
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
@@ -212,14 +212,30 @@ export class HomeMap extends BaseScene {
       map: this.map,
       farmableLayer: this.farmableLayer!,
       player: this.player,
-      plantSeedSound: this.plantSeedSound,
-      harvestCropSound: this.harvestCropSound,
+      // plantSeedSound: this.plantSeedSound,
+      // harvestCropSound: this.harvestCropSound,
     });
 
     // Initialize the Animated Tile System with all animated layers
     this.animatedTileSystem = new AnimatedTileSystem(this, this.map, [
       this.waterAnimatedLayer!,
     ]);
+
+    // In your game scene
+    const enemy = new EnemyCharacter({
+      scene: this,
+      x: 100,
+      y: 100,
+      texture: "slime-epic", // or whatever enemy sprite you're using
+      enemyType: "slime",
+      stats: {
+        maxHealth: 100,
+        health: 100,
+        strength: 10,
+        defense: 5,
+        speed: 50,
+      },
+    });
   }
 
   update(time: number, delta: number) {

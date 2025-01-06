@@ -37,3 +37,26 @@ export interface DialogueBranch {
     nextBranch: string;
   }[];
 }
+
+
+// Enemy Interfaces
+export interface PatrolPoint {
+  x: number;
+  y: number;
+  waitTime?: number; // Time to wait at this point in milliseconds
+}
+
+
+export interface EnemyStats {
+  maxHealth: number;
+  health: number;
+  strength: number;
+  defense: number;
+  speed: number;
+}
+
+export interface EnemyConfig extends BaseCharacterConfig {
+  stats: EnemyStats;
+  enemyType: string;
+  patrolPoints?: PatrolPoint[]; // Optional patrol points
+}

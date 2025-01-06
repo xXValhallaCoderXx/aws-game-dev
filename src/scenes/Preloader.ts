@@ -31,6 +31,24 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
+      "slime-normal",
+      "sprites/characters/enemy/slime-normal.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet(
+      "slime-epic",
+      "sprites/characters/enemy/slime-epic.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet(
       "guide-idle",
       "sprites/characters/guide/guide-idle.png",
       {
