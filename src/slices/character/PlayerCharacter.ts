@@ -305,6 +305,7 @@ export class PlayerCharacter extends BaseCharacter {
         `roll${this.capitalize(this.facingDirection)}` as AnimationKey
       ];
 
+    this.soundManager.playSFX(ESOUND_NAMES.PLAYER_DODGE);
     // Add a speed boost during roll
     const rollSpeed = this.stats.speed * 1.5;
 

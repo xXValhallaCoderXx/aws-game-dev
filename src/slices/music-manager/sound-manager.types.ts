@@ -4,4 +4,5 @@ export enum ESOUND_NAMES {
   PLACE_SEED = "place-seed",
   SWORD_SWING_BASE = "sword-swing-base",
   PLAYER_WALKING = "player-walking",
+  PLAYER_DODGE = "player-dodge",
 }
