@@ -20,6 +20,11 @@ import { FloatingText } from "@/shared/components/phaser-components/FloatingText
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
+  private healthBar!: {
+    bar: Phaser.GameObjects.Rectangle;
+    border: Phaser.GameObjects.Rectangle;
+  };
+
   public carriedItem?: string;
   public isCarrying: boolean = false;
   public isHarvesting: boolean = false;

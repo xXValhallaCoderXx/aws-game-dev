@@ -9,6 +9,8 @@ import {
 } from "./character.interface";
 
 export class EnemyCharacter extends BaseCharacter {
+  private hpBar: Phaser.GameObjects.Graphics;
+
   private stats: CharacterStats;
   private enemyType: string;
   public isHit: boolean = false;
@@ -41,6 +43,41 @@ export class EnemyCharacter extends BaseCharacter {
     } else {
       this.play(this.animations.idleDown, true);
     }
+
+    this.hpBar = this.scene.add.graphics();
+    this.updateHpBar();
+  }
+
+  private updateHpBar(): void {
+    const barWidth = 40;
+    const barHeight = 6;
+    const healthRatio = Phaser.Math.Clamp(
+      this.stats.health / this.stats.maxHealth,
+      0,
+      1
+    );
+
+    // Clear previous graphics
+    this.hpBar.clear();
+
+    // Draw background bar (gray)
+    this.hpBar.fillStyle(0x555555);
+    this.hpBar.fillRect(
+      this.x - barWidth / 2,
+      this.y - 20,
+      barWidth,
+      barHeight
+    );
+
+    // Draw health bar (green or red based on health)
+    const color = healthRatio > 0.5 ? 0x00ff00 : 0xff5555;
+    this.hpBar.fillStyle(color);
+    this.hpBar.fillRect(
+      this.x - barWidth / 2,
+      this.y - 20,
+      barWidth * healthRatio,
+      barHeight
+    );
   }
 
   protected setupAnimations(): void {
@@ -287,6 +324,7 @@ export class EnemyCharacter extends BaseCharacter {
       return;
     }
 
+    this.updateHpBar();
     // If we have a target (player), check if they're in range
     if (this.target && this.isPlayerInDetectionRange()) {
       if (this.isPlayerInAttackRange()) {
