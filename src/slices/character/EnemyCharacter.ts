@@ -13,6 +13,7 @@ export class EnemyCharacter extends BaseCharacter {
   private enemyType: string;
   public isHit: boolean = false;
   public isAttacking: boolean = false;
+  declare body: Phaser.Physics.Arcade.Body;
 
   // Add new patrol-related properties
   private patrolPoints: PatrolPoint[] = [];

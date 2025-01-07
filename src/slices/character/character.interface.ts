@@ -41,11 +41,12 @@ export interface DialogueBranch {
 
 // Generic Interfaces
 export interface CharacterStats {
-  maxHealth: number;
   health: number;
-  strength: number;
-  defense: number;
   speed: number;
+  strength: number;
+  maxHealth: number;
+  defense: number;
+  level?: number;
 }
 
 export interface PatrolPoint {

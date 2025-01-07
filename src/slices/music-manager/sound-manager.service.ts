@@ -229,9 +229,10 @@ export class SoundManager {
     const sfxConfig = this.AUDIO_CONFIG.sfx[ESOUND_NAMES.PLAYER_WALKING];
     if (!sfxConfig) return;
 
+    const sfxVolume = sfxConfig?.volume || 6;
     this.walkingSound = this.game.sound.add(ESOUND_NAMES.PLAYER_WALKING, {
       loop: true,
-      volume: sfxConfig.volume * this.sfxVolume,
+      volume: sfxVolume * this.sfxVolume,
       rate: 1.5,
     });
 
