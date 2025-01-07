@@ -18,6 +18,10 @@ export class Preloader extends Scene {
     this.load.audio(ESOUND_NAMES.PLAYER_WALKING, "sounds/player-walking.mp3");
     this.load.audio(ESOUND_NAMES.PLAYER_DODGE, "sounds/player-dodge.wav");
     this.load.audio(
+      ESOUND_NAMES.PLAYER_GRUNT_ONE,
+      "sounds/player-grunt-one.wav"
+    );
+    this.load.audio(
       ESOUND_NAMES.SWORD_SWING_BASE,
       "sounds/sword-swing-base.wav"
     );

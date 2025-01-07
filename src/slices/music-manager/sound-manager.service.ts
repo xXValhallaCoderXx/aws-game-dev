@@ -25,7 +25,8 @@ type SFXKeys =
   | ESOUND_NAMES.PLACE_SEED
   | ESOUND_NAMES.SWORD_SWING_BASE
   | ESOUND_NAMES.PLAYER_WALKING
-  | ESOUND_NAMES.PLAYER_DODGE;
+  | ESOUND_NAMES.PLAYER_DODGE
+  | ESOUND_NAMES.PLAYER_GRUNT_ONE;
 type UIKeys = ESOUND_NAMES.HARVEST_CROP;
 
 // Define the audio configuration interface
@@ -78,6 +79,10 @@ export class SoundManager {
       },
       [ESOUND_NAMES.SWORD_SWING_BASE]: {
         key: ESOUND_NAMES.SWORD_SWING_BASE,
+        volume: 0.6,
+      },
+      [ESOUND_NAMES.PLAYER_GRUNT_ONE]: {
+        key: ESOUND_NAMES.PLAYER_GRUNT_ONE,
         volume: 0.6,
       },
       [ESOUND_NAMES.PLAYER_DODGE]: {

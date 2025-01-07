@@ -25,6 +25,7 @@ export class PlayerCharacter extends BaseCharacter {
 
   private soundManager: SoundManager;
   private stats: CharacterStats;
+  public isDamaged: boolean = false; // Add this
   private isInvincible: boolean = false;
   private invincibilityDuration: number = 1000; // 1 second of invincibility after being hit
   private isUnarmed: boolean = true; // For testing purposes
@@ -113,6 +114,10 @@ export class PlayerCharacter extends BaseCharacter {
       attackOneHandDown: "player-attack-one-hand-down",
       attackOneHandLeft: "player-attack-one-hand-left",
       attackOneHandRight: "player-attack-one-hand-right",
+      damageUp: "player-damage-up",
+      damageDown: "player-damage-down",
+      damageLeft: "player-damage-left",
+      damageRight: "player-damage-right",
     };
   }
 
@@ -163,6 +168,19 @@ export class PlayerCharacter extends BaseCharacter {
         }
       });
 
+      // Add damage animation setup
+      const damageKey = `player-damage-${direction}`;
+      if (!this.scene.anims.exists(damageKey)) {
+        this.scene.anims.create({
+          key: damageKey,
+          frames: this.scene.anims.generateFrameNumbers("player-damage", {
+            start: directionIndex * 8, // 8 frames per direction
+            end: directionIndex * 8 + 7,
+          }),
+          frameRate: 15,
+          repeat: 0,
+        });
+      }
       // Carry animations
       ["walk", "idle"].forEach((action) => {
         const baseKey = `player-carry-${action}-${direction}`;
@@ -223,8 +241,14 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   public handleMovement(): void {
-    if (!this.cursors || this.isRolling || this.isAttacking) {
-      this.soundManager.stopWalkingSound(); // Stop sound if character can't move
+    if (
+      !this.cursors ||
+      this.isRolling ||
+      this.isAttacking ||
+      this.isDamaged ||
+      this.isHarvesting
+    ) {
+      this.soundManager.stopWalkingSound();
       return;
     }
 
@@ -529,22 +553,38 @@ export class PlayerCharacter extends BaseCharacter {
     super.destroy();
   }
 
-  public takeDamage(amount: number): void {
+  public takeDamage(damage: number): void {
     if (this.isInvincible) return;
 
-    const actualDamage = Math.max(1, amount - this.stats.defense);
-    this.stats.health = Math.max(0, this.stats.health - actualDamage);
+    this.isDamaged = true;
+    const damageAnim = `player-damage-${this.facingDirection}`;
 
-    // Emit event for UI update
+    // Play damage animation
+    this.play(damageAnim);
+    this.soundManager.playSFX(ESOUND_NAMES.PLAYER_GRUNT_ONE);
+
+    // Play damage sound if you have one
+    // this.soundManager.playSFX(ESOUND_NAMES.PLAYER_HURT);
+
+    // Listen for animation complete
+    this.once("animationcomplete", () => {
+      this.isDamaged = false;
+      this.play(`player-idle-${this.facingDirection}`);
+    });
+
+    // Set invincibility
+    this.isInvincible = true;
+
+    // Remove invincibility after duration
+    this.scene.time.delayedCall(this.invincibilityDuration, () => {
+      this.isInvincible = false;
+    });
+
+    // Update health
+    this.stats.health = Math.max(0, this.stats.health - damage);
+
+    // Emit health changed event
     PhaserEventBus.emit(PLAYER_EVENTS.HEALTH_CHANGED, this.stats.health);
-
-    // Make player invincible briefly
-    this.setInvincible();
-
-    // Handle death if health reaches 0
-    if (this.stats.health <= 0) {
-      this.handleDeath();
-    }
   }
 
   private setInvincible(): void {
