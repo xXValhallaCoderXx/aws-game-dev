@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { EFarmingCrops } from "@slices/farming/farming.interface";
 
 // Create a type that appends 'Seeds' to each crop type
@@ -62,4 +63,17 @@ export interface EnemyConfig extends BaseCharacterConfig {
 
 export interface PlayerConfig extends BaseCharacterConfig {
   stats: CharacterStats;
+}
+
+export interface DamageData {
+  damage: number;
+  strength: number; // Enemy's strength stat
+  sourcePosition: { x: number; y: number };
+}
+
+export interface KnockbackConfig {
+  duration: number;
+  minDistance: number;
+  maxDistance: number;
+  easing?: Function;
 }

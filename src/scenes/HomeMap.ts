@@ -6,7 +6,6 @@ import { FarmingSystem } from "../slices/farming/farming-system.service";
 import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 import { EnemyCharacter } from "@/slices/character/EnemyCharacter";
-import { PlayerCharacter } from "@/slices/character/PlayerCharacter";
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;

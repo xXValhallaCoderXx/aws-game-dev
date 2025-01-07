@@ -77,7 +77,7 @@ export abstract class BaseScene extends Scene {
         maxHealth: 120,
         health: 120,
         strength: 10,
-        defense: 5,
+        defense: 10,
         speed: 100,
       },
     });

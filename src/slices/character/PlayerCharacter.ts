@@ -7,6 +7,8 @@ import {
   PlayerConfig,
   AnimationKey,
   AnimationKeyCarry,
+  KnockbackConfig,
+  DamageData,
 } from "./character.interface";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { INVENTORY_EVENTS } from "../events/phaser-events.types";
@@ -22,6 +24,14 @@ export class PlayerCharacter extends BaseCharacter {
   public isRolling: boolean = false;
   public isAttacking: boolean = false;
   public inventory: Inventory;
+
+  private isKnockedBack: boolean = false;
+  private knockbackConfig: KnockbackConfig = {
+    duration: 200, // Duration of knockback in ms
+    minDistance: 30, // Minimum knockback distance
+    maxDistance: 150, // Maximum knockback distance
+    easing: Phaser.Math.Easing.Cubic.Out,
+  };
 
   private soundManager: SoundManager;
   private stats: CharacterStats;
@@ -246,8 +256,10 @@ export class PlayerCharacter extends BaseCharacter {
       this.isRolling ||
       this.isAttacking ||
       this.isDamaged ||
-      this.isHarvesting
+      this.isHarvesting ||
+      this.isKnockedBack
     ) {
+      // Add knockback check
       this.soundManager.stopWalkingSound();
       return;
     }
@@ -553,18 +565,19 @@ export class PlayerCharacter extends BaseCharacter {
     super.destroy();
   }
 
-  public takeDamage(damage: number): void {
+  public takeDamage(damageData: DamageData): void {
     if (this.isInvincible) return;
 
     this.isDamaged = true;
+    this.isKnockedBack = true;
     const damageAnim = `player-damage-${this.facingDirection}`;
 
     // Play damage animation
     this.play(damageAnim);
     this.soundManager.playSFX(ESOUND_NAMES.PLAYER_GRUNT_ONE);
 
-    // Play damage sound if you have one
-    // this.soundManager.playSFX(ESOUND_NAMES.PLAYER_HURT);
+    // Calculate knockback
+    this.applyKnockback(damageData);
 
     // Listen for animation complete
     this.once("animationcomplete", () => {
@@ -581,7 +594,7 @@ export class PlayerCharacter extends BaseCharacter {
     });
 
     // Update health
-    this.stats.health = Math.max(0, this.stats.health - damage);
+    this.stats.health = Math.max(0, this.stats.health - damageData.damage);
 
     // Emit health changed event
     PhaserEventBus.emit(PLAYER_EVENTS.HEALTH_CHANGED, this.stats.health);
@@ -595,6 +608,50 @@ export class PlayerCharacter extends BaseCharacter {
       this.isInvincible = false;
       this.alpha = 1;
     });
+  }
+
+  private applyKnockback(damageData: DamageData): void {
+    // Calculate direction from enemy to player
+    const knockbackDirection = new Phaser.Math.Vector2(
+      this.x - damageData.sourcePosition.x,
+      this.y - damageData.sourcePosition.y
+    ).normalize();
+
+    // Calculate knockback distance
+    const knockbackForce = this.calculateKnockbackForce(damageData.strength);
+
+    // Calculate target position
+    const targetX = this.x + knockbackDirection.x * knockbackForce;
+    const targetY = this.y + knockbackDirection.y * knockbackForce;
+
+    // Create knockback tween
+    this.scene.tweens.add({
+      targets: this,
+      x: targetX,
+      y: targetY,
+      duration: this.knockbackConfig.duration,
+      ease: this.knockbackConfig.easing,
+      onComplete: () => {
+        this.isKnockedBack = false;
+      },
+    });
+  }
+
+  private calculateKnockbackForce(enemyStrength: number): number {
+    const baseKnockback =
+      (this.knockbackConfig.maxDistance + this.knockbackConfig.minDistance) / 2;
+    const defenseRatio = Math.max(
+      0.2,
+      this.stats.defense / (this.stats.defense + enemyStrength)
+    );
+
+    const knockbackDistance = baseKnockback * (1 - defenseRatio);
+
+    return Phaser.Math.Clamp(
+      knockbackDistance,
+      this.knockbackConfig.minDistance,
+      this.knockbackConfig.maxDistance
+    );
   }
 
   public heal(amount: number): void {

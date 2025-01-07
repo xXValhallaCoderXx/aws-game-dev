@@ -5,6 +5,7 @@ import {
   CharacterStats,
   AnimationKey,
   PatrolPoint,
+  DamageData,
 } from "./character.interface";
 
 export class EnemyCharacter extends BaseCharacter {
@@ -235,8 +236,14 @@ export class EnemyCharacter extends BaseCharacter {
         `attack${this.capitalize(this.facingDirection)}` as AnimationKey
       ];
 
-    // Deal damage to player
-    this.target.takeDamage(this.stats.strength);
+    const damageData: DamageData = {
+      damage: this.stats.strength,
+      strength: this.stats.strength * 0.9, // Use enemy's strength stat
+      sourcePosition: { x: this.x, y: this.y },
+    };
+
+    // Deal damage to player with the damage data
+    this.target.takeDamage(damageData);
 
     // Play attack animation and wait for it to complete
     await new Promise<void>((resolve) => {
