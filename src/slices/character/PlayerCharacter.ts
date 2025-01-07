@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BaseCharacter } from "./BaseChracter";
+import { EnemyCharacter } from "./EnemyCharacter";
 import { InventoryItem } from "../inventory/inventory.interface";
 import { Inventory } from "../inventory/inventory.service";
 import {
@@ -15,6 +16,7 @@ import { INVENTORY_EVENTS } from "../events/phaser-events.types";
 import { PLAYER_EVENTS } from "../events/phaser-events.types";
 import { SoundManager } from "../music-manager/sound-manager.service";
 import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
+import { FloatingText } from "@/shared/components/phaser-components/FloatingText";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
@@ -33,6 +35,8 @@ export class PlayerCharacter extends BaseCharacter {
     easing: Phaser.Math.Easing.Cubic.Out,
   };
 
+  private attackHitbox!: Phaser.GameObjects.Rectangle;
+  private enemies: EnemyCharacter[] = [];
   private soundManager: SoundManager;
   private stats: CharacterStats;
   public isDamaged: boolean = false; // Add this
@@ -332,6 +336,11 @@ export class PlayerCharacter extends BaseCharacter {
     }
   }
 
+  // Method to set available enemies
+  public setEnemies(enemies: EnemyCharacter[]): void {
+    this.enemies = enemies;
+  }
+
   public roll(): void {
     if (this.isRolling || this.isHarvesting) return;
 
@@ -502,6 +511,10 @@ export class PlayerCharacter extends BaseCharacter {
 
     // Play both animations
     this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
+    // Create attack hitbox based on facing direction
+    const hitboxConfig = this.getAttackHitboxConfig();
+    this.createAttackHitbox(hitboxConfig);
+
     this.play(attackAnim, true);
     this.weaponSprite.play(`weapon-attack-${direction}`);
 
@@ -512,11 +525,91 @@ export class PlayerCharacter extends BaseCharacter {
 
     this.once("animationcomplete", () => {
       this.isAttacking = false;
-
+      if (this.attackHitbox) {
+        this.attackHitbox.destroy();
+      }
       // Return to idle animation
       const idleAnim =
         this.animations[`idle${this.capitalize(direction)}` as AnimationKey];
       this.play(idleAnim, true);
+    });
+
+    // Check for hits on enemies
+    this.checkAttackCollision();
+  }
+
+  private getAttackHitboxConfig(): {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } {
+    const hitboxWidth = 40;
+    const hitboxHeight = 40;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    switch (this.facingDirection) {
+      case "up":
+        offsetY = -hitboxHeight / 2;
+        break;
+      case "down":
+        offsetY = hitboxHeight / 2;
+        break;
+      case "left":
+        offsetX = -hitboxWidth / 2;
+        break;
+      case "right":
+        offsetX = hitboxWidth / 2;
+        break;
+    }
+
+    return {
+      x: this.x + offsetX,
+      y: this.y + offsetY,
+      width: hitboxWidth,
+      height: hitboxHeight,
+    };
+  }
+
+  private createAttackHitbox(config: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }): void {
+    this.attackHitbox = this.scene.add.rectangle(
+      config.x,
+      config.y,
+      config.width,
+      config.height,
+      0xff0000,
+      0 // Set alpha to 0 to make it invisible
+    );
+    this.scene.physics.add.existing(this.attackHitbox, true);
+  }
+
+  private checkAttackCollision(): void {
+    if (!this.attackHitbox || !this.enemies) return;
+
+    this.enemies.forEach((enemy) => {
+      const bounds = this.attackHitbox.getBounds();
+      const enemyBounds = enemy.getBounds();
+
+      if (Phaser.Geom.Rectangle.Overlaps(bounds, enemyBounds)) {
+        // Calculate damage based on player's stats
+        const damageData: DamageData = {
+          damage: this.stats.strength,
+          strength: this.stats.strength,
+          sourcePosition: {
+            x: this.x,
+            y: this.y,
+          },
+        };
+
+        // Apply damage to enemy
+        enemy.takeDamage(damageData.damage);
+      }
     });
   }
 
@@ -571,6 +664,31 @@ export class PlayerCharacter extends BaseCharacter {
     this.isDamaged = true;
     this.isKnockedBack = true;
     const damageAnim = `player-damage-${this.facingDirection}`;
+
+    // Create floating damage text
+    new FloatingText({
+      scene: this.scene,
+      x: this.x + 25, // Adjust this offset to position horizontally
+      y: this.y - this.height / 3.5, // Adjust this to position vertically
+      text: damageData?.damage.toString(),
+      size: 16,
+      color: "#ff6b6b",
+      strokeColor: "#ffffff",
+      strokeThickness: 4,
+      shadowColor: "#000000",
+      moveDistance: 60,
+      duration: 1200,
+    });
+
+    // Optional: Add different styling for critical hits
+    // if (isCritical) {
+    //   new FloatingText(
+    //       this.scene,
+    //       this.x,
+    //       this.y - this.height/2 - 20,
+    //       'Critical!'
+    //   );
+    // }
 
     // Play damage animation
     this.play(damageAnim);

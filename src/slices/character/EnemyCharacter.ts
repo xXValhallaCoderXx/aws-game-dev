@@ -22,7 +22,7 @@ export class EnemyCharacter extends BaseCharacter {
   private waitTimer: Phaser.Time.TimerEvent | null = null;
 
   private detectionRadius: number = 100; // Adjust this value as needed
-  private attackRange: number = 30; // Adjust based on your game's scale
+  private attackRange: number = 20; // Adjust based on your game's scale
   private attackCooldown: number = 1000; // 1 second cooldown between attacks
   private canAttack: boolean = true;
   private target: PlayerCharacter | null = null;
