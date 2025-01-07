@@ -11,6 +11,8 @@ import {
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { INVENTORY_EVENTS } from "../events/phaser-events.types";
 import { PLAYER_EVENTS } from "../events/phaser-events.types";
+import { SoundManager } from "../music-manager/sound-manager.service";
+import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
@@ -21,6 +23,7 @@ export class PlayerCharacter extends BaseCharacter {
   public isAttacking: boolean = false;
   public inventory: Inventory;
 
+  private soundManager: SoundManager;
   private stats: CharacterStats;
   private isInvincible: boolean = false;
   private invincibilityDuration: number = 1000; // 1 second of invincibility after being hit
@@ -41,6 +44,7 @@ export class PlayerCharacter extends BaseCharacter {
     if (!this.scene.input.keyboard) {
       throw new Error("Keyboard input not available in the current scene");
     }
+    this.soundManager = SoundManager.getInstance();
     this.cursors = this.scene.input.keyboard?.createCursorKeys();
     this.carryAnimations = this.getCarryAnimations();
     this.inventory = new Inventory({
@@ -219,10 +223,14 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   public handleMovement(): void {
-    if (!this.cursors || this.isRolling || this.isAttacking) return;
+    if (!this.cursors || this.isRolling || this.isAttacking) {
+      this.soundManager.stopWalkingSound(); // Stop sound if character can't move
+      return;
+    }
 
     if (this.isHarvesting) {
       this.setVelocity(0);
+      this.soundManager.stopWalkingSound(); // Stop sound during harvesting
       return;
     }
 
@@ -253,6 +261,12 @@ export class PlayerCharacter extends BaseCharacter {
       velocityY = this.stats.speed;
       this.facingDirection = "down";
       moving = true;
+    }
+
+    if (moving) {
+      this.soundManager.startWalkingSound();
+    } else {
+      this.soundManager.stopWalkingSound();
     }
 
     // Normalize diagonal movement
@@ -450,6 +464,7 @@ export class PlayerCharacter extends BaseCharacter {
     this.weaponSprite.setPosition(this.x, this.y);
 
     // Play both animations
+    this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
     this.play(attackAnim, true);
     this.weaponSprite.play(`weapon-attack-${direction}`);
 

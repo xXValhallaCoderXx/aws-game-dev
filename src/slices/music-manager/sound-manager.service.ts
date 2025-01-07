@@ -20,7 +20,11 @@ interface IAudioTrack {
 
 // Define valid keys as types
 type MusicKeys = ESOUND_NAMES.MAIN_BG;
-type SFXKeys = ESOUND_NAMES.HARVEST_CROP | ESOUND_NAMES.PLACE_SEED;
+type SFXKeys =
+  | ESOUND_NAMES.HARVEST_CROP
+  | ESOUND_NAMES.PLACE_SEED
+  | ESOUND_NAMES.SWORD_SWING_BASE
+  | ESOUND_NAMES.PLAYER_WALKING;
 type UIKeys = ESOUND_NAMES.HARVEST_CROP;
 
 // Define the audio configuration interface
@@ -44,6 +48,7 @@ export class SoundManager {
   private bgMusic: IAudioTrack | null = null;
   private soundEffects: Map<string, Phaser.Sound.BaseSound> = new Map();
   private uiSounds: Map<string, Phaser.Sound.BaseSound> = new Map();
+  private walkingSound: Phaser.Sound.BaseSound | null = null;
 
   // Volume controls for different channels
   private musicVolume: number = 0.5;
@@ -65,6 +70,15 @@ export class SoundManager {
         volume: 0.7,
       },
       [ESOUND_NAMES.PLACE_SEED]: { key: ESOUND_NAMES.PLACE_SEED, volume: 0.6 },
+      [ESOUND_NAMES.PLAYER_WALKING]: {
+        key: ESOUND_NAMES.PLAYER_WALKING,
+        volume: 0.6,
+        loop: true,
+      },
+      [ESOUND_NAMES.SWORD_SWING_BASE]: {
+        key: ESOUND_NAMES.SWORD_SWING_BASE,
+        volume: 0.6,
+      },
     },
     ui: {
       [ESOUND_NAMES.HARVEST_CROP]: {
@@ -194,6 +208,30 @@ export class SoundManager {
         onComplete();
       },
     });
+  }
+
+  public startWalkingSound(): void {
+    if (!this.game) return;
+
+    // If sound is already playing, don't start it again
+    if (this.walkingSound?.isPlaying) return;
+
+    const sfxConfig = this.AUDIO_CONFIG.sfx[ESOUND_NAMES.PLAYER_WALKING];
+    if (!sfxConfig) return;
+
+    this.walkingSound = this.game.sound.add(ESOUND_NAMES.PLAYER_WALKING, {
+      loop: true,
+      volume: sfxConfig.volume * this.sfxVolume,
+      rate: 1.5,
+    });
+
+    this.walkingSound.play();
+  }
+
+  public stopWalkingSound(): void {
+    if (this.walkingSound?.isPlaying) {
+      this.walkingSound.stop();
+    }
   }
 
   public stopMusic(fadeOut: number = 1000): void {
