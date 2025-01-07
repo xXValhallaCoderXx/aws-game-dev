@@ -9,6 +9,7 @@ import {
 } from "./character.interface";
 
 export class EnemyCharacter extends BaseCharacter {
+  private hpBarContainer: Phaser.GameObjects.Graphics;
   private hpBar: Phaser.GameObjects.Graphics;
 
   private stats: CharacterStats;
@@ -44,13 +45,16 @@ export class EnemyCharacter extends BaseCharacter {
       this.play(this.animations.idleDown, true);
     }
 
+    this.hpBarContainer = this.scene.add.graphics();
     this.hpBar = this.scene.add.graphics();
     this.updateHpBar();
   }
 
   private updateHpBar(): void {
-    const barWidth = 40;
-    const barHeight = 6;
+    const barWidth = 20; // Smaller width for more elegant look
+    const barHeight = 2.5;
+    const borderThickness = 1;
+    const offsetY = -this.height / 2 - 4; // Adjust offset for better positioning
     const healthRatio = Phaser.Math.Clamp(
       this.stats.health / this.stats.maxHealth,
       0,
@@ -58,23 +62,27 @@ export class EnemyCharacter extends BaseCharacter {
     );
 
     // Clear previous graphics
+    this.hpBarContainer.clear();
     this.hpBar.clear();
 
-    // Draw background bar (gray)
-    this.hpBar.fillStyle(0x555555);
-    this.hpBar.fillRect(
-      this.x - barWidth / 2,
-      this.y - 20,
-      barWidth,
-      barHeight
+    // Draw border/background
+    this.hpBarContainer.fillStyle(0x8b5a2b); // Brown cozy border color
+    this.hpBarContainer.fillRect(
+      -barWidth / 2 - borderThickness,
+      offsetY - borderThickness,
+      barWidth + borderThickness * 2,
+      barHeight + borderThickness * 2
     );
 
-    // Draw health bar (green or red based on health)
-    const color = healthRatio > 0.5 ? 0x00ff00 : 0xff5555;
-    this.hpBar.fillStyle(color);
+    // Draw background bar (light brown)
+    this.hpBarContainer.fillStyle(0xd4a374);
+    this.hpBarContainer.fillRect(-barWidth / 2, offsetY, barWidth, barHeight);
+
+    // Draw health bar (red color for cozy style)
+    this.hpBar.fillStyle(0xff5555);
     this.hpBar.fillRect(
-      this.x - barWidth / 2,
-      this.y - 20,
+      -barWidth / 2,
+      offsetY,
       barWidth * healthRatio,
       barHeight
     );
@@ -324,7 +332,9 @@ export class EnemyCharacter extends BaseCharacter {
       return;
     }
 
-    this.updateHpBar();
+    // Update HP bar position to follow the monster
+    this.hpBarContainer.setPosition(this.x, this.y);
+    this.hpBar.setPosition(this.x, this.y);
     // If we have a target (player), check if they're in range
     if (this.target && this.isPlayerInDetectionRange()) {
       if (this.isPlayerInAttackRange()) {
@@ -458,6 +468,8 @@ export class EnemyCharacter extends BaseCharacter {
 
   destroy() {
     this.stopPatrol();
+    this.hpBarContainer.destroy();
+    this.hpBar.destroy();
     super.destroy();
   }
 }
