@@ -12,6 +12,9 @@ import {
 export class EnemyCharacter extends BaseCharacter {
   private hpBarContainer: Phaser.GameObjects.Graphics;
   private hpBar: Phaser.GameObjects.Graphics;
+  private debugGraphics: Phaser.GameObjects.Graphics | null = null;
+  private readonly showDebug: boolean =
+    import.meta.env.VITE_DEBUG_HITBOX === "true";
 
   private stats: CharacterStats;
   private enemyType: string;
@@ -50,6 +53,9 @@ export class EnemyCharacter extends BaseCharacter {
     this.hpBarContainer = this.scene.add.graphics();
     this.hpBar = this.scene.add.graphics();
     this.updateHpBar();
+    if (this.showDebug) {
+      this.debugGraphics = this.scene.add.graphics();
+    }
   }
 
   private updateHpBar(): void {
@@ -412,6 +418,33 @@ export class EnemyCharacter extends BaseCharacter {
 
     // Call parent update if needed
     super.update(time, delta);
+
+    if (this.showDebug) {
+      this.drawDebugHitAreas();
+    }
+  }
+
+  private drawDebugHitAreas(): void {
+    if (!this.debugGraphics) return;
+
+    this.debugGraphics.clear();
+
+    // Draw enemy body
+    this.debugGraphics.lineStyle(2, 0xff0000);
+    this.debugGraphics.strokeRect(
+      this.body.x,
+      this.body.y,
+      this.body.width,
+      this.body.height
+    );
+
+    // Draw detection radius
+    this.debugGraphics.lineStyle(2, 0xffff00);
+    this.debugGraphics.strokeCircle(this.x, this.y, this.detectionRadius);
+
+    // Draw attack range
+    this.debugGraphics.lineStyle(2, 0xff6600);
+    this.debugGraphics.strokeCircle(this.x, this.y, this.attackRange);
   }
 
   private startPatrol(): void {
@@ -518,6 +551,9 @@ export class EnemyCharacter extends BaseCharacter {
     this.stopPatrol();
     this.hpBarContainer.destroy();
     this.hpBar.destroy();
+    if (this.debugGraphics) {
+      this.debugGraphics.destroy();
+      }
     super.destroy();
   }
 }

@@ -34,6 +34,10 @@ export class PlayerCharacter extends BaseCharacter {
   public isAttacking: boolean = false;
   public inventory: Inventory;
 
+  private debugGraphics: Phaser.GameObjects.Graphics | null = null;
+  private readonly showDebug: boolean =
+    import.meta.env.VITE_DEBUG_HITBOX === "true";
+
   private isKnockedBack: boolean = false;
   private knockbackConfig: KnockbackConfig = {
     duration: 200, // Duration of knockback in ms
@@ -42,6 +46,7 @@ export class PlayerCharacter extends BaseCharacter {
     easing: Phaser.Math.Easing.Cubic.Out,
   };
 
+  private readonly attackMovementPenalty: number = 0.5; // 50% speed reduction while attacking
   private attackHitbox!: Phaser.GameObjects.Rectangle;
   private enemies: EnemyCharacter[] = [];
   private soundManager: SoundManager;
@@ -101,6 +106,10 @@ export class PlayerCharacter extends BaseCharacter {
       INVENTORY_EVENTS.GET_ALL_ITEMS,
       this.inventory.getAllItems()
     );
+
+    if (this.showDebug) {
+      this.debugGraphics = this.scene.add.graphics();
+    }
   }
 
   private emitHealthStats(): void {
@@ -113,6 +122,7 @@ export class PlayerCharacter extends BaseCharacter {
   public getStats(): CharacterStats {
     return { ...this.stats }; // Return a copy to prevent direct modification
   }
+
   protected getDefaultAnimations(): Record<string, string> {
     return {
       walkUp: "player-walk-up",
@@ -510,9 +520,6 @@ export class PlayerCharacter extends BaseCharacter {
         `attackOneHand${this.capitalize(direction)}` as AnimationKey
       ];
 
-    // Stop any movement during attack
-    this.setVelocity(0, 0);
-
     this.weaponSprite.setVisible(true);
     this.weaponSprite.setPosition(this.x, this.y);
 
@@ -553,10 +560,23 @@ export class PlayerCharacter extends BaseCharacter {
     );
 
     enemies.forEach((enemy) => {
-      if (
-        Phaser.Geom.Rectangle.Overlaps(hitbox.getBounds(), enemy.getBounds())
-      ) {
-        const damage = this.stats.strength || 10; // Default attack value
+      const overlapping = Phaser.Geom.Rectangle.Overlaps(
+        hitbox.getBounds(),
+        enemy.getBounds()
+      );
+      // Debug visualization for hit detection
+      if (this.showDebug && this.debugGraphics) {
+        this.debugGraphics.lineStyle(2, overlapping ? 0xff0000 : 0x00ff00);
+        const enemyBounds = enemy.getBounds();
+        this.debugGraphics.strokeRect(
+          enemyBounds.x,
+          enemyBounds.y,
+          enemyBounds.width,
+          enemyBounds.height
+        );
+      }
+      if (overlapping) {
+        const damage = this.stats.strength || 10;
         enemy.takeDamage({
           damage,
           strength: damage,
@@ -575,16 +595,43 @@ export class PlayerCharacter extends BaseCharacter {
     };
 
     const hitbox = this.scene.add.rectangle(
-      this.x + (offset[direction]?.x || 0),
-      this.y + (offset[direction]?.y || 0),
+      this.x + offset[direction].x,
+      this.y + offset[direction].y,
       32,
       32,
       0xff0000,
-      0
+      this.showDebug ? 0.4 : 0
     );
 
     this.attackHitboxes.set(direction, hitbox);
     return hitbox;
+  }
+
+  // Add this method to visualize both player and enemy hit areas
+  private drawDebugHitAreas(): void {
+    if (!this.debugGraphics) return;
+
+    this.debugGraphics.clear();
+
+    // Draw player body
+    this.debugGraphics.lineStyle(2, 0x00ff00);
+    this.debugGraphics.strokeRect(
+      this.body.x,
+      this.body.y,
+      this.body.width,
+      this.body.height
+    );
+
+    // Draw current attack hitbox if it exists
+    this.attackHitboxes.forEach((hitbox) => {
+      this.debugGraphics.lineStyle(2, 0xff0000);
+      this.debugGraphics.strokeRect(
+        hitbox.x - hitbox.width / 2,
+        hitbox.y - hitbox.height / 2,
+        hitbox.width,
+        hitbox.height
+      );
+    });
   }
 
   private checkAttackCollision(): void {
@@ -614,28 +661,32 @@ export class PlayerCharacter extends BaseCharacter {
   update(time: number, delta: number): void {
     super.update(time, delta);
 
-    if (this.isRolling || this.isAttacking || this.isHarvesting) return;
+    // Only block movement during rolling or harvesting now
+    if (this.isRolling || this.isHarvesting) return;
 
     if (this.cursors) {
-      const speed = this.stats.speed;
+      // Calculate current speed based on whether attacking or not
+      const currentSpeed = this.isAttacking
+        ? this.stats.speed * this.attackMovementPenalty
+        : this.stats.speed;
 
-      // Update movement using speed from stats
+      // Update movement using modified speed
       if (this.cursors.left.isDown) {
-        this.setVelocityX(-speed);
-        this.facingDirection = "left";
+        this.setVelocityX(-currentSpeed);
+        if (!this.isAttacking) this.facingDirection = "left";
       } else if (this.cursors.right.isDown) {
-        this.setVelocityX(speed);
-        this.facingDirection = "right";
+        this.setVelocityX(currentSpeed);
+        if (!this.isAttacking) this.facingDirection = "right";
       } else {
         this.setVelocityX(0);
       }
 
       if (this.cursors.up.isDown) {
-        this.setVelocityY(-speed);
-        this.facingDirection = "up";
+        this.setVelocityY(-currentSpeed);
+        if (!this.isAttacking) this.facingDirection = "up";
       } else if (this.cursors.down.isDown) {
-        this.setVelocityY(speed);
-        this.facingDirection = "down";
+        this.setVelocityY(currentSpeed);
+        if (!this.isAttacking) this.facingDirection = "down";
       } else {
         this.setVelocityY(0);
       }
@@ -646,6 +697,11 @@ export class PlayerCharacter extends BaseCharacter {
       this.weaponSprite.setPosition(this.x, this.y);
       this.weaponSprite.setDepth(this.depth);
     }
+
+    // Draw debug visualizations
+    if (this.showDebug) {
+      this.drawDebugHitAreas();
+    }
   }
 
   // Clean up when destroying the player
@@ -653,6 +709,9 @@ export class PlayerCharacter extends BaseCharacter {
     if (this.weaponSprite) {
       this.weaponSprite.destroy();
     }
+    if (this.debugGraphics) {
+      this.debugGraphics.destroy();
+      }
     super.destroy();
   }
 
