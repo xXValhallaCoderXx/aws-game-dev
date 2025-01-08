@@ -1,3 +1,4 @@
+import { FloatingText } from "@/shared/components/phaser-components/FloatingText";
 import { BaseCharacter } from "./BaseChracter";
 import { PlayerCharacter } from "./PlayerCharacter";
 import {
@@ -161,7 +162,6 @@ export class EnemyCharacter extends BaseCharacter {
   protected getDefaultAnimations(): Record<string, string> {
     console.log("GET DEFAYKT ANIMATIONS: ", this.enemyType);
 
-    
     return {
       walkUp: `${this.enemyType}-walkUp`,
       walkDown: `${this.enemyType}-walkDown`,
@@ -186,18 +186,33 @@ export class EnemyCharacter extends BaseCharacter {
     };
   }
 
-  public takeDamage(damage: number, isCritical: boolean = false): void {
+  public takeDamage(damage: DamageData): void {
     if (this.isHit) return;
 
     this.isHit = true;
-    this.stats.health -= damage;
+    this.stats.health -= damage.damage;
+
+    // Update the HP bar
+    this.updateHpBar();
 
     const hitAnim =
       this.animations[
-        `${isCritical ? "criticalHit" : "hit"}${this.capitalize(
-          this.facingDirection
-        )}` as AnimationKey
+        `${"hit"}${this.capitalize(this.facingDirection)}` as AnimationKey
       ];
+
+    new FloatingText({
+      scene: this.scene,
+      x: this.x,
+      y: this.y - 20,
+      text: damage.damage.toString(),
+      color: "#ff0000",
+    });
+
+    // Check if enemy is dead
+    if (this.stats.health <= 0) {
+      this.handleDeath();
+      return;
+    }
 
     this.play(hitAnim, true).once("animationcomplete", () => {
       this.isHit = false;
@@ -207,6 +222,30 @@ export class EnemyCharacter extends BaseCharacter {
           `idle${this.capitalize(this.facingDirection)}` as AnimationKey
         ];
       this.play(idleAnim, true);
+    });
+  }
+
+  private handleDeath(): void {
+    // Disable physics body
+    this.body.enable = false;
+
+    // Stop any ongoing animations
+    this.stop();
+
+    // Create fade out effect
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 0,
+      duration: 500, // Duration in milliseconds
+      ease: "Power2",
+      onComplete: () => {
+        // Clean up HP bars
+        this.hpBar.destroy();
+        this.hpBarContainer.destroy();
+
+        // Remove the enemy sprite
+        this.destroy();
+      },
     });
   }
 
@@ -267,7 +306,7 @@ export class EnemyCharacter extends BaseCharacter {
     }
 
     // Play walking animation
-    console.log("WALING - ANIMATIONS: ", this.animations);
+
     const walkAnim =
       this.animations[
         `walk${this.capitalize(this.facingDirection)}` as AnimationKey

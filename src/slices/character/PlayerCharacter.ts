@@ -24,6 +24,7 @@ export class PlayerCharacter extends BaseCharacter {
     bar: Phaser.GameObjects.Rectangle;
     border: Phaser.GameObjects.Rectangle;
   };
+  private attackHitboxes: Map<string, Phaser.GameObjects.Rectangle> = new Map();
 
   public carriedItem?: string;
   public isCarrying: boolean = false;
@@ -517,8 +518,11 @@ export class PlayerCharacter extends BaseCharacter {
     // Play both animations
     this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
     // Create attack hitbox based on facing direction
-    const hitboxConfig = this.getAttackHitboxConfig();
-    this.createAttackHitbox(hitboxConfig);
+    // Create attack hitbox
+    const hitbox = this.createAttackHitbox(direction);
+
+    // Check for enemies in range
+    this.checkAttackHit(hitbox);
 
     this.play(attackAnim, true);
     this.weaponSprite.play(`weapon-attack-${direction}`);
@@ -530,9 +534,8 @@ export class PlayerCharacter extends BaseCharacter {
 
     this.once("animationcomplete", () => {
       this.isAttacking = false;
-      if (this.attackHitbox) {
-        this.attackHitbox.destroy();
-      }
+      hitbox.destroy();
+      this.attackHitboxes.delete(direction);
       // Return to idle animation
       const idleAnim =
         this.animations[`idle${this.capitalize(direction)}` as AnimationKey];
@@ -543,55 +546,44 @@ export class PlayerCharacter extends BaseCharacter {
     this.checkAttackCollision();
   }
 
-  private getAttackHitboxConfig(): {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } {
-    const hitboxWidth = 40;
-    const hitboxHeight = 40;
-    let offsetX = 0;
-    let offsetY = 0;
+  private checkAttackHit(hitbox: Phaser.GameObjects.Rectangle): void {
+    const enemies = this.scene.children.list.filter(
+      (child): child is EnemyCharacter => child instanceof EnemyCharacter
+    );
 
-    switch (this.facingDirection) {
-      case "up":
-        offsetY = -hitboxHeight / 2;
-        break;
-      case "down":
-        offsetY = hitboxHeight / 2;
-        break;
-      case "left":
-        offsetX = -hitboxWidth / 2;
-        break;
-      case "right":
-        offsetX = hitboxWidth / 2;
-        break;
-    }
-
-    return {
-      x: this.x + offsetX,
-      y: this.y + offsetY,
-      width: hitboxWidth,
-      height: hitboxHeight,
-    };
+    enemies.forEach((enemy) => {
+      if (
+        Phaser.Geom.Rectangle.Overlaps(hitbox.getBounds(), enemy.getBounds())
+      ) {
+        const damage = this.stats.strength || 10; // Default attack value
+        enemy.takeDamage({
+          damage,
+          strength: damage,
+          sourcePosition: { x: this.x, y: this.y },
+        });
+      }
+    });
   }
 
-  private createAttackHitbox(config: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  }): void {
-    this.attackHitbox = this.scene.add.rectangle(
-      config.x,
-      config.y,
-      config.width,
-      config.height,
+  private createAttackHitbox(direction: string) {
+    const offset = {
+      up: { x: 0, y: -32 },
+      down: { x: 0, y: 32 },
+      left: { x: -32, y: 0 },
+      right: { x: 32, y: 0 },
+    };
+
+    const hitbox = this.scene.add.rectangle(
+      this.x + (offset[direction]?.x || 0),
+      this.y + (offset[direction]?.y || 0),
+      32,
+      32,
       0xff0000,
-      0 // Set alpha to 0 to make it invisible
+      0
     );
-    this.scene.physics.add.existing(this.attackHitbox, true);
+
+    this.attackHitboxes.set(direction, hitbox);
+    return hitbox;
   }
 
   private checkAttackCollision(): void {
