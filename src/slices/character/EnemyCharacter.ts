@@ -34,6 +34,7 @@ export class EnemyCharacter extends BaseCharacter {
   constructor(config: EnemyConfig) {
     super(config);
     this.stats = { ...config.stats };
+    console.log("CONSTRUCTOR: ", config.enemyType);
     this.enemyType = config.enemyType;
     this.setupAnimations();
 
@@ -138,10 +139,10 @@ export class EnemyCharacter extends BaseCharacter {
 
     // Attack animations
     const attackFrames = {
-      Down: { start: 30, end: 31 },
-      Left: { start: 36, end: 39 },
-      Right: { start: 42, end: 45 },
-      Up: { start: 48, end: 51 },
+      Down: { start: 25, end: 28 },
+      Left: { start: 31, end: 34 },
+      Right: { start: 37, end: 40 },
+      Up: { start: 43, end: 46 },
     };
 
     Object.entries(attackFrames).forEach(([direction, frames]) => {
@@ -158,6 +159,9 @@ export class EnemyCharacter extends BaseCharacter {
   }
 
   protected getDefaultAnimations(): Record<string, string> {
+    console.log("GET DEFAYKT ANIMATIONS: ", this.enemyType);
+
+    
     return {
       walkUp: `${this.enemyType}-walkUp`,
       walkDown: `${this.enemyType}-walkDown`,
@@ -263,6 +267,7 @@ export class EnemyCharacter extends BaseCharacter {
     }
 
     // Play walking animation
+    console.log("WALING - ANIMATIONS: ", this.animations);
     const walkAnim =
       this.animations[
         `walk${this.capitalize(this.facingDirection)}` as AnimationKey
@@ -277,10 +282,13 @@ export class EnemyCharacter extends BaseCharacter {
     this.isAttacking = true;
 
     // Play attack animation
+    console.log("ATTACK PLAER - ANIMATIONS: ", this.animations);
     const attackAnim =
       this.animations[
         `attack${this.capitalize(this.facingDirection)}` as AnimationKey
       ];
+
+    console.log("ATTACK PLAYER - ATTACK ANIMS: ", attackAnim);
 
     const damageData: DamageData = {
       damage: this.stats.strength,
@@ -294,6 +302,7 @@ export class EnemyCharacter extends BaseCharacter {
     // Play attack animation and wait for it to complete
     await new Promise<void>((resolve) => {
       this.play(attackAnim, true).once("animationcomplete", () => {
+        console.log("ATTACK ANIMATION: ", attackAnim);
         this.isAttacking = false;
         resolve();
       });

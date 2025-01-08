@@ -229,7 +229,7 @@ export class HomeMap extends BaseScene {
       x: 100,
       y: 100,
       texture: "zombie-epic", // or whatever enemy sprite you're using
-      enemyType: "rat",
+      enemyType: "zombie",
       stats: {
         maxHealth: 100,
         health: 100,
