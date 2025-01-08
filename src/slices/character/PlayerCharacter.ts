@@ -7,6 +7,7 @@ import {
   CharacterStats,
   PlayerConfig,
   AnimationKey,
+  Direction,
   AnimationKeyCarry,
   KnockbackConfig,
   DamageData,
@@ -565,7 +566,7 @@ export class PlayerCharacter extends BaseCharacter {
     });
   }
 
-  private createAttackHitbox(direction: string) {
+  private createAttackHitbox(direction: Direction) {
     const offset = {
       up: { x: 0, y: -32 },
       down: { x: 0, y: 32 },
@@ -605,7 +606,7 @@ export class PlayerCharacter extends BaseCharacter {
         };
 
         // Apply damage to enemy
-        enemy.takeDamage(damageData.damage);
+        enemy.takeDamage(damageData);
       }
     });
   }
@@ -741,11 +742,17 @@ export class PlayerCharacter extends BaseCharacter {
 
     // Create knockback tween
     this.scene.tweens.add({
-      targets: this,
+      targets: [this, this.weaponSprite], // Add weaponSprite to the tween targets
       x: targetX,
       y: targetY,
       duration: this.knockbackConfig.duration,
       ease: this.knockbackConfig.easing,
+      onUpdate: () => {
+        // Ensure weapon sprite stays at the correct depth
+        if (this.weaponSprite) {
+          this.weaponSprite.setDepth(this.depth);
+        }
+      },
       onComplete: () => {
         this.isKnockedBack = false;
       },
