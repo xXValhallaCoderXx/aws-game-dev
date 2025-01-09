@@ -3,11 +3,11 @@ import { BaseCharacter } from "./BaseChracter";
 import { PlayerCharacter } from "./PlayerCharacter";
 import {
   EnemyConfig,
-  AnimationKey,
+  IActionType,
+  IAnimationKey,
   PatrolPoint,
   DamageData,
-  IEnemyType,
-  DirectionCapitalized,
+  IAnimationConfig,
 } from "./character.interface";
 import { HealthBar } from "@/shared/components/phaser-components/HealthBar";
 
@@ -25,7 +25,6 @@ export class EnemyCharacter extends BaseCharacter {
   private target: PlayerCharacter | null = null;
 
   // Enemy Specific Stats
-  private enemyType: IEnemyType;
   private detectionRadius: number;
   private attackRange: number;
   private attackCooldown: number;
@@ -39,12 +38,10 @@ export class EnemyCharacter extends BaseCharacter {
   constructor(config: EnemyConfig) {
     super(config);
     this.stats = { ...config.stats };
-    console.log("ENEMENT CHARACTER - CONTRUCTOR: ", config.enemyType);
-    this.enemyType = config.enemyType;
+
     this.detectionRadius = config.detectionRadius;
     this.attackRange = config.attackRange;
     this.attackCooldown = config.attackCooldown;
-    this.setupAnimations();
 
     // Initialize Graphics
     this.hpBar = new HealthBar(this.scene);
@@ -56,7 +53,7 @@ export class EnemyCharacter extends BaseCharacter {
       this.patrolPoints = [...config.patrolPoints];
       this.startPatrol();
     } else {
-      this.play(this.animations.idleDown, true);
+      this.play(this.animations["idle-down"], true);
     }
 
     // Show debug hitboxes
@@ -65,98 +62,23 @@ export class EnemyCharacter extends BaseCharacter {
     }
   }
 
-  protected setupAnimations(): void {
-    const directions: DirectionCapitalized[] = ["Down", "Left", "Right", "Up"];
-
-    directions.forEach((direction, dirIndex) => {
-      // Walking/Idle animations
-      const walkStartFrame = dirIndex * 6;
-      this.scene.anims.create({
-        key: `${this.enemyType}-walk${direction}`,
-        frames: this.scene.anims.generateFrameNumbers(this.texture.key, {
-          start: walkStartFrame,
-          end: walkStartFrame + 3,
-        }),
-        frameRate: 8,
-        repeat: -1,
-      });
-
-      // Idle animations (same frames as walk but slower)
-      this.scene.anims.create({
-        key: `${this.enemyType}-idle${direction}`,
-        frames: this.scene.anims.generateFrameNumbers(this.texture.key, {
-          start: walkStartFrame,
-          end: walkStartFrame + 3,
-        }),
-        frameRate: 4,
-        repeat: -1,
-      });
-
-      // Normal Hit animations
-      this.scene.anims.create({
-        key: `${this.enemyType}-hit${direction}`,
-        frames: this.scene.anims.generateFrameNumbers(this.texture.key, {
-          frames: [walkStartFrame + 4],
-        }),
-        frameRate: 8,
-        repeat: 0,
-      });
-
-      // Critical Hit animations
-      this.scene.anims.create({
-        key: `${this.enemyType}-criticalHit${direction}`,
-        frames: this.scene.anims.generateFrameNumbers(this.texture.key, {
-          frames: [walkStartFrame + 5],
-        }),
-        frameRate: 8,
-        repeat: 0,
-      });
-    });
-
-    // Attack animations
-    const attackFrames = {
-      Down: { start: 25, end: 28 },
-      Left: { start: 31, end: 34 },
-      Right: { start: 37, end: 40 },
-      Up: { start: 43, end: 46 },
-    };
-
-    Object.entries(attackFrames).forEach(([direction, frames]) => {
-      this.scene.anims.create({
-        key: `${this.enemyType}-attack${direction}`,
-        frames: this.scene.anims.generateFrameNumbers(this.texture.key, {
-          start: frames.start,
-          end: frames.end,
-        }),
-        frameRate: 8,
-        repeat: 0,
-      });
-    });
-  }
-
-  protected getDefaultAnimations(): Record<string, string> {
-    console.log("ENEMY CHARACTER - GET DEFAULT ANIMS: ", this.enemyType);
+  protected override getAnimationConfigs(): Record<
+    IActionType,
+    IAnimationConfig
+  > {
+    const baseConfigs = super.getAnimationConfigs();
+    console.log("BASE CONFIGS: ", baseConfigs);
     return {
-      walkUp: `${this.enemyType}-walkUp`,
-      walkDown: `${this.enemyType}-walkDown`,
-      walkLeft: `${this.enemyType}-walkLeft`,
-      walkRight: `${this.enemyType}-walkRight`,
-      idleUp: `${this.enemyType}-idleUp`,
-      idleDown: `${this.enemyType}-idleDown`,
-      idleLeft: `${this.enemyType}-idleLeft`,
-      idleRight: `${this.enemyType}-idleRight`,
-      attackUp: `${this.enemyType}-attackUp`,
-      attackDown: `${this.enemyType}-attackDown`,
-      attackLeft: `${this.enemyType}-attackLeft`,
-      attackRight: `${this.enemyType}-attackRight`,
-      hitUp: `${this.enemyType}-hitUp`,
-      hitDown: `${this.enemyType}-hitDown`,
-      hitLeft: `${this.enemyType}-hitLeft`,
-      hitRight: `${this.enemyType}-hitRight`,
-      criticalHitUp: `${this.enemyType}-criticalHitUp`,
-      criticalHitDown: `${this.enemyType}-criticalHitDown`,
-      criticalHitLeft: `${this.enemyType}-criticalHitLeft`,
-      criticalHitRight: `${this.enemyType}-criticalHitRight`,
+      ...baseConfigs,
+      // Add or modify specific enemy animations
+      // "attack-one-hand": {
+      //   type: "sequential",
+      //   frameEnd: 0,
+      //   frameStart: 0,
+      //   framesPerDirection: 6, // Different frame count for enemy attacks
+      //   frameRate: 12,
+      //   repeat: 0,
+      // },
     };
   }
 
@@ -170,9 +92,7 @@ export class EnemyCharacter extends BaseCharacter {
     this.updateHpBar();
 
     const hitAnim =
-      this.animations[
-        `${"hit"}${this.capitalize(this.facingDirection)}` as AnimationKey
-      ];
+      this.animations[`${"hit"}-${this.facingDirection}` as IAnimationKey];
 
     new FloatingText({
       scene: this.scene,
@@ -192,9 +112,7 @@ export class EnemyCharacter extends BaseCharacter {
       this.isHit = false;
       // Return to idle animation
       const idleAnim =
-        this.animations[
-          `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-        ];
+        this.animations[`idle-${this.facingDirection}` as IAnimationKey];
       this.play(idleAnim, true);
     });
   }
@@ -236,8 +154,9 @@ export class EnemyCharacter extends BaseCharacter {
       this.target.x,
       this.target.y
     );
-
-    return distance <= this.detectionRadius;
+    // If player leaves detection range, trigger out of range handling
+    const inRange = distance <= this.detectionRadius;
+    return inRange;
   }
 
   private isPlayerInAttackRange(): boolean {
@@ -271,6 +190,9 @@ export class EnemyCharacter extends BaseCharacter {
 
     this.body?.setVelocity(velocityX, velocityY);
 
+    // Store previous facing direction
+    const previousDirection = this.facingDirection;
+
     // Update facing direction
     if (Math.abs(velocityX) > Math.abs(velocityY)) {
       this.facingDirection = velocityX > 0 ? "right" : "left";
@@ -278,13 +200,12 @@ export class EnemyCharacter extends BaseCharacter {
       this.facingDirection = velocityY > 0 ? "down" : "up";
     }
 
-    // Play walking animation
-
-    const walkAnim =
-      this.animations[
-        `walk${this.capitalize(this.facingDirection)}` as AnimationKey
-      ];
-    this.play(walkAnim, true);
+    // Only update animation if direction changed or not already walking
+    if (previousDirection !== this.facingDirection || !this.anims.isPlaying) {
+      const walkAnim =
+        this.animations[`walk-${this.facingDirection}` as IAnimationKey];
+      this.play(walkAnim, true);
+    }
   }
 
   private async attackPlayer(): Promise<void> {
@@ -294,14 +215,10 @@ export class EnemyCharacter extends BaseCharacter {
     this.isAttacking = true;
 
     // Play attack animation
-    console.log("ATTACK PLAER - ANIMATIONS: ", this.animations);
     const attackAnim =
       this.animations[
-        `attack${this.capitalize(this.facingDirection)}` as AnimationKey
+        `attack-one-hand-${this.facingDirection}` as IAnimationKey
       ];
-
-    console.log("ATTACK PLAYER - ATTACK ANIMS: ", attackAnim);
-
     const damageData: DamageData = {
       damage: this.stats.strength,
       strength: this.stats.strength * 0.9, // Use enemy's strength stat
@@ -314,7 +231,6 @@ export class EnemyCharacter extends BaseCharacter {
     // Play attack animation and wait for it to complete
     await new Promise<void>((resolve) => {
       this.play(attackAnim, true).once("animationcomplete", () => {
-        console.log("ATTACK ANIMATION: ", attackAnim);
         this.isAttacking = false;
         resolve();
       });
@@ -323,26 +239,6 @@ export class EnemyCharacter extends BaseCharacter {
     // Start cooldown
     this.scene.time.delayedCall(this.attackCooldown, () => {
       this.canAttack = true;
-    });
-  }
-
-  public attack(): void {
-    if (this.isAttacking || this.isHit) return;
-
-    this.isAttacking = true;
-    const attackAnim =
-      this.animations[
-        `attack${this.capitalize(this.facingDirection)}` as AnimationKey
-      ];
-
-    this.play(attackAnim, true).once("animationcomplete", () => {
-      this.isAttacking = false;
-      // Return to idle animation
-      const idleAnim =
-        this.animations[
-          `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-        ];
-      this.play(idleAnim, true);
     });
   }
 
@@ -358,8 +254,6 @@ export class EnemyCharacter extends BaseCharacter {
       return;
     }
 
-    // Update HP bar position to follow the monster
-
     // If we have a target (player), check if they're in range
     if (this.target && this.isPlayerInDetectionRange()) {
       if (this.isPlayerInAttackRange()) {
@@ -371,24 +265,31 @@ export class EnemyCharacter extends BaseCharacter {
         this.moveTowardsPlayer();
       }
     } else {
-      // No player in range, handle normal patrol behavior
-      if (this.patrolPoints.length === 0) {
-        // If not patrolling and not moving, play idle animation
-        if (this.body?.velocity.x === 0 && this.body?.velocity.y === 0) {
-          const idleAnim =
-            this.animations[
-              `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-            ];
-          this.play(idleAnim, true);
-        }
-      } else {
-        // Continue with patrol behavior
-        this.moveToNextPoint();
-      }
+      // Player is out of range or no target
+      this.handleOutOfRange();
     }
 
     if (this.showDebug) {
       this.drawDebugHitAreas();
+    }
+  }
+
+  private handleOutOfRange(): void {
+    // Stop movement
+    this.body?.setVelocity(0, 0);
+
+    // Play idle animation in current facing direction
+    const idleAnim =
+      this.animations[`idle-${this.facingDirection}` as IAnimationKey];
+
+    // Only change animation if we're not already playing it
+    if (!this.anims.isPlaying || this.anims.currentAnim?.key !== idleAnim) {
+      this.play(idleAnim, true);
+    }
+
+    // If patrol points exist, resume patrol
+    if (this.patrolPoints.length > 0) {
+      this.moveToNextPoint();
     }
   }
 
@@ -438,7 +339,7 @@ export class EnemyCharacter extends BaseCharacter {
         this.isWaiting = true;
         const idleAnim =
           this.animations[
-            `idle${this.capitalize(this.facingDirection)}` as AnimationKey
+            `idle${this.capitalize(this.facingDirection)}` as IAnimationKey
           ];
         this.play(idleAnim, true);
 
@@ -481,9 +382,7 @@ export class EnemyCharacter extends BaseCharacter {
 
     // Play walking animation
     const walkAnim =
-      this.animations[
-        `walk${this.capitalize(this.facingDirection)}` as AnimationKey
-      ];
+      this.animations[`walk-${this.facingDirection}` as IAnimationKey];
     this.play(walkAnim, true);
 
     this.moveEvent = this.scene.time.delayedCall(100, () => {
@@ -494,12 +393,10 @@ export class EnemyCharacter extends BaseCharacter {
   public stopPatrol(): void {
     this.body?.setVelocity(0, 0);
     const idleAnim =
-      this.animations[
-        `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-      ];
+      this.animations[`idle-${this.facingDirection}` as IAnimationKey];
 
     //TODO - FIX
-    // this.play(idleAnim, true);
+    this.play(idleAnim, true);
 
     if (this.moveEvent) {
       this.moveEvent.destroy();

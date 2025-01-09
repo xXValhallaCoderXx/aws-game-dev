@@ -2,8 +2,10 @@
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "@shared/scene-keys";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
-
+import { EnemyCharacter } from "@/slices/character/EnemyCharacter";
 export class CaveMap extends BaseScene {
+  private enemies: EnemyCharacter[] = [];
+
   constructor() {
     super(ESCENE_KEYS.CAVE_MAP);
   }
@@ -24,6 +26,43 @@ export class CaveMap extends BaseScene {
     this.createMap();
 
     this.createHomeMapEntrance();
+
+    // In your game scene
+    const enemy = new EnemyCharacter({
+      scene: this,
+      x: 200,
+      y: 300,
+      texture: "zombie-epic", // or whatever enemy sprite you're using
+      characterType: "zombie-epic",
+      detectionRadius: 79,
+      attackCooldown: 1000,
+      attackRange: 20,
+      enemyType: "zombie-epic",
+      stats: {
+        maxHealth: 100,
+        health: 100,
+        strength: 10,
+        defense: 5,
+        speed: 50,
+      },
+      // patrolPoints: [
+      //   { x: 220, y: 300, waitTime: 750 },
+      //   { x: 150, y: 300, waitTime: 400 },
+      //   { x: 220, y: 300, waitTime: 750 },
+      //   { x: 150, y: 300, waitTime: 400 },
+      // ],
+    });
+
+    enemy.setTarget(this.player);
+    this.enemies.push(enemy);
+
+    this.physics.add.collider(this.player, enemy);
+  }
+
+  update(time: number, delta: number) {
+    super.update(time, delta);
+    this.player.update(time, delta);
+    this.enemies.forEach((enemy) => enemy.update(time, delta));
   }
 
   protected getDefaultStartingPosition(): { x: number; y: number } {

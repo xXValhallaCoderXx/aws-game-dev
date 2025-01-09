@@ -94,6 +94,15 @@ export abstract class BaseScene extends Scene {
       x,
       y,
       texture: "player-idle",
+      characterType: "player",
+      stats: {
+        defense: 5,
+        health: 100,
+        maxHealth: 120,
+        speed: 1,
+        strength: 10,
+        level: 1,
+      },
     };
   }
 

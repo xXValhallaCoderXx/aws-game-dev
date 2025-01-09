@@ -10,10 +10,43 @@ type Inventory = Record<InventoryItem, number>;
 
 export type { InventoryItem, Inventory };
 
-export type Action = "walk" | "idle" | "harvest" | "attackOneHand";
+export type PlayerSpecificAcions = "harvest" | "carry" | "roll";
+export type IActionType =
+  | "walk"
+  | "idle"
+  | "attack-one-hand"
+  | "hit"
+  | "critical-hit";
 export type CarryAction = "walk" | "idle";
 
-export type AnimationKey = `${Action}${DirectionCapitalized}`;
+export type IAnimationKey = `${IActionType}${DirectionCapitalized}`;
+export interface BaseAnimationConfig {
+  framesPerDirection: number;
+  frameRate: number;
+  repeat: number;
+}
+
+export interface SequentialAnimationConfig extends BaseAnimationConfig {
+  type: "sequential";
+  frameStart: (dirIndex: number) => number;
+  frameEnd: (dirIndex: number) => number;
+}
+
+export interface SpecificFramesAnimationConfig extends BaseAnimationConfig {
+  type: "specific";
+  frames: (dirIndex: number) => number[];
+}
+
+export interface CustomRangeAnimationConfig extends BaseAnimationConfig {
+  type: "custom";
+  customFrames: Record<Direction, { start: number; end: number }>;
+}
+
+export type IAnimationConfig =
+  | SequentialAnimationConfig
+  | SpecificFramesAnimationConfig
+  | CustomRangeAnimationConfig;
+
 export type AnimationKeyCarry = `${CarryAction}${DirectionCapitalized}`;
 
 export type Direction = "up" | "down" | "left" | "right";
@@ -49,6 +82,7 @@ export interface BaseCharacterConfig {
   y: number;
   texture: string;
   stats: CharacterStats;
+  characterType: ICharacterType;
 }
 
 export interface CharacterStats {
@@ -59,6 +93,10 @@ export interface CharacterStats {
   defense: number;
   level?: number;
 }
+
+export type ICharacterType = IEnemyType | IPlayerType;
+
+export type IPlayerType = "player";
 
 // Enemy Interfaces
 

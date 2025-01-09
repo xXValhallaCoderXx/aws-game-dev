@@ -5,7 +5,7 @@ import { ESCENE_KEYS } from "../shared/scene-keys";
 import { FarmingSystem } from "../slices/farming/farming-system.service";
 import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
-import { EnemyCharacter } from "@/slices/character/EnemyCharacter";
+
 
 export class HomeMap extends BaseScene {
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
@@ -21,8 +21,6 @@ export class HomeMap extends BaseScene {
   private buildingRoofLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private buildingRoofAccessoriesLayer: Phaser.Tilemaps.TilemapLayer | null =
     null;
-
-  private enemies: EnemyCharacter[] = [];
 
   // Sound Assets
   private plantSeedSound: Phaser.Sound.BaseSound | null = null;
@@ -236,53 +234,11 @@ export class HomeMap extends BaseScene {
     this.animatedTileSystem = new AnimatedTileSystem(this, this.map, [
       this.waterAnimatedLayer!,
     ]);
-
-    // In your game scene
-    const enemy = new EnemyCharacter({
-      scene: this,
-      x: 100,
-      y: 100,
-      texture: "zombie-epic", // or whatever enemy sprite you're using
-      enemyType: "zombie-epic",
-      detectionRadius: 100,
-      attackCooldown: 1000,
-      attackRange: 20,
-      stats: {
-        maxHealth: 100,
-        health: 100,
-        strength: 10,
-        defense: 5,
-        speed: 50,
-      },
-      // patrolPoints: [
-      //   { x: 50, y: 100, waitTime: 750 },
-      //   { x: 100, y: 100 },
-      //   { x: 50, y: 100, waitTime: 750 },
-      //   { x: 100, y: 100 },
-      // ],
-    });
-
-    if (
-      this.buildingBaseLayer &&
-      this.buildingRoofLayer &&
-      this.buildingRoofAccessoriesLayer
-    ) {
-      this.physics.add.collider(enemy, this.buildingBaseLayer);
-
-      this.physics.add.collider(enemy, this.buildingRoofLayer);
-      this.physics.add.collider(enemy, this.buildingRoofAccessoriesLayer);
-    }
-
-    enemy.setTarget(this.player);
-    this.enemies.push(enemy);
-
-    this.physics.add.collider(this.player, enemy);
   }
 
   update(time: number, delta: number) {
     super.update(time, delta);
     this.player.update(time, delta);
-    this.enemies.forEach((enemy) => enemy.update(time, delta));
 
     // Update the farming system
     this.farmingSystem.update(delta);
