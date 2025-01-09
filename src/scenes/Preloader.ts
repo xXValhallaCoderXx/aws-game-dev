@@ -211,6 +211,6 @@ export class Preloader extends Scene {
     }
 
     // Start the next scene
-    this.scene.start(ESCENE_KEYS.HOME_MAP);
+    this.scene.start(ESCENE_KEYS.CAVE_MAP);
   }
 }

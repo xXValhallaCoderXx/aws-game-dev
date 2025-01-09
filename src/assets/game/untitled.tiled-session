@@ -10,18 +10,24 @@
         "": {
             "scaleInDock": 1.5
         },
+        "#caves-main": {
+            "scaleInDock": 1
+        },
         "#terrain-main": {
             "scaleInEditor": 1
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx": {
             "scale": 1.274017857142857,
-            "selectedLayer": 0,
+            "selectedLayer": 2,
             "viewCenter": {
                 "x": 281.00077090195526,
                 "y": 280.6083117247179
             }
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#buildings-main": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#caves-main": {
             "scaleInDock": 1
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#crops-tiles-main": {
@@ -65,9 +71,12 @@
     },
     "last.exportedFilePath": "/home/odin/Dungeon/Github/aws-game-dev/public/maps",
     "last.imagePath": "/home/odin/Dungeon/Github/aws-game-dev/public/tilesets",
-    "map.height": 35,
+    "map.height": 25,
     "map.lastUsedExportFilter": "All Files (*)",
-    "map.width": 35,
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 25,
     "openFiles": [
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx"

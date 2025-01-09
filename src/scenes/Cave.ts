@@ -3,7 +3,7 @@ import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "@shared/scene-keys";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 
-export class TownMap extends BaseScene {
+export class CaveMap extends BaseScene {
   constructor() {
     super(ESCENE_KEYS.CAVE_MAP);
   }
@@ -14,10 +14,8 @@ export class TownMap extends BaseScene {
 
   preload() {
     super.preload();
-    // this.load.tilemapTiledJSON("town-map", "maps/town-map.json");
-    // this.load.image("terrain-village-1", "tilesets/terrain-village-1.png");
-    // this.load.image("terrain-city", "tilesets/terrain-city.png");
-    // this.load.audio("backgroundMusic", "sounds/main-bgm.mp3");
+    this.load.tilemapTiledJSON("cave-map", "maps/cave-map.json");
+    this.load.image("caves-main", "tilesets/caves-main.png");
   }
 
   create() {
@@ -25,46 +23,40 @@ export class TownMap extends BaseScene {
 
     this.createMap();
 
-    // Play the background music
-    // this.backgroundMusic.play();
-
     this.createHomeMapEntrance();
   }
 
   protected getDefaultStartingPosition(): { x: number; y: number } {
-    return { x: 25, y: 205 }; // Default spawn point on TownMap
+    return { x: 90, y: 330 }; // Default spawn point on TownMap
   }
 
   protected createMap(): void {
-    this.map = this.make.tilemap({ key: "town-map" });
+    this.map = this.make.tilemap({ key: "cave-map" });
 
-    const terrainVillageTileset1 = this.map.addTilesetImage(
-      "terrain-village-1",
-      "terrain-village-1"
+    const caveMainTileset = this.map.addTilesetImage(
+      "caves-main",
+      "caves-main"
     );
 
-    const terrainCityTileset = this.map.addTilesetImage(
-      "terrain-city",
-      "terrain-city"
-    );
-
-    if (!terrainVillageTileset1 || !terrainCityTileset) {
+    if (!caveMainTileset) {
       throw new Error("Failed to load terrain tileset");
     }
 
-    this.map.createLayer("GrassLayer", terrainVillageTileset1, 0, 0);
-    this.map.createLayer("CityPathLayer", terrainCityTileset, 0, 0);
+    this.map.createLayer("CaveFloor", caveMainTileset, 0, 0);
+    this.map.createLayer("CaveWalls-1", caveMainTileset, 0, 0);
+    this.map.createLayer("Cave-Walls-2", caveMainTileset, 0, 0);
+    this.map.createLayer("CaveDoor", caveMainTileset, 0, 0);
   }
 
   private createHomeMapEntrance(): void {
     // Create entrances using the reusable function
     const homeMapEntranceConfig: IEntranceConfig = {
-      zoneX: -10, // Adjust based on your map
-      zoneY: 208, // Adjust based on your map
-      zoneWidth: 50,
-      zoneHeight: 50,
+      zoneX: 87.5, // Adjust based on your map
+      zoneY: 290, // Adjust based on your map
+      zoneWidth: 30,
+      zoneHeight: 30,
       targetScene: ESCENE_KEYS.HOME_MAP,
-      targetStartingPosition: { x: 530, y: 140 }, // Starting position in HomeMap
+      targetStartingPosition: { x: 360, y: 60 }, // Starting position in HomeMap
       comingFrom: ESCENE_KEYS.TOWN_MAP,
       debug: true, // Set to true for debugging borders
     };

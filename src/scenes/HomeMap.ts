@@ -460,7 +460,7 @@ export class HomeMap extends BaseScene {
       zoneWidth: 50,
       zoneHeight: 30,
       targetScene: ESCENE_KEYS.CAVE_MAP,
-      targetStartingPosition: { x: 25, y: 205 }, // Starting position in TownMap
+      targetStartingPosition: { x: 90, y: 330 }, // Starting position in TownMap
       comingFrom: ESCENE_KEYS.HOME_MAP,
       debug: true, // Set to true for debugging borders
     };

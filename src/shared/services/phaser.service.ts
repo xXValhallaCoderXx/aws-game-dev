@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { Preloader } from "@scenes/Preloader";
 import { HomeMap } from "@scenes/HomeMap";
+import { CaveMap } from "@/scenes/Cave";
 import { HomeBuilding } from "@scenes/HomeBuilding";
 import { IntroCutScene } from "@scenes/CutScenes/IntroCutScene";
 import { TownMap } from "@/scenes/TownMap";
@@ -24,7 +25,7 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [Preloader, IntroCutScene, HomeMap, HomeBuilding, TownMap],
+  scene: [Preloader, IntroCutScene, HomeMap, HomeBuilding, TownMap, CaveMap],
   callbacks: {
     postBoot: (game) => {
       console.log("Post Boot Callback");

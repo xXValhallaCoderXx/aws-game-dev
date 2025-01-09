@@ -503,7 +503,9 @@ export class EnemyCharacter extends BaseCharacter {
       this.animations[
         `idle${this.capitalize(this.facingDirection)}` as AnimationKey
       ];
-    this.play(idleAnim, true);
+    console.log("WHAT IS THIS: ", idleAnim);
+    //TODO - FIX
+    // this.play(idleAnim, true);
 
     if (this.moveEvent) {
       this.moveEvent.destroy();
