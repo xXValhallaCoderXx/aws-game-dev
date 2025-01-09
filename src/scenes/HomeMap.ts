@@ -48,6 +48,7 @@ export class HomeMap extends BaseScene {
     this.load.image("water-main-animated", "tilesets/water-main-animated.png"); // Add this line
     this.load.image("crops-tiles-main", "tilesets/crops-tiles-main.png");
     this.load.image("buildings-main", "tilesets/buildings-main.png");
+    this.load.image("caves-main", "tilesets/caves-main.png");
     this.load.spritesheet(
       "crops-objects",
       "sprites/crops/crops-harvest-stages.png",
@@ -72,6 +73,13 @@ export class HomeMap extends BaseScene {
       "terrain-village-1",
       "terrain-village-1"
     );
+
+    const caveWallsTileset = this.map.addTilesetImage(
+      "caves-main",
+      "caves-main"
+    );
+
+
 
     const waterBlankTileset = this.map.addTilesetImage(
       "water-blank",
@@ -98,7 +106,8 @@ export class HomeMap extends BaseScene {
       !waterBlankTileset ||
       !waterAnimatedTileset ||
       !cropsTileset ||
-      !buildingTileset
+      !buildingTileset ||
+      !caveWallsTileset
     ) {
       throw new Error("Failed to load terrain tileset");
     }
@@ -145,6 +154,10 @@ export class HomeMap extends BaseScene {
       0,
       0
     );
+
+    this.map.createLayer("CaveWalls", caveWallsTileset, 0, 0);
+    this.map.createLayer("CaveEntrance", caveWallsTileset, 0, 0);
+    this.map.createLayer("CaveWallAccessories", caveWallsTileset, 0, 0);
 
     if (this.farmableLayer) {
       this.farmableLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
