@@ -3,6 +3,7 @@ import {
   BaseCharacterConfig,
   Direction,
   DirectionCapitalized,
+  CharacterStats,
 } from "./character.interface";
 
 export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
@@ -10,11 +11,13 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
   public facingDirection: Direction = "down"; // Default facing direction
   protected animations: Record<string, string> = {};
   protected carryAnimations: Record<string, string> = {};
+  public stats: CharacterStats;
 
   constructor(config: BaseCharacterConfig) {
     // Call the parent class constructor with texture key and initial position
     super(config.scene, config.x, config.y, config.texture);
     this.scene = config.scene;
+    this.stats = config.stats;
 
     // Add sprite to scene
     this.scene.add.existing(this);
@@ -28,7 +31,7 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
     }
 
     // Set up animations and store them in the animations property
-    this.animations = this.getDefaultAnimations();
+    this.animations = this.getDefaultAnimations(config.stats.defense);
     this.setupAnimations();
   }
 

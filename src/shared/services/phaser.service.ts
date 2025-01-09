@@ -28,8 +28,7 @@ export const phaserConfig: Phaser.Types.Core.GameConfig = {
   scene: [Preloader, IntroCutScene, HomeMap, HomeBuilding, TownMap, CaveMap],
   callbacks: {
     postBoot: (game) => {
-      console.log("Post Boot Callback");
-      // SoundManager.initialize(game);
+
       const preloaderScene = game.scene.getScene(ESCENE_KEYS.PRELOADER);
       preloaderScene.events.once("create", () => {
         SoundManager.initialize(game);

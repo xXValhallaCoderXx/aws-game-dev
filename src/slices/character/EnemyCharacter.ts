@@ -3,46 +3,55 @@ import { BaseCharacter } from "./BaseChracter";
 import { PlayerCharacter } from "./PlayerCharacter";
 import {
   EnemyConfig,
-  CharacterStats,
   AnimationKey,
   PatrolPoint,
   DamageData,
+  IEnemyType,
+  DirectionCapitalized,
 } from "./character.interface";
 import { HealthBar } from "@/shared/components/phaser-components/HealthBar";
 
 export class EnemyCharacter extends BaseCharacter {
   private hpBar: HealthBar;
-  private debugGraphics: Phaser.GameObjects.Graphics | null = null;
-  private readonly showDebug: boolean =
-    import.meta.env.VITE_DEBUG_HITBOX === "true";
-
-  private stats: CharacterStats;
-  private enemyType: string;
-  public isHit: boolean = false;
-  public isAttacking: boolean = false;
   declare body: Phaser.Physics.Arcade.Body;
+  private readonly showDebug: boolean = true;
+  private debugGraphics: Phaser.GameObjects.Graphics | null = null;
 
-  // Add new patrol-related properties
-  private patrolPoints: PatrolPoint[] = [];
-  private currentPatrolIndex: number = 0;
-  private isWaiting: boolean = false;
-  private waitTimer: Phaser.Time.TimerEvent | null = null;
-
-  private detectionRadius: number = 100; // Adjust this value as needed
-  private attackRange: number = 20; // Adjust based on your game's scale
-  private attackCooldown: number = 1000; // 1 second cooldown between attacks
+  // Enemy Character State
+  public isHit: boolean = false;
   private canAttack: boolean = true;
+  public isAttacking: boolean = false;
+  private isWaiting: boolean = false;
   private target: PlayerCharacter | null = null;
+
+  // Enemy Specific Stats
+  private enemyType: IEnemyType;
+  private detectionRadius: number;
+  private attackRange: number;
+  private attackCooldown: number;
+
+  // Patrol-related properties
+  private currentPatrolIndex: number = 0;
+  private patrolPoints: PatrolPoint[] = [];
   private moveEvent: Phaser.Time.TimerEvent | null = null;
+  private waitTimer: Phaser.Time.TimerEvent | null = null;
 
   constructor(config: EnemyConfig) {
     super(config);
     this.stats = { ...config.stats };
-
+    console.log("ENEMENT CHARACTER - CONTRUCTOR: ", config.enemyType);
     this.enemyType = config.enemyType;
+    this.detectionRadius = config.detectionRadius;
+    this.attackRange = config.attackRange;
+    this.attackCooldown = config.attackCooldown;
     this.setupAnimations();
 
-    // Set up patrol points if provided
+    // Initialize Graphics
+    this.hpBar = new HealthBar(this.scene);
+    this.debugGraphics = this.showDebug ? this.scene.add.graphics() : null;
+    this.updateHpBar();
+
+    // If Patrol Is Provided - Start Patrol
     if (config.patrolPoints && config.patrolPoints.length > 0) {
       this.patrolPoints = [...config.patrolPoints];
       this.startPatrol();
@@ -50,28 +59,14 @@ export class EnemyCharacter extends BaseCharacter {
       this.play(this.animations.idleDown, true);
     }
 
-    // Initialize Graphics
-    this.hpBar = new HealthBar(this.scene);
-    this.debugGraphics = this.showDebug ? this.scene.add.graphics() : null;
-    this.updateHpBar();
-
+    // Show debug hitboxes
     if (this.showDebug) {
       this.debugGraphics = this.scene.add.graphics();
     }
   }
 
-  private updateHpBar(): void {
-    const healthRatio = Phaser.Math.Clamp(
-      this.stats.health / this.stats.maxHealth,
-      0,
-      1
-    );
-
-    this.hpBar.update(this.x, this.y, healthRatio, -this.height / 2 - 4);
-  }
-
   protected setupAnimations(): void {
-    const directions = ["Down", "Left", "Right", "Up"];
+    const directions: DirectionCapitalized[] = ["Down", "Left", "Right", "Up"];
 
     directions.forEach((direction, dirIndex) => {
       // Walking/Idle animations
@@ -140,8 +135,7 @@ export class EnemyCharacter extends BaseCharacter {
   }
 
   protected getDefaultAnimations(): Record<string, string> {
-    console.log("GET DEFAYKT ANIMATIONS: ", this.enemyType);
-
+    console.log("ENEMY CHARACTER - GET DEFAULT ANIMS: ", this.enemyType);
     return {
       walkUp: `${this.enemyType}-walkUp`,
       walkDown: `${this.enemyType}-walkDown`,
@@ -503,7 +497,7 @@ export class EnemyCharacter extends BaseCharacter {
       this.animations[
         `idle${this.capitalize(this.facingDirection)}` as AnimationKey
       ];
-    console.log("WHAT IS THIS: ", idleAnim);
+
     //TODO - FIX
     // this.play(idleAnim, true);
 
@@ -521,6 +515,12 @@ export class EnemyCharacter extends BaseCharacter {
     if (this.patrolPoints.length > 0) {
       this.moveToNextPoint();
     }
+  }
+
+  private updateHpBar(): void {
+    const { health, maxHealth } = this.stats;
+    const healthRatio = Phaser.Math.Clamp(health / maxHealth, 0, 1);
+    this.hpBar.update(this.x, this.y, healthRatio, -this.height / 2 - 4);
   }
 
   destroy() {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { EFarmingCrops } from "@slices/farming/farming.interface";
 
@@ -18,13 +19,6 @@ export type AnimationKeyCarry = `${CarryAction}${DirectionCapitalized}`;
 export type Direction = "up" | "down" | "left" | "right";
 export type DirectionCapitalized = "Up" | "Down" | "Left" | "Right";
 
-export interface BaseCharacterConfig {
-  scene: Phaser.Scene;
-  x: number;
-  y: number;
-  texture: string;
-}
-
 export interface Dialogue {
   speaker: string;
   text: string;
@@ -40,6 +34,23 @@ export interface DialogueBranch {
 }
 
 // Generic Interfaces
+
+export interface PatrolPoint {
+  x: number;
+  y: number;
+  waitTime?: number; // Time to wait at this point in milliseconds
+}
+
+// Character Interfaces
+
+export interface BaseCharacterConfig {
+  scene: Phaser.Scene;
+  x: number;
+  y: number;
+  texture: string;
+  stats: CharacterStats;
+}
+
 export interface CharacterStats {
   health: number;
   speed: number;
@@ -49,22 +60,25 @@ export interface CharacterStats {
   level?: number;
 }
 
-export interface PatrolPoint {
-  x: number;
-  y: number;
-  waitTime?: number; // Time to wait at this point in milliseconds
-}
+// Enemy Interfaces
 
-// Character Interfaces
+export type IEnemyType =
+  | "rat-epic"
+  | "rat-normal"
+  | "slime-epic"
+  | "slime-normal"
+  | "zombie-epic"
+  | "zombie-normal";
+
 export interface EnemyConfig extends BaseCharacterConfig {
-  stats: CharacterStats;
-  enemyType: string;
+  enemyType: IEnemyType;
   patrolPoints?: PatrolPoint[]; // Optional patrol points
+  detectionRadius: number; // Adjusts value as needed
+  attackRange: number; // 20 // Adjust based on the monster
+  attackCooldown: number; // 1000 = 1 second cooldown between attacks
 }
 
-export interface PlayerConfig extends BaseCharacterConfig {
-  stats: CharacterStats;
-}
+export interface PlayerConfig extends BaseCharacterConfig {}
 
 export interface DamageData {
   damage: number;

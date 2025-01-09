@@ -243,7 +243,10 @@ export class HomeMap extends BaseScene {
       x: 100,
       y: 100,
       texture: "zombie-epic", // or whatever enemy sprite you're using
-      enemyType: "zombie",
+      enemyType: "zombie-epic",
+      detectionRadius: 100,
+      attackCooldown: 1000,
+      attackRange: 20,
       stats: {
         maxHealth: 100,
         health: 100,
@@ -251,12 +254,12 @@ export class HomeMap extends BaseScene {
         defense: 5,
         speed: 50,
       },
-      patrolPoints: [
-        { x: 50, y: 100, waitTime: 750 },
-        { x: 100, y: 100 },
-        { x: 50, y: 100, waitTime: 750 },
-        { x: 100, y: 100 },
-      ],
+      // patrolPoints: [
+      //   { x: 50, y: 100, waitTime: 750 },
+      //   { x: 100, y: 100 },
+      //   { x: 50, y: 100, waitTime: 750 },
+      //   { x: 100, y: 100 },
+      // ],
     });
 
     if (

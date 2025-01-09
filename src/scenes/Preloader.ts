@@ -11,7 +11,7 @@ export class Preloader extends Scene {
   init() {}
 
   preload() {
-    console.log("PRELOADER STARTING");
+
     this.load.audio(ESOUND_NAMES.MAIN_BG, "sounds/main-bgm.mp3");
     this.load.audio(ESOUND_NAMES.PLACE_SEED, "sounds/seed-place.wav");
     this.load.audio(ESOUND_NAMES.HARVEST_CROP, "sounds/harvest-crop-sound.wav");
@@ -57,7 +57,6 @@ export class Preloader extends Scene {
         frameHeight: 16,
       }
     );
-
 
     this.load.spritesheet(
       "rat-normal",
@@ -118,7 +117,6 @@ export class Preloader extends Scene {
       }
     );
 
-
     this.load.spritesheet(
       "player-damage",
       "sprites/characters/player/player-damage.png",
@@ -127,7 +125,6 @@ export class Preloader extends Scene {
         frameHeight: 80,
       }
     );
-
 
     this.load.spritesheet(
       "player-attack-one-hand",
@@ -146,7 +143,6 @@ export class Preloader extends Scene {
         frameHeight: 80,
       }
     );
-
 
     this.load.spritesheet(
       "player-idle",
@@ -199,7 +195,7 @@ export class Preloader extends Scene {
         frameHeight: 16, // Height of each frame
       }
     );
-    console.log("PRELOADER ENDING");
+
   }
 
   create() {
@@ -211,6 +207,6 @@ export class Preloader extends Scene {
     }
 
     // Start the next scene
-    this.scene.start(ESCENE_KEYS.CAVE_MAP);
+    this.scene.start(ESCENE_KEYS.HOME_MAP);
   }
 }
