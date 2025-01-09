@@ -79,8 +79,6 @@ export class HomeMap extends BaseScene {
       "caves-main"
     );
 
-
-
     const waterBlankTileset = this.map.addTilesetImage(
       "water-blank",
       "water-blank"
@@ -201,6 +199,9 @@ export class HomeMap extends BaseScene {
 
     // Create town entrance zone
     this.createTownEntrance();
+
+    // Create Cave Entrance
+    this.createCaveEntrance();
 
     // Finally set up the water collisions
     this.setupCollisions();
@@ -444,6 +445,21 @@ export class HomeMap extends BaseScene {
       zoneWidth: 50,
       zoneHeight: 50,
       targetScene: ESCENE_KEYS.TOWN_MAP,
+      targetStartingPosition: { x: 25, y: 205 }, // Starting position in TownMap
+      comingFrom: ESCENE_KEYS.HOME_MAP,
+      debug: true, // Set to true for debugging borders
+    };
+    this.createEntrance(townEntranceConfig);
+  }
+
+  private createCaveEntrance(): void {
+    // Create entrances using the reusable function
+    const townEntranceConfig: IEntranceConfig = {
+      zoneX: 360, // Adjust based on your map
+      zoneY: 20, // Adjust based on your map
+      zoneWidth: 50,
+      zoneHeight: 30,
+      targetScene: ESCENE_KEYS.CAVE_MAP,
       targetStartingPosition: { x: 25, y: 205 }, // Starting position in TownMap
       comingFrom: ESCENE_KEYS.HOME_MAP,
       debug: true, // Set to true for debugging borders
