@@ -8,10 +8,10 @@ import {
   PatrolPoint,
   DamageData,
 } from "./character.interface";
+import { HealthBar } from "@/shared/components/phaser-components/HealthBar";
 
 export class EnemyCharacter extends BaseCharacter {
-  private hpBarContainer: Phaser.GameObjects.Graphics;
-  private hpBar: Phaser.GameObjects.Graphics;
+  private hpBar: HealthBar;
   private debugGraphics: Phaser.GameObjects.Graphics | null = null;
   private readonly showDebug: boolean =
     import.meta.env.VITE_DEBUG_HITBOX === "true";
@@ -38,7 +38,7 @@ export class EnemyCharacter extends BaseCharacter {
   constructor(config: EnemyConfig) {
     super(config);
     this.stats = { ...config.stats };
-    console.log("CONSTRUCTOR: ", config.enemyType);
+
     this.enemyType = config.enemyType;
     this.setupAnimations();
 
@@ -50,50 +50,24 @@ export class EnemyCharacter extends BaseCharacter {
       this.play(this.animations.idleDown, true);
     }
 
-    this.hpBarContainer = this.scene.add.graphics();
-    this.hpBar = this.scene.add.graphics();
+    // Initialize Graphics
+    this.hpBar = new HealthBar(this.scene);
+    this.debugGraphics = this.showDebug ? this.scene.add.graphics() : null;
     this.updateHpBar();
+
     if (this.showDebug) {
       this.debugGraphics = this.scene.add.graphics();
     }
   }
 
   private updateHpBar(): void {
-    const barWidth = 20; // Smaller width for more elegant look
-    const barHeight = 2.5;
-    const borderThickness = 1;
-    const offsetY = -this.height / 2 - 4; // Adjust offset for better positioning
     const healthRatio = Phaser.Math.Clamp(
       this.stats.health / this.stats.maxHealth,
       0,
       1
     );
 
-    // Clear previous graphics
-    this.hpBarContainer.clear();
-    this.hpBar.clear();
-
-    // Draw border/background
-    this.hpBarContainer.fillStyle(0x8b5a2b); // Brown cozy border color
-    this.hpBarContainer.fillRect(
-      -barWidth / 2 - borderThickness,
-      offsetY - borderThickness,
-      barWidth + borderThickness * 2,
-      barHeight + borderThickness * 2
-    );
-
-    // Draw background bar (light brown)
-    this.hpBarContainer.fillStyle(0xd4a374);
-    this.hpBarContainer.fillRect(-barWidth / 2, offsetY, barWidth, barHeight);
-
-    // Draw health bar (red color for cozy style)
-    this.hpBar.fillStyle(0xff5555);
-    this.hpBar.fillRect(
-      -barWidth / 2,
-      offsetY,
-      barWidth * healthRatio,
-      barHeight
-    );
+    this.hpBar.update(this.x, this.y, healthRatio, -this.height / 2 - 4);
   }
 
   protected setupAnimations(): void {
@@ -247,7 +221,6 @@ export class EnemyCharacter extends BaseCharacter {
       onComplete: () => {
         // Clean up HP bars
         this.hpBar.destroy();
-        this.hpBarContainer.destroy();
 
         // Remove the enemy sprite
         this.destroy();
@@ -380,6 +353,11 @@ export class EnemyCharacter extends BaseCharacter {
   }
 
   update(time: number, delta: number): void {
+    // Call parent update if needed
+    super.update(time, delta);
+    // Update HP bar position to follow the enemy
+    this.updateHpBar();
+
     // Check for states that prevent movement
     if (this.isHit || this.isAttacking || this.isWaiting) {
       this.body?.setVelocity(0, 0);
@@ -387,8 +365,7 @@ export class EnemyCharacter extends BaseCharacter {
     }
 
     // Update HP bar position to follow the monster
-    this.hpBarContainer.setPosition(this.x, this.y);
-    this.hpBar.setPosition(this.x, this.y);
+
     // If we have a target (player), check if they're in range
     if (this.target && this.isPlayerInDetectionRange()) {
       if (this.isPlayerInAttackRange()) {
@@ -415,9 +392,6 @@ export class EnemyCharacter extends BaseCharacter {
         this.moveToNextPoint();
       }
     }
-
-    // Call parent update if needed
-    super.update(time, delta);
 
     if (this.showDebug) {
       this.drawDebugHitAreas();
@@ -549,11 +523,11 @@ export class EnemyCharacter extends BaseCharacter {
 
   destroy() {
     this.stopPatrol();
-    this.hpBarContainer.destroy();
+
     this.hpBar.destroy();
     if (this.debugGraphics) {
       this.debugGraphics.destroy();
-      }
+    }
     super.destroy();
   }
 }
