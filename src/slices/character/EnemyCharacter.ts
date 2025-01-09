@@ -67,18 +67,8 @@ export class EnemyCharacter extends BaseCharacter {
     IAnimationConfig
   > {
     const baseConfigs = super.getAnimationConfigs();
-    console.log("BASE CONFIGS: ", baseConfigs);
     return {
       ...baseConfigs,
-      // Add or modify specific enemy animations
-      // "attack-one-hand": {
-      //   type: "sequential",
-      //   frameEnd: 0,
-      //   frameStart: 0,
-      //   framesPerDirection: 6, // Different frame count for enemy attacks
-      //   frameRate: 12,
-      //   repeat: 0,
-      // },
     };
   }
 
