@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import classes from "./inventory-toolbar.module.css";
-import { SpriteIcon } from "../../atoms/SpriteIcon";
+import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { RootState } from "@/shared/services/redux-store.service";
-import { INVENTORY_SPRITE_MAPPING } from "@/slices/inventory/inventory-sprite-map";
+import { ICON_SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 import { useSelector } from "react-redux";
+
+import { ITEM_REGISTRY } from "@/slices/items/item-registry";
 
 const InventoryToolbar = () => {
   const { items } = useSelector((state: RootState) => state.inventory);
@@ -12,7 +14,22 @@ const InventoryToolbar = () => {
 
   const toolbarItems = Array(TOTAL_SLOTS)
     .fill(null)
-    .map((_, index) => items[index]);
+    .map((_, index) => {
+      if (items[index]) {
+        const mappedItem = ITEM_REGISTRY[items[index].id];
+        return {
+          quantity: items[index].quantity,
+          id: items[index].id,
+          spriteSheet: {
+            frameNumber: mappedItem.sprite.frame,
+            path: mappedItem.sprite.path,
+            spritesheetWidth: 672,
+            spriteSize: mappedItem.sprite.size,
+          },
+        };
+      }
+      return items[index];
+    });
 
   const handleOnClickToolbar = (event: React.MouseEvent<HTMLButtonElement>) => {
     const index = Number(event.currentTarget.id);
@@ -20,6 +37,8 @@ const InventoryToolbar = () => {
 
     PhaserEventBus.emit("inventory:seedSelected", item?.id);
   };
+
+  console.log("TOOLBAR ICONS: ", toolbarItems);
 
   return (
     <div className={classes.toolbar}>
@@ -30,16 +49,9 @@ const InventoryToolbar = () => {
           className={classes.toolbarButton}
           onClick={handleOnClickToolbar}
         >
-          <SpriteIcon
+          <SpriteIconNew
             data={item || null}
-            spriteSheet={item?.category ?? "seeds"}
-            iconIndex={
-              item
-                ? INVENTORY_SPRITE_MAPPING[
-                    item.id as keyof typeof INVENTORY_SPRITE_MAPPING
-                  ]
-                : -1 // or some default sprite index for empty slot
-            }
+            spriteSheet={item?.spriteSheet ?? {}}
             hotkeyNumber={index + 1}
             itemCount={item?.quantity || 0}
             isEmpty={!item} // Add this prop to SpriteIcon if you want to style empty slots differently

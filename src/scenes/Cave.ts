@@ -3,7 +3,9 @@ import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "@shared/scene-keys";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 import { WaveCombatManager } from "@/slices/wave-combat-manager/wave-combat-manger.service";
-import { caveWaveConfigs } from "@/slices/wave-combat-manager/wave-combat.config";
+// import { caveWaveConfigs } from "@/slices/wave-combat-manager/wave-combat.config";
+import { itemService } from "@/slices/items/items.service";
+import { GAME_ITEM_KEYS } from "@/slices/items/items.interface";
 
 export class CaveMap extends BaseScene {
   private waveCombatManager!: WaveCombatManager;
@@ -31,21 +33,36 @@ export class CaveMap extends BaseScene {
 
     this.createHomeMapEntrance();
 
+    const item = itemService.getItem(GAME_ITEM_KEYS.CARROT_SEEDS);
+    console.log("ITEM: ", item);
+    this.player.inventory.addItem({
+      id: GAME_ITEM_KEYS.CARROT_SEEDS,
+      quantity: 3,
+    });
+
+    this.player.inventory.addItem({
+      id: GAME_ITEM_KEYS.BASIC_SWORD,
+      quantity: 1,
+    });
+
+    const x = this.player.inventory.getAllItems();
+    console.log("ALL ITEMS: ", x);
+
     // Initialize the wave combat manager
-    this.waveCombatManager = new WaveCombatManager(
-      this,
-      this.player,
-      caveWaveConfigs
-    );
+    // this.waveCombatManager = new WaveCombatManager(
+    //   this,
+    //   this.player,
+    //   caveWaveConfigs
+    // );
 
-    // Start listening for wave complete events
-    this.events.on("waveComplete", this.handleWaveComplete, this);
+    // // Start listening for wave complete events
+    // this.events.on("waveComplete", this.handleWaveComplete, this);
 
-    // Add UI for wave information
-    this.createWaveUI();
+    // // Add UI for wave information
+    // this.createWaveUI();
 
-    // Start the first wave
-    this.waveCombatManager.startNextWave();
+    // // Start the first wave
+    // this.waveCombatManager.startNextWave();
   }
 
   update(time: number, delta: number) {

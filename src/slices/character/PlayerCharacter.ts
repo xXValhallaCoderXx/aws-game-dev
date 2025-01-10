@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BaseCharacter } from "./BaseChracter";
 import { EnemyCharacter } from "./EnemyCharacter";
-import { InventoryItem } from "../inventory/inventory.interface";
 import { Inventory } from "../inventory/inventory.service";
 import {
   CharacterStats,
@@ -23,6 +22,8 @@ import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 import { FloatingText } from "@/shared/components/phaser-components/FloatingText";
 import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 import { KEY_BINDINGS } from "@/shared/constants/key-bindings";
+import { InventoryModifyDTO } from "../inventory/inventory.interface";
+import { GAME_ITEM_KEYS } from "../items/items.interface";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
@@ -407,22 +408,16 @@ export class PlayerCharacter extends BaseCharacter {
   private initializeStartingInventory(): void {
     // Add initial seeds to inventory
     this.inventory.addItem({
-      id: "carrot-seed",
-      name: "Carrot Seed",
+      id: GAME_ITEM_KEYS.CARROT_SEEDS,
       quantity: 5,
-      category: "seeds",
     });
     this.inventory.addItem({
-      id: "radish-seed",
-      name: "Radish Seed",
+      id: GAME_ITEM_KEYS.RADISH_SEEDS,
       quantity: 3,
-      category: "seeds",
     });
     this.inventory.addItem({
-      id: "cauliflower-seed",
-      name: "Cauliflower Seed",
+      id: GAME_ITEM_KEYS.CAULIFLOWER_SEEDS,
       quantity: 2,
-      category: "seeds",
     });
   }
 
@@ -430,25 +425,13 @@ export class PlayerCharacter extends BaseCharacter {
    * Picks up an item and adds it to the inventory.
    * @param item The item to pick up.
    */
-  public pickUpItem(item: InventoryItem): void {
-    const success = this.inventory.addItem(item);
+  public pickUpItem(data: InventoryModifyDTO): void {
+    const success = this.inventory.addItem(data);
     if (success) {
-      console.log(`Picked up ${item.quantity} x ${item.name}`);
-      // Optionally, trigger a UI update or feedback (e.g., sound effect)
-      // this.scene.events.emit("inventory:update");
-      this.inventory.addItem({
-        id: item.name,
-        name: item.name,
-        quantity: item.quantity,
-        category: item.category,
-      });
-
-      PhaserEventBus.emit(
-        INVENTORY_EVENTS.GET_ALL_ITEMS,
-        this.inventory.getAllItems()
-      );
+      console.log(`Picked up ${data.quantity} x ${data.id}`);
+      // TODO - ADD SOUND PICKUP
     } else {
-      console.log(`Failed to pick up ${item.name}. Inventory might be full.`);
+      console.log(`Failed to pick up ${data.id}. Inventory might be full.`);
     }
   }
 
@@ -457,8 +440,8 @@ export class PlayerCharacter extends BaseCharacter {
    * @param itemId The ID of the item to use.
    * @param quantity The quantity to use.
    */
-  public useItem(itemId: string, quantity: number): boolean {
-    const success = this.inventory.removeItem(itemId, quantity);
+  public useItem(data: InventoryModifyDTO): boolean {
+    const success = this.inventory.removeItem(data);
     if (success) {
       this.scene.events.emit("inventory:update");
       PhaserEventBus.emit(
@@ -467,7 +450,7 @@ export class PlayerCharacter extends BaseCharacter {
       );
       return true;
     } else {
-      console.log(`Not enough ${itemId} to use.`);
+      console.log(`Not enough ${data.id} to use.`);
       return false;
     }
   }
@@ -584,7 +567,7 @@ export class PlayerCharacter extends BaseCharacter {
 
   // Add this method to visualize both player and enemy hit areas
   private drawDebugHitAreas(): void {
-    if (!this.debugGraphics) return;
+    if (!this.debugGraphics || !this.body) return;
 
     this.debugGraphics.clear();
 
@@ -599,7 +582,9 @@ export class PlayerCharacter extends BaseCharacter {
 
     // Draw current attack hitbox if it exists
     this.attackHitboxes.forEach((hitbox) => {
+      // @ts-ignore
       this.debugGraphics.lineStyle(2, 0xff0000);
+      // @ts-ignore
       this.debugGraphics.strokeRect(
         hitbox.x - hitbox.width / 2,
         hitbox.y - hitbox.height / 2,

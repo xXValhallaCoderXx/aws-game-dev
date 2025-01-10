@@ -1,8 +1,11 @@
+import { GAME_ITEM_KEYS } from "../items/items.interface";
+
 export interface InventoryItem {
-  id: string;
-  name: string;
+  id: GAME_ITEM_KEYS;
   quantity: number;
-  category: IFarmingInventoryCategories;
 }
 
-export type IFarmingInventoryCategories = "seeds" | "crops";
+export interface InventoryModifyDTO {
+  id: GAME_ITEM_KEYS;
+  quantity: number;
+}

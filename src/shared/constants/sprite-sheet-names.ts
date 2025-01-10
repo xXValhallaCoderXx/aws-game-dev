@@ -9,4 +9,18 @@ export const SPRITE_SHEETS = {
   PlayerRoll: "player-roll",
   PlayerWalk: "player-walk",
   SeedPackets: "seed-packets",
+  PotionIcons: "potion-icons",
+};
+
+export const ICON_SPRITE_SHEETS = {
+  POTIONS: {
+    file: "potion-icons",
+    path: "/sprites/items/potion-icons.png",
+    width: 672,
+  },
+  FARMING: {
+    file: "crops-objects",
+    path: "/sprites/crops/crops-objects.png",
+    width: 672,
+  },
 };
