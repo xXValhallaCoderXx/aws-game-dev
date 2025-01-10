@@ -1,9 +1,10 @@
 import styles from "./inventory-panel.module.css";
 import { RootState } from "@/shared/services/redux-store.service";
-import { SpriteIcon } from "../../atoms/SpriteIcon";
+import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 import { useSelector } from "react-redux";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
-import { INVENTORY_SPRITE_MAPPING } from "@/slices/inventory/inventory-sprite-map";
+
+import { ITEM_REGISTRY } from "@/slices/items/item-registry";
 
 const InventoryPanel = () => {
   const { items } = useSelector((state: RootState) => state.inventory);
@@ -16,7 +17,26 @@ const InventoryPanel = () => {
   };
 
   // Create an array of 18 slots (2 rows x 9 columns)
-  const slots = Array.from({ length: 18 }, (_, index) => items[index] || null);
+
+  const slots = Array(18)
+    .fill(null)
+    .map((_, index) => {
+      if (items[index]) {
+        const mappedItem = ITEM_REGISTRY[items[index].id];
+
+        return {
+          quantity: items[index].quantity,
+          id: items[index].id,
+          spriteSheet: {
+            frameNumber: mappedItem.sprite.spriteFrame,
+            path: mappedItem.sprite.filepath,
+            spritesheetWidth: mappedItem.sprite.spritesheetWidth,
+            spriteSize: mappedItem.sprite.spriteSize,
+          },
+        };
+      }
+      return items[index];
+    });
 
   return (
     <div>
@@ -29,19 +49,12 @@ const InventoryPanel = () => {
               className={styles.toolbarButton}
               onClick={handleOnClickItem}
             >
-              <SpriteIcon
-                data={item}
-                spriteSheet={item?.category ?? "seeds"}
-                iconIndex={
-                  item
-                    ? INVENTORY_SPRITE_MAPPING[
-                        item.id as keyof typeof INVENTORY_SPRITE_MAPPING
-                      ]
-                    : -1 // Default sprite index for empty slot
-                }
+              <SpriteIconNew
+                data={item || null}
+                spriteSheet={item?.spriteSheet ?? {}}
                 hotkeyNumber={index + 1}
                 itemCount={item?.quantity || 0}
-                isEmpty={!item} // Optional: Style empty slots differently
+                isEmpty={!item} // Add this prop to SpriteIcon if you want to style empty slots differently
               />
             </button>
           ))}

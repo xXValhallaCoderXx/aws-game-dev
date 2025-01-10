@@ -53,8 +53,10 @@ export interface ItemStats {
 }
 
 export interface ItemSprite {
-  name: string; // Name of the spritesheet
-  frame: number; // Frame number in the spritesheet
-  size: number; // Pixel size of sprite
-  path: string;
+  spritesheetName: string; // Name of the spritesheet
+  spriteFrame: number; // Frame number in the spritesheet
+  spriteSize: number; // Pixel size of sprite
+  spritesheetWidth: number;
+  filepath: string;
 }
+

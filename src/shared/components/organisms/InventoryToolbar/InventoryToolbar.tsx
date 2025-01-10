@@ -3,7 +3,6 @@ import classes from "./inventory-toolbar.module.css";
 import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { RootState } from "@/shared/services/redux-store.service";
-import { ICON_SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 import { useSelector } from "react-redux";
 
 import { ITEM_REGISTRY } from "@/slices/items/item-registry";
@@ -17,14 +16,15 @@ const InventoryToolbar = () => {
     .map((_, index) => {
       if (items[index]) {
         const mappedItem = ITEM_REGISTRY[items[index].id];
+
         return {
           quantity: items[index].quantity,
           id: items[index].id,
           spriteSheet: {
-            frameNumber: mappedItem.sprite.frame,
-            path: mappedItem.sprite.path,
-            spritesheetWidth: 672,
-            spriteSize: mappedItem.sprite.size,
+            frameNumber: mappedItem.sprite.spriteFrame,
+            path: mappedItem.sprite.filepath,
+            spritesheetWidth: mappedItem.sprite.spritesheetWidth,
+            spriteSize: mappedItem.sprite.spriteSize,
           },
         };
       }
@@ -37,8 +37,6 @@ const InventoryToolbar = () => {
 
     PhaserEventBus.emit("inventory:seedSelected", item?.id);
   };
-
-  console.log("TOOLBAR ICONS: ", toolbarItems);
 
   return (
     <div className={classes.toolbar}>

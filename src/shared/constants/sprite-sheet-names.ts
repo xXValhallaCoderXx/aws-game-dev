@@ -23,4 +23,9 @@ export const ICON_SPRITE_SHEETS = {
     path: "/sprites/crops/crops-objects.png",
     width: 672,
   },
+  BLACKSMITH_ICONS: {
+    file: "blacksmith-icons-no-shadow",
+    path: "/sprites/items/blacksmith-icons-no-shadow.png",
+    width: 640,
+  },
 };

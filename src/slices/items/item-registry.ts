@@ -14,10 +14,11 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     category: ItemCategory.CONSUMABLE,
     rarity: ItemRarity.COMMON,
     sprite: {
-      name: ICON_SPRITE_SHEETS.POTIONS.file,
-      frame: 0, // Update with actual frame number
-      size: 16,
-      path: ICON_SPRITE_SHEETS.POTIONS.path,
+      spritesheetName: ICON_SPRITE_SHEETS.POTIONS.file,
+      spriteFrame: 0, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.POTIONS.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.POTIONS.width,
     },
     stackable: true,
     maxStack: 99,
@@ -37,10 +38,11 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     category: ItemCategory.SEED,
     rarity: ItemRarity.COMMON,
     sprite: {
-      name: ICON_SPRITE_SHEETS.FARMING.file,
-      frame: 26, // Update with actual frame number
-      size: 16,
-      path: ICON_SPRITE_SHEETS.FARMING.path,
+      spritesheetName: ICON_SPRITE_SHEETS.FARMING.file,
+      spriteFrame: 26, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.FARMING.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.FARMING.width,
     },
     stackable: true,
     maxStack: 99,
@@ -54,10 +56,11 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     category: ItemCategory.SEED,
     rarity: ItemRarity.COMMON,
     sprite: {
-      name: ICON_SPRITE_SHEETS.FARMING.file,
-      frame: 27, // Update with actual frame number
-      size: 16,
-      path: ICON_SPRITE_SHEETS.FARMING.path,
+      spritesheetName: ICON_SPRITE_SHEETS.FARMING.file,
+      spriteFrame: 68, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.FARMING.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.FARMING.width,
     },
     stackable: true,
     maxStack: 99,
@@ -71,10 +74,11 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     category: ItemCategory.SEED,
     rarity: ItemRarity.COMMON,
     sprite: {
-      name: ICON_SPRITE_SHEETS.FARMING.file,
-      frame: 26, // Update with actual frame number
-      size: 16,
-      path: ICON_SPRITE_SHEETS.FARMING.path,
+      spritesheetName: ICON_SPRITE_SHEETS.FARMING.file,
+      spriteFrame: 278, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.FARMING.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.FARMING.width,
     },
     stackable: true,
     maxStack: 99,
@@ -88,10 +92,11 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     category: ItemCategory.WEAPON,
     rarity: ItemRarity.COMMON,
     sprite: {
-      name: ICON_SPRITE_SHEETS.POTIONS.file,
-      frame: 0, // Update with actual frame number
-      size: 16,
-      path: ICON_SPRITE_SHEETS.POTIONS.path,
+      spritesheetName: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.file,
+      spriteFrame: 475, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.width,
     },
     stackable: true,
     maxStack: 99,
