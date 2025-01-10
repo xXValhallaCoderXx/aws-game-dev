@@ -8,9 +8,11 @@ type InventoryItem = `${EFarmingCrops}`;
 // Define the Inventory type as a record where each key is an InventoryItem and the value is a number
 type Inventory = Record<InventoryItem, number>;
 
+export type DirectionOrder = "UDLR" | "DLRU" | "DULR"; // Add more if needed
 export type { InventoryItem, Inventory };
 
-export type PlayerSpecificAcions = "harvest" | "carry" | "roll";
+export type PlayerSpecificActions = "harvest" | "carry" | "roll";
+export type IPlayerActionType = IActionType & PlayerSpecificActions;
 export type IActionType =
   | "walk"
   | "idle"
@@ -19,11 +21,12 @@ export type IActionType =
   | "critical-hit";
 export type CarryAction = "walk" | "idle";
 
-export type IAnimationKey = `${IActionType}${DirectionCapitalized}`;
+export type IAnimationKey = `${IActionType}-${Direction}`;
 export interface BaseAnimationConfig {
   framesPerDirection: number;
   frameRate: number;
   repeat: number;
+  spritesheet?: string; // Add this to support different spritesheets
 }
 
 export interface SequentialAnimationConfig extends BaseAnimationConfig {

@@ -2,6 +2,7 @@
 import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
 import { ESOUND_NAMES } from "@/slices/music-manager/sound-manager.types";
+import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 
 export class Preloader extends Scene {
   constructor() {
@@ -11,7 +12,6 @@ export class Preloader extends Scene {
   init() {}
 
   preload() {
-
     this.load.audio(ESOUND_NAMES.MAIN_BG, "sounds/main-bgm.mp3");
     this.load.audio(ESOUND_NAMES.PLACE_SEED, "sounds/seed-place.wav");
     this.load.audio(ESOUND_NAMES.HARVEST_CROP, "sounds/harvest-crop-sound.wav");
@@ -100,7 +100,7 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
-      "player-walk",
+      SPRITE_SHEETS.PlayerWalk,
       "sprites/characters/player/player-walk.png",
       {
         frameWidth: 80,
@@ -109,7 +109,7 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
-      "player-roll",
+      SPRITE_SHEETS.PlayerRoll,
       "sprites/characters/player/player-roll.png",
       {
         frameWidth: 80,
@@ -118,7 +118,7 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
-      "player-damage",
+      SPRITE_SHEETS.PlayerDamage,
       "sprites/characters/player/player-damage.png",
       {
         frameWidth: 80,
@@ -127,7 +127,7 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
-      "player-attack-one-hand",
+      SPRITE_SHEETS.PlayerAttackOneHand,
       "sprites/characters/player/player-attack-one-hand.png",
       {
         frameWidth: 80,
@@ -136,7 +136,7 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
-      "player-attack-one-hand-sword",
+      SPRITE_SHEETS.PlayerAttackOneHandSword,
       "sprites/characters/player/player-attack-one-hand-sword.png",
       {
         frameWidth: 80,
@@ -145,7 +145,7 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
-      "player-idle",
+      SPRITE_SHEETS.PlayerIdle,
       "sprites/characters/player/player-idle.png",
       {
         frameWidth: 80,
@@ -155,7 +155,7 @@ export class Preloader extends Scene {
 
     // Load the carry walking sprite sheet
     this.load.spritesheet(
-      "player-carry-walk",
+      SPRITE_SHEETS.PlayerCarryWalk,
       "sprites/characters/player/player-carry-walk.png",
       {
         frameWidth: 80, // Replace with actual frame width
@@ -165,7 +165,7 @@ export class Preloader extends Scene {
 
     // Load the carry idle sprite sheet
     this.load.spritesheet(
-      "player-carry-idle",
+      SPRITE_SHEETS.PlayerCarryIdle,
       "sprites/characters/player/player-carry-idle.png",
       {
         frameWidth: 80,
@@ -175,7 +175,7 @@ export class Preloader extends Scene {
 
     // Load Crop pull
     this.load.spritesheet(
-      "player-harvest",
+      SPRITE_SHEETS.PlayerCropPull,
       "sprites/characters/player/player-crop-pull.png",
       {
         frameWidth: 80,
@@ -195,7 +195,6 @@ export class Preloader extends Scene {
         frameHeight: 16, // Height of each frame
       }
     );
-
   }
 
   create() {

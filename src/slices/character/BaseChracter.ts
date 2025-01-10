@@ -7,11 +7,14 @@ import {
   ICharacterType,
   IAnimationConfig,
   IActionType,
+  DirectionOrder,
 } from "./character.interface";
 
 export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
   public scene: Scene;
   public stats: CharacterStats;
+
+  protected readonly directionOrder: DirectionOrder = "DLRU"; // Default order (down, left, right, up)
   protected readonly directions: Direction[] = ["down", "left", "right", "up"];
   protected characterType: ICharacterType;
   public facingDirection: Direction = "down";
@@ -91,33 +94,24 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
   protected setupAnimations(): void {
     const configs = this.getAnimationConfigs();
 
-    this.directions.forEach((direction, dirIndex) => {
-      Object.entries(configs).forEach(([action, config]) => {
+    Object.entries(configs).forEach(([action, config]) => {
+      // Create animation for each direction
+      ["up", "down", "left", "right"].forEach((direction) => {
         const baseKey = `${this.characterType}-${action}-${direction}`;
-        console.log("BASE KEY: ", baseKey);
+        const spritesheet = config.spritesheet || this.texture.key;
+
         if (!this.scene.anims.exists(baseKey)) {
           let frames;
+          const dirIndex = this.getDirectionIndex(direction as Direction);
 
           switch (config.type) {
-            case "custom":
-              frames = this.scene.anims.generateFrameNumbers(this.texture.key, {
-                start: config.customFrames[direction].start,
-                end: config.customFrames[direction].end,
-              });
-              break;
-
-            case "specific":
-              frames = this.scene.anims.generateFrameNumbers(this.texture.key, {
-                frames: config.frames(dirIndex),
-              });
-              break;
-
             case "sequential":
-              frames = this.scene.anims.generateFrameNumbers(this.texture.key, {
+              frames = this.scene.anims.generateFrameNumbers(spritesheet, {
                 start: config.frameStart(dirIndex),
                 end: config.frameEnd(dirIndex),
               });
               break;
+            // ... other cases
           }
 
           this.scene.anims.create({
@@ -128,11 +122,55 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
           });
         }
 
-        // Store animation key for later use
         this.animations[`${action}-${direction}`] = baseKey;
       });
     });
   }
+
+  // this.directions.forEach((direction, dirIndex) => {
+  //   Object.entries(configs).forEach(([action, config]) => {
+  //     const baseKey = `${this.characterType}-${action}-${direction}`;
+  //     if (this.characterType === "player") {
+  //       console.log("BASE KEY: ", baseKey);
+  //     }
+
+  //     if (!this.scene.anims.exists(baseKey)) {
+  //       let frames;
+
+  //       switch (config.type) {
+  //         case "custom":
+  //           frames = this.scene.anims.generateFrameNumbers(this.texture.key, {
+  //             start: config.customFrames[direction].start,
+  //             end: config.customFrames[direction].end,
+  //           });
+  //           break;
+
+  //         case "specific":
+  //           frames = this.scene.anims.generateFrameNumbers(this.texture.key, {
+  //             frames: config.frames(dirIndex),
+  //           });
+  //           break;
+
+  //         case "sequential":
+  //           frames = this.scene.anims.generateFrameNumbers(this.texture.key, {
+  //             start: config.frameStart(dirIndex),
+  //             end: config.frameEnd(dirIndex),
+  //           });
+  //           break;
+  //       }
+
+  //       this.scene.anims.create({
+  //         key: baseKey,
+  //         frames: frames,
+  //         frameRate: config.frameRate,
+  //         repeat: config.repeat,
+  //       });
+  //     }
+
+  //     // Store animation key for later use
+  //     this.animations[`${action}-${direction}`] = baseKey;
+  //   });
+  // });
 
   protected capitalize(str: Direction): DirectionCapitalized {
     return (str.charAt(0).toUpperCase() + str.slice(1)) as DirectionCapitalized;
@@ -144,5 +182,33 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
 
   public setFacingDirection(direction: Direction): void {
     this.facingDirection = direction;
+  }
+
+  protected getDirectionIndex(direction: Direction): number {
+    // Get the order based on the character's directionOrder
+    const orderMap = {
+      UDLR: {
+        // Player's order (up, down, left, right)
+        up: 0,
+        down: 1,
+        left: 2,
+        right: 3,
+      },
+      DLRU: {
+        // Default order (down, left, right, up)
+        down: 0,
+        left: 1,
+        right: 2,
+        up: 3,
+      },
+      DULR: {
+        up: 0,
+        down: 1,
+        left: 2,
+        right: 3,
+      },
+    };
+
+    return orderMap[this.directionOrder][direction];
   }
 }

@@ -6,11 +6,14 @@ import { Inventory } from "../inventory/inventory.service";
 import {
   CharacterStats,
   PlayerConfig,
-  AnimationKey,
+  IAnimationConfig,
+  IAnimationKey,
   Direction,
   AnimationKeyCarry,
   KnockbackConfig,
   DamageData,
+  IActionType,
+  DirectionOrder,
 } from "./character.interface";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { INVENTORY_EVENTS } from "../events/phaser-events.types";
@@ -18,13 +21,11 @@ import { PLAYER_EVENTS } from "../events/phaser-events.types";
 import { SoundManager } from "../music-manager/sound-manager.service";
 import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 import { FloatingText } from "@/shared/components/phaser-components/FloatingText";
+import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
-  private healthBar!: {
-    bar: Phaser.GameObjects.Rectangle;
-    border: Phaser.GameObjects.Rectangle;
-  };
+  protected readonly directionOrder: DirectionOrder = "DULR"; // Override to use player's order
   private attackHitboxes: Map<string, Phaser.GameObjects.Rectangle> = new Map();
 
   public carriedItem?: string;
@@ -50,11 +51,11 @@ export class PlayerCharacter extends BaseCharacter {
   private attackHitbox!: Phaser.GameObjects.Rectangle;
   private enemies: EnemyCharacter[] = [];
   private soundManager: SoundManager;
-  private stats: CharacterStats;
+
   public isDamaged: boolean = false; // Add this
   private isInvincible: boolean = false;
   private invincibilityDuration: number = 1000; // 1 second of invincibility after being hit
-  private isUnarmed: boolean = true; // For testing purposes
+
   private weaponSprite: Phaser.GameObjects.Sprite;
   protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
@@ -73,7 +74,7 @@ export class PlayerCharacter extends BaseCharacter {
     }
     this.soundManager = SoundManager.getInstance();
     this.cursors = this.scene.input.keyboard?.createCursorKeys();
-    this.carryAnimations = this.getCarryAnimations();
+    // this.carryAnimations = this.getCarryAnimations();
     this.inventory = new Inventory({
       scene: this.scene,
     });
@@ -123,152 +124,99 @@ export class PlayerCharacter extends BaseCharacter {
     return { ...this.stats }; // Return a copy to prevent direct modification
   }
 
-  protected getDefaultAnimations(): Record<string, string> {
+  protected override getAnimationConfigs(): Record<
+    IActionType,
+    IAnimationConfig
+  > {
     return {
-      walkUp: "player-walk-up",
-      walkDown: "player-walk-down",
-      walkLeft: "player-walk-left",
-      walkRight: "player-walk-right",
-      idleUp: "player-idle-up",
-      idleDown: "player-idle-down",
-      idleLeft: "player-idle-left",
-      idleRight: "player-idle-right",
-      harvestUp: "player-harvest-up",
-      harvestDown: "player-harvest-down",
-      harvestLeft: "player-harvest-left",
-      harvestRight: "player-harvest-right",
-      rollUp: "player-roll-up",
-      rollDown: "player-roll-down",
-      rollLeft: "player-roll-left",
-      rollRight: "player-roll-right",
-      attackOneHandUp: "player-attack-one-hand-up",
-      attackOneHandDown: "player-attack-one-hand-down",
-      attackOneHandLeft: "player-attack-one-hand-left",
-      attackOneHandRight: "player-attack-one-hand-right",
-      damageUp: "player-damage-up",
-      damageDown: "player-damage-down",
-      damageLeft: "player-damage-left",
-      damageRight: "player-damage-right",
+      walk: {
+        type: "sequential",
+        framesPerDirection: 6,
+        frameRate: 10,
+        repeat: -1,
+        spritesheet: SPRITE_SHEETS.PlayerWalk,
+        frameStart: (dirIndex: number) => {
+          console.log("DIR INDEX - frame START: ", dirIndex);
+          return dirIndex * 6;
+        },
+        frameEnd: (dirIndex: number) => {
+          console.log("DIR INDEX - FRAME END: ", dirIndex);
+          return dirIndex * 6 + 5;
+        },
+      },
+      idle: {
+        type: "sequential",
+        framesPerDirection: 6,
+        frameRate: 8,
+        repeat: -1,
+        spritesheet: SPRITE_SHEETS.PlayerIdle,
+        frameStart: (dirIndex: number) => dirIndex * 6,
+        frameEnd: (dirIndex: number) => dirIndex * 6 + 5,
+      },
+      // 'roll': {
+      //   type: 'sequential',
+      //   framesPerDirection: 9,
+      //   frameRate: 15,
+      //   repeat: 0,
+      //   spritesheet: 'player-roll',
+      //   frameStart: (dirIndex: number) => dirIndex * 9,
+      //   frameEnd: (dirIndex: number) => dirIndex * 9 + 8
+      // },
+      "attack-one-hand": {
+        type: "sequential",
+        framesPerDirection: 9,
+        frameRate: 15,
+        repeat: 0,
+        spritesheet: SPRITE_SHEETS.PlayerAttackOneHand,
+        frameStart: (dirIndex: number) => dirIndex * 9,
+        frameEnd: (dirIndex: number) => dirIndex * 9 + 8,
+      },
+      hit: {
+        type: "sequential",
+        framesPerDirection: 8,
+        frameRate: 15,
+        repeat: 0,
+        spritesheet: SPRITE_SHEETS.PlayerDamage,
+        frameStart: (dirIndex: number) => dirIndex * 8,
+        frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
+      },
+      "critical-hit": {
+        type: "sequential",
+        framesPerDirection: 8,
+        frameRate: 15,
+        repeat: 0,
+        spritesheet: SPRITE_SHEETS.PlayerDamage,
+        frameStart: (dirIndex: number) => dirIndex * 8,
+        frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
+      },
+      // 'carry-walk': {
+      //   type: 'sequential',
+      //   framesPerDirection: 6,
+      //   frameRate: 10,
+      //   repeat: -1,
+      //   spritesheet: 'player-carry-walk',
+      //   frameStart: (dirIndex: number) => dirIndex * 6,
+      //   frameEnd: (dirIndex: number) => dirIndex * 6 + 5
+      // },
+      // 'carry-idle': {
+      //   type: 'sequential',
+      //   framesPerDirection: 6,
+      //   frameRate: 8,
+      //   repeat: -1,
+      //   spritesheet: 'player-carry-idle',
+      //   frameStart: (dirIndex: number) => dirIndex * 6,
+      //   frameEnd: (dirIndex: number) => dirIndex * 6 + 5
+      // },
+      // 'harvest': {
+      //   type: 'sequential',
+      //   framesPerDirection: 6,
+      //   frameRate: 12,
+      //   repeat: 0,
+      //   spritesheet: 'player-harvest',
+      //   frameStart: (dirIndex: number) => dirIndex * 6,
+      //   frameEnd: (dirIndex: number) => dirIndex * 6 + 5
+      // }
     };
-  }
-
-  protected getCarryAnimations(): Record<string, string> {
-    return {
-      walkUp: "player-carry-walk-up",
-      walkDown: "player-carry-walk-down",
-      walkLeft: "player-carry-walk-left",
-      walkRight: "player-carry-walk-right",
-      idleUp: "player-carry-idle-up",
-      idleDown: "player-carry-idle-down",
-      idleLeft: "player-carry-idle-left",
-      idleRight: "player-carry-idle-right",
-    };
-  }
-
-  protected setupAnimations(): void {
-    const directions = ["up", "down", "left", "right"];
-
-    directions.forEach((direction, directionIndex) => {
-      // Regular animations
-      ["walk", "idle", "roll", "attack-one-hand"].forEach((action) => {
-        const baseKey = `player-${action}-${direction}`;
-        const spritesheet = `player-${action}`;
-
-        if (!this.scene.anims.exists(baseKey)) {
-          if (action === "roll" || action === "attack-one-hand") {
-            this.scene.anims.create({
-              key: baseKey,
-              frames: this.scene.anims.generateFrameNumbers(spritesheet, {
-                start: directionIndex * 9, // Multiply by 9 since each direction has 9 frames
-                end: directionIndex * 9 + 8, // Add 8 to get to the last frame (0-8 = 9 frames)
-              }),
-              frameRate: 15,
-              repeat: 0,
-            });
-          } else {
-            this.scene.anims.create({
-              key: baseKey,
-              frames: this.scene.anims.generateFrameNumbers(spritesheet, {
-                start: directionIndex * 6,
-                end: directionIndex * 6 + 5,
-              }),
-              frameRate: action === "walk" ? 10 : 8,
-              repeat: -1,
-            });
-          }
-        }
-      });
-
-      // Add damage animation setup
-      const damageKey = `player-damage-${direction}`;
-      if (!this.scene.anims.exists(damageKey)) {
-        this.scene.anims.create({
-          key: damageKey,
-          frames: this.scene.anims.generateFrameNumbers("player-damage", {
-            start: directionIndex * 8, // 8 frames per direction
-            end: directionIndex * 8 + 7,
-          }),
-          frameRate: 15,
-          repeat: 0,
-        });
-      }
-      // Carry animations
-      ["walk", "idle"].forEach((action) => {
-        const baseKey = `player-carry-${action}-${direction}`;
-        const spritesheet = `player-carry-${action}`;
-
-        if (!this.scene.anims.exists(baseKey)) {
-          this.scene.anims.create({
-            key: baseKey,
-            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
-              start: directionIndex * 6,
-              end: directionIndex * 6 + 5,
-            }),
-            frameRate: action === "walk" ? 10 : 8,
-            repeat: -1,
-          });
-        }
-      });
-
-      // Harvest animation
-      ["up", "down", "left", "right"].forEach(() => {
-        const baseKey = `player-harvest-${direction}`;
-        const spritesheet = `player-harvest`;
-
-        if (!this.scene.anims.exists(baseKey)) {
-          this.scene.anims.create({
-            key: baseKey,
-            frames: this.scene.anims.generateFrameNumbers(spritesheet, {
-              start: directionIndex * 6,
-              end: directionIndex * 6 + 5,
-            }),
-            frameRate: 12,
-            repeat: 0,
-          });
-        }
-      });
-    });
-
-    ["up", "down", "left", "right"].forEach((direction, directionIndex) => {
-      const baseKey = `weapon-attack-${direction}`;
-      if (!this.scene.anims.exists(baseKey)) {
-        this.scene.anims.create({
-          key: baseKey,
-          frames: this.scene.anims.generateFrameNumbers(
-            "player-attack-one-hand-sword",
-            {
-              start: directionIndex * 9,
-              end: directionIndex * 9 + 8,
-            }
-          ),
-          frameRate: 15,
-          repeat: 0,
-        });
-      }
-    });
-
-    // Start with idle animation
-    this.play("player-idle-down");
   }
 
   public handleMovement(): void {
@@ -344,6 +292,8 @@ export class PlayerCharacter extends BaseCharacter {
         this.facingDirection
       }`;
     } else {
+      console.log("PLAYER ACTION - ", action);
+      console.log("PLAYER DIRECTION - ", this.facingDirection);
       animationKey = `player-${action.toLowerCase()}-${this.facingDirection}`;
     }
 
@@ -363,9 +313,7 @@ export class PlayerCharacter extends BaseCharacter {
 
     this.isRolling = true;
     const rollAnim =
-      this.animations[
-        `roll${this.capitalize(this.facingDirection)}` as AnimationKey
-      ];
+      this.animations[`roll-${this.facingDirection}` as IAnimationKey];
 
     this.soundManager.playSFX(ESOUND_NAMES.PLAYER_DODGE);
     // Add a speed boost during roll
@@ -393,12 +341,8 @@ export class PlayerCharacter extends BaseCharacter {
 
       // Return to idle animation
       const idleAnim = this.isCarrying
-        ? this.carryAnimations[
-            `idle${this.capitalize(this.facingDirection)}` as AnimationKeyCarry
-          ]
-        : this.animations[
-            `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-          ];
+        ? this.animations[`idle-${this.facingDirection}` as AnimationKeyCarry]
+        : this.animations[`idle-${this.facingDirection}` as IAnimationKey];
 
       this.play(idleAnim, true);
     });
@@ -411,21 +355,15 @@ export class PlayerCharacter extends BaseCharacter {
 
     // Use the correct animation key from your animations object
     const harvestAnim =
-      this.animations[
-        `harvest${this.capitalize(this.facingDirection)}` as AnimationKey
-      ];
+      this.animations[`harvest-${this.facingDirection}` as IAnimationKey];
 
     this.play(harvestAnim, true).once("animationcomplete", () => {
       this.isHarvesting = false;
 
       // Return to idle animation using the correct key
       const idleAnim = this.isCarrying
-        ? this.carryAnimations[
-            `idle${this.capitalize(this.facingDirection)}` as AnimationKeyCarry
-          ]
-        : this.animations[
-            `idle${this.capitalize(this.facingDirection)}` as AnimationKey
-          ];
+        ? this.animations[`idle-${this.facingDirection}` as AnimationKeyCarry]
+        : this.animations[`idle-${this.facingDirection}` as IAnimationKey];
 
       this.play(idleAnim, true);
 
@@ -517,7 +455,7 @@ export class PlayerCharacter extends BaseCharacter {
     const direction = this.facingDirection;
     const attackAnim =
       this.animations[
-        `attackOneHand${this.capitalize(direction)}` as AnimationKey
+        `attack-one-hand-${this.facingDirection}` as IAnimationKey
       ];
 
     this.weaponSprite.setVisible(true);
@@ -546,7 +484,7 @@ export class PlayerCharacter extends BaseCharacter {
       this.attackHitboxes.delete(direction);
       // Return to idle animation
       const idleAnim =
-        this.animations[`idle${this.capitalize(direction)}` as AnimationKey];
+        this.animations[`idle-${this.facingDirection}` as IAnimationKey];
       this.play(idleAnim, true);
     });
 
@@ -711,7 +649,7 @@ export class PlayerCharacter extends BaseCharacter {
     }
     if (this.debugGraphics) {
       this.debugGraphics.destroy();
-      }
+    }
     super.destroy();
   }
 
