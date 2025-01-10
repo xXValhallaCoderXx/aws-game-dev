@@ -2,9 +2,13 @@
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "@shared/scene-keys";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
-import { EnemyCharacter } from "@/slices/character/EnemyCharacter";
+import { WaveCombatManager } from "@/slices/wave-combat-manager/wave-combat-manger.service";
+import { caveWaveConfigs } from "@/slices/wave-combat-manager/wave-combat.config";
+
 export class CaveMap extends BaseScene {
-  private enemies: EnemyCharacter[] = [];
+  private waveCombatManager: WaveCombatManager;
+  private waveText: Phaser.GameObjects.Text;
+  private enemyCountText: Phaser.GameObjects.Text;
 
   constructor() {
     super(ESCENE_KEYS.CAVE_MAP);
@@ -27,42 +31,30 @@ export class CaveMap extends BaseScene {
 
     this.createHomeMapEntrance();
 
-    // In your game scene
-    const enemy = new EnemyCharacter({
-      scene: this,
-      x: 200,
-      y: 300,
-      texture: "zombie-epic", // or whatever enemy sprite you're using
-      characterType: "zombie-epic",
-      detectionRadius: 79,
-      attackCooldown: 1000,
-      attackRange: 20,
-      enemyType: "zombie-epic",
-      stats: {
-        maxHealth: 100,
-        health: 100,
-        strength: 10,
-        defense: 5,
-        speed: 50,
-      },
-      // patrolPoints: [
-      //   { x: 220, y: 300, waitTime: 750 },
-      //   { x: 150, y: 300, waitTime: 400 },
-      //   { x: 220, y: 300, waitTime: 750 },
-      //   { x: 150, y: 300, waitTime: 400 },
-      // ],
-    });
+    // Initialize the wave combat manager
+    this.waveCombatManager = new WaveCombatManager(
+      this,
+      this.player,
+      caveWaveConfigs
+    );
 
-    enemy.setTarget(this.player);
-    this.enemies.push(enemy);
+    // Start listening for wave complete events
+    this.events.on("waveComplete", this.handleWaveComplete, this);
 
-    this.physics.add.collider(this.player, enemy);
+    // Add UI for wave information
+    this.createWaveUI();
+
+    // Start the first wave
+    this.waveCombatManager.startNextWave();
   }
 
   update(time: number, delta: number) {
     super.update(time, delta);
     this.player.update(time, delta);
-    this.enemies.forEach((enemy) => enemy.update(time, delta));
+    if (this.waveCombatManager) {
+      this.waveCombatManager.update();
+      this.updateWaveUI();
+    }
   }
 
   protected getDefaultStartingPosition(): { x: number; y: number } {
@@ -100,5 +92,67 @@ export class CaveMap extends BaseScene {
       debug: true, // Set to true for debugging borders
     };
     this.createEntrance(homeMapEntranceConfig);
+  }
+
+  private createWaveUI(): void {
+    this.waveText = this.add.text(16, 16, "Wave: 1", {
+      fontSize: "32px",
+      color: "#ffffff",
+    });
+    this.waveText.setScrollFactor(0);
+
+    this.enemyCountText = this.add.text(16, 56, "Enemies: 0", {
+      fontSize: "32px",
+      color: "#ffffff",
+    });
+    this.enemyCountText.setScrollFactor(0);
+  }
+
+  private updateWaveUI(): void {
+    const currentWave = this.waveCombatManager.getCurrentWave();
+    const activeEnemies = this.waveCombatManager.getActiveEnemies().length;
+
+    this.waveText.setText(`Wave: ${currentWave}`);
+    this.enemyCountText.setText(`Enemies: ${activeEnemies}`);
+  }
+
+  private handleWaveComplete(data: { waveNumber: number; rewards: any }): void {
+    // Show wave complete message
+    const completionText = this.add.text(
+      this.cameras.main.centerX,
+      this.cameras.main.centerY - 50,
+      `Wave ${data.waveNumber} Complete!`,
+      {
+        fontSize: "48px",
+        color: "#00ff00",
+      }
+    );
+    completionText.setOrigin(0.5);
+    completionText.setScrollFactor(0);
+
+    // Show rewards
+    const rewardsText = this.add.text(
+      this.cameras.main.centerX,
+      this.cameras.main.centerY + 50,
+      `Rewards:\nGold: ${data.rewards.gold}\nXP: ${data.rewards.experience}`,
+      {
+        fontSize: "32px",
+        color: "#ffff00",
+        align: "center",
+      }
+    );
+    rewardsText.setOrigin(0.5);
+    rewardsText.setScrollFactor(0);
+
+    // Clear messages after delay
+    this.time.delayedCall(3000, () => {
+      completionText.destroy();
+      rewardsText.destroy();
+
+      // Start next wave after showing rewards
+      if (this.waveCombatManager && !this.waveCombatManager.isWaveActive()) {
+        this.waveCombatManager.startNextWave();
+      }
+    });
   }
 }

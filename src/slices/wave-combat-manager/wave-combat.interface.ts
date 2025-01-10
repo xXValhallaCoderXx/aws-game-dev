@@ -1,21 +1,28 @@
 import { CharacterStats } from "../character/character.interface";
 
-export interface IWaveManager {
-  currentWave: number;
-  isWaveActive: boolean;
-  totalEnemiesInWave: number;
-  remainingEnemies: number;
+export interface IWaveConfig {
+  waveNumber: number;
+  enemies: EnemySpawnConfig[];
+  isBossWave: boolean;
+  rewards: WaveRewards;
 }
 
-export interface IWaveConfig {
-  enemies: {
-    type: string;
-    count: number;
-    stats: CharacterStats;
-  }[];
-  isBossWave: boolean;
-  rewards?: {
-    gold?: number;
-    items?: string[];
-  };
+export interface EnemySpawnConfig {
+  type: string;
+  count: number;
+  stats: CharacterStats;
+  dropTable: DropTable[];
+}
+
+export interface DropTable {
+  itemId: string;
+  chance: number; // 0-100
+  minQuantity: number;
+  maxQuantity: number;
+}
+
+export interface WaveRewards {
+  experience: number;
+  gold: number;
+  guaranteedDrops?: DropTable[];
 }
