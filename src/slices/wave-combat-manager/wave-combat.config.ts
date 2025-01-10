@@ -7,7 +7,21 @@ export const caveWaveConfigs: IWaveConfig[] = [
     enemies: [
       {
         type: "zombie-normal",
-        count: 3,
+        count: 2,
+        stats: {
+          maxHealth: 50,
+          health: 50,
+          strength: 5,
+          defense: 2,
+          speed: 40,
+        },
+        dropTable: [
+          { itemId: "gold", chance: 100, minQuantity: 1, maxQuantity: 5 },
+        ],
+      },
+      {
+        type: "rat-normal",
+        count: 1,
         stats: {
           maxHealth: 50,
           health: 50,
