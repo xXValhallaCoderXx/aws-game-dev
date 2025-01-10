@@ -22,12 +22,13 @@ import {
   updateMaxHealth,
 } from "@/slices/character/player-character.slice";
 import { InventoryItem } from "@/slices/inventory/inventory.interface";
+import { PLAYER_EVENTS } from "@/slices/events/phaser-events.types";
 
 export const phaserSyncMiddleware: Middleware =
   () => (next) => (action: any) => {
     // Handle Redux -> Phaser sync
     if (action.type === "inventory/setSelectedItem") {
-      console.log("SET INVETORY");
+      console.log("SELECT ITEM - REDUX: ", action.payload);
       PhaserEventBus.emit("inventory:seedSelected", action.payload);
     }
 

@@ -13,6 +13,7 @@ import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { SoundManager } from "../music-manager/sound-manager.service";
 import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
+import { PLAYER_EVENTS } from "../events/phaser-events.types";
 interface FarmingConfig {
   scene: Phaser.Scene;
   map: Phaser.Tilemaps.Tilemap;
@@ -98,7 +99,7 @@ export class FarmingSystem {
       }
     );
     PhaserEventBus.on(
-      "inventory:seedSelected",
+      PLAYER_EVENTS.SELECT_ITEM,
       (selectedSeedId: string | null) => {
         console.log("Seed selected:", selectedSeedId);
         if (selectedSeedId) {

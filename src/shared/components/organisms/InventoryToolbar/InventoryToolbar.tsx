@@ -4,7 +4,7 @@ import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { RootState } from "@/shared/services/redux-store.service";
 import { useSelector } from "react-redux";
-
+import { PLAYER_EVENTS } from "@/slices/events/phaser-events.types";
 import { ITEM_REGISTRY } from "@/slices/items/item-registry";
 
 const InventoryToolbar = () => {
@@ -35,7 +35,7 @@ const InventoryToolbar = () => {
     const index = Number(event.currentTarget.id);
     const item = toolbarItems[index];
 
-    PhaserEventBus.emit("inventory:seedSelected", item?.id);
+    PhaserEventBus.emit(PLAYER_EVENTS.SELECT_ITEM, item?.id);
   };
 
   return (
