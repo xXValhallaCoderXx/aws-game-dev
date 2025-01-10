@@ -6,9 +6,9 @@ import { WaveCombatManager } from "@/slices/wave-combat-manager/wave-combat-mang
 import { caveWaveConfigs } from "@/slices/wave-combat-manager/wave-combat.config";
 
 export class CaveMap extends BaseScene {
-  private waveCombatManager: WaveCombatManager;
-  private waveText: Phaser.GameObjects.Text;
-  private enemyCountText: Phaser.GameObjects.Text;
+  private waveCombatManager!: WaveCombatManager;
+  private waveText!: Phaser.GameObjects.Text;
+  private enemyCountText!: Phaser.GameObjects.Text;
 
   constructor() {
     super(ESCENE_KEYS.CAVE_MAP);
@@ -52,7 +52,7 @@ export class CaveMap extends BaseScene {
     super.update(time, delta);
     this.player.update(time, delta);
     if (this.waveCombatManager) {
-      this.waveCombatManager.update();
+      this.waveCombatManager.update(time, delta);
       this.updateWaveUI();
     }
   }
@@ -156,3 +156,6 @@ export class CaveMap extends BaseScene {
     });
   }
 }
+
+
+

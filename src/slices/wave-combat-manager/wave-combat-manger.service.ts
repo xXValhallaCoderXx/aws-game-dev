@@ -67,10 +67,10 @@ export class WaveCombatManager {
     });
   }
 
-  public update(): void {
+  public update(time: number, delta: number): void {
     // Clean up defeated enemies
     this.activeEnemies = this.activeEnemies.filter((enemy) => enemy.active);
-
+    this.activeEnemies.forEach((enemy) => enemy.update(time, delta));
     // Check if wave is complete
     if (this.isWaveInProgress && this.activeEnemies.length === 0) {
       this.onWaveComplete();
