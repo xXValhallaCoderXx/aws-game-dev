@@ -178,7 +178,6 @@ export class SoundManager {
     if (!this.game || this.isMusicTransitioning) return;
 
     if (this.currentMusicKey === key && this.bgMusic?.sound.isPlaying) {
-      console.log("RETURN 1");
       return;
     }
 
@@ -192,7 +191,6 @@ export class SoundManager {
         this.startNewMusic(key, musicConfig, fadeIn);
       });
     } else {
-      console.log("ELSEEEE:");
       this.startNewMusic(key, musicConfig, fadeIn);
     }
   }
@@ -382,9 +380,9 @@ export class SoundManager {
 
   private setupSceneEventListeners(scene: Scene): void {
     scene.events.on("create", () => {
-      console.log("CREATING");
+
       this.activeScene = scene;
-      console.log("SCENE: ", scene);
+
       this.handleSceneTransition(scene);
     });
 

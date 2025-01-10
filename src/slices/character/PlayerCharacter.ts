@@ -22,6 +22,7 @@ import { SoundManager } from "../music-manager/sound-manager.service";
 import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 import { FloatingText } from "@/shared/components/phaser-components/FloatingText";
 import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
+import { KEY_BINDINGS } from "@/shared/constants/key-bindings";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
@@ -88,17 +89,13 @@ export class PlayerCharacter extends BaseCharacter {
 
     this.inventory.setupKeyboardListeners(this.scene);
 
-    this.scene.input.keyboard
-      ?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
-      .on("down", () => {
-        this.roll();
-      });
+    this.scene.input.keyboard?.addKey(KEY_BINDINGS.ROLL).on("down", () => {
+      this.roll();
+    });
 
-    this.scene.input.keyboard
-      ?.addKey(Phaser.Input.Keyboard.KeyCodes.CTRL)
-      .on("down", () => {
-        this.attackOneHand();
-      });
+    this.scene.input.keyboard?.addKey(KEY_BINDINGS.ATTACK).on("down", () => {
+      this.attackOneHand();
+    });
 
     this.emitHealthStats();
 
@@ -203,15 +200,15 @@ export class PlayerCharacter extends BaseCharacter {
         frameStart: (dirIndex: number) => dirIndex * 6,
         frameEnd: (dirIndex: number) => dirIndex * 6 + 5,
       },
-      // hit: {
-      //   type: "sequential",
-      //   framesPerDirection: 8,
-      //   frameRate: 15,
-      //   repeat: 0,
-      //   spritesheet: SPRITE_SHEETS.PlayerDamage,
-      //   frameStart: (dirIndex: number) => dirIndex * 8,
-      //   frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
-      // },
+      hit: {
+        type: "sequential",
+        framesPerDirection: 8,
+        frameRate: 15,
+        repeat: 0,
+        spritesheet: SPRITE_SHEETS.PlayerDamage,
+        frameStart: (dirIndex: number) => dirIndex * 8,
+        frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
+      },
       // "critical-hit": {
       //   type: "sequential",
       //   framesPerDirection: 8,
@@ -312,7 +309,12 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   public roll(): void {
-    if (this.isRolling || this.isHarvesting) return;
+    if (
+      this.isRolling ||
+      this.isHarvesting ||
+      (this.isCarrying && this.carriedItem?.includes("seed"))
+    )
+      return;
 
     this.isRolling = true;
     const rollAnimKey = this.animations[`roll-${this.facingDirection}`];
@@ -370,15 +372,21 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   public startHarvesting(onComplete?: () => void): void {
-    if (this.isHarvesting) return;
+    if (
+      this.isHarvesting ||
+      this.isRolling ||
+      this.isAttacking ||
+      this.isDamaged ||
+      this.isKnockedBack
+    ) {
+      return;
+    }
 
     this.isHarvesting = true;
-    console.log("ANIMATIONS: ", this.animations);
+
     // Use the correct animation key from your animations object
     const harvestAnim =
       this.animations[`harvest-${this.facingDirection}` as IAnimationKey];
-
-    console.log("HARVBEST ANI: ", harvestAnim);
 
     this.play(harvestAnim, true).once("animationcomplete", () => {
       this.isHarvesting = false;
@@ -687,7 +695,9 @@ export class PlayerCharacter extends BaseCharacter {
 
     this.isDamaged = true;
     this.isKnockedBack = true;
-    const damageAnim = `player-damage-${this.facingDirection}`;
+
+    const damageAnim =
+      this.animations[`hit-${this.facingDirection}` as IAnimationKey];
 
     // Create floating damage text
     new FloatingText({

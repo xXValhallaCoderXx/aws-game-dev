@@ -53,8 +53,7 @@ export class EnemyCharacter extends BaseCharacter {
       this.patrolPoints = [...config.patrolPoints];
       this.startPatrol();
     } else {
-      console.log("MONSTER: ", this.animations);
-      console.log("PLAY THIS: ", this.animations["idle-down"]);
+
       this.play(this.animations["idle-down"], true);
     }
 
