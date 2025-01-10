@@ -182,10 +182,14 @@ export class Preloader extends Scene {
         frameHeight: 80,
       }
     );
-    this.load.spritesheet("seed-packets", "sprites/crops/seed-packets.png", {
-      frameWidth: 16,
-      frameHeight: 16,
-    });
+    this.load.spritesheet(
+      SPRITE_SHEETS.SeedPackets,
+      "sprites/crops/seed-packets.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
 
     this.load.spritesheet(
       "harvested-crops",
@@ -206,6 +210,6 @@ export class Preloader extends Scene {
     }
 
     // Start the next scene
-    this.scene.start(ESCENE_KEYS.CAVE_MAP);
+    this.scene.start(ESCENE_KEYS.HOME_MAP);
   }
 }

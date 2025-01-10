@@ -5,6 +5,7 @@ import { Scene } from "phaser";
 import { PlayerCharacter } from "../slices/character/PlayerCharacter";
 import { BaseCharacterConfig } from "@/slices/character/character.interface";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
+import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 export abstract class BaseScene extends Scene {
   protected player!: PlayerCharacter;
   protected cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -93,7 +94,8 @@ export abstract class BaseScene extends Scene {
       scene: this,
       x,
       y,
-      texture: "player-idle",
+      texture: SPRITE_SHEETS.PlayerIdle,
+      directions: ["up", "down", "left", "right"],
       characterType: "player",
       stats: {
         defense: 5,

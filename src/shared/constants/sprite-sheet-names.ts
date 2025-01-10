@@ -8,4 +8,5 @@ export const SPRITE_SHEETS = {
   PlayerIdle: "player-idle",
   PlayerRoll: "player-roll",
   PlayerWalk: "player-walk",
+  SeedPackets: "seed-packets",
 };

@@ -53,6 +53,8 @@ export class EnemyCharacter extends BaseCharacter {
       this.patrolPoints = [...config.patrolPoints];
       this.startPatrol();
     } else {
+      console.log("MONSTER: ", this.animations);
+      console.log("PLAY THIS: ", this.animations["idle-down"]);
       this.play(this.animations["idle-down"], true);
     }
 
@@ -101,6 +103,7 @@ export class EnemyCharacter extends BaseCharacter {
     this.play(hitAnim, true).once("animationcomplete", () => {
       this.isHit = false;
       // Return to idle animation
+
       const idleAnim =
         this.animations[`idle-${this.facingDirection}` as IAnimationKey];
       this.play(idleAnim, true);

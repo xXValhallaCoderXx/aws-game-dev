@@ -8,10 +8,14 @@ type InventoryItem = `${EFarmingCrops}`;
 // Define the Inventory type as a record where each key is an InventoryItem and the value is a number
 type Inventory = Record<InventoryItem, number>;
 
-export type DirectionOrder = "UDLR" | "DLRU" | "DULR"; // Add more if needed
+
 export type { InventoryItem, Inventory };
 
-export type PlayerSpecificActions = "harvest" | "carry" | "roll";
+export type PlayerSpecificActions =
+  | "roll"
+  | "attack-one-hand-sword"
+  | "carry-idle"
+  | "carry-walk";
 export type IPlayerActionType = IActionType & PlayerSpecificActions;
 export type IActionType =
   | "walk"
@@ -86,6 +90,7 @@ export interface BaseCharacterConfig {
   texture: string;
   stats: CharacterStats;
   characterType: ICharacterType;
+  directions?: Direction[];
 }
 
 export interface CharacterStats {

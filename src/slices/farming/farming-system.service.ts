@@ -12,6 +12,7 @@ import { InventoryItem } from "@/slices/character/character.interface";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { SoundManager } from "../music-manager/sound-manager.service";
 import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
+import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 interface FarmingConfig {
   scene: Phaser.Scene;
   map: Phaser.Tilemaps.Tilemap;
@@ -262,7 +263,7 @@ export class FarmingSystem {
     this.seedPacketSprite = this.scene.add.sprite(
       this.player.x,
       this.player.y - this.SEED_PACKET_OFFSET_Y,
-      "seed-packets", // Ensure 'seed-packets' sprite sheet is loaded
+      SPRITE_SHEETS.SeedPackets, // Ensure 'seed-packets' sprite sheet is loaded
       this.SEED_PACKET_FRAME_INDEX[seedType]
     );
     this.seedPacketSprite.setOrigin(0.5, 1);

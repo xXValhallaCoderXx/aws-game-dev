@@ -13,7 +13,7 @@ import {
   KnockbackConfig,
   DamageData,
   IActionType,
-  DirectionOrder,
+  PlayerSpecificActions,
 } from "./character.interface";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { INVENTORY_EVENTS } from "../events/phaser-events.types";
@@ -25,7 +25,6 @@ import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
-  protected readonly directionOrder: DirectionOrder = "DULR"; // Override to use player's order
   private attackHitboxes: Map<string, Phaser.GameObjects.Rectangle> = new Map();
 
   public carriedItem?: string;
@@ -125,43 +124,39 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   protected override getAnimationConfigs(): Record<
-    IActionType,
+    IActionType | PlayerSpecificActions,
     IAnimationConfig
   > {
+    const baseConfigs = super.getAnimationConfigs();
     return {
+      ...baseConfigs,
       walk: {
         type: "sequential",
         framesPerDirection: 6,
         frameRate: 10,
         repeat: -1,
         spritesheet: SPRITE_SHEETS.PlayerWalk,
-        frameStart: (dirIndex: number) => {
-          console.log("DIR INDEX - frame START: ", dirIndex);
-          return dirIndex * 6;
-        },
-        frameEnd: (dirIndex: number) => {
-          console.log("DIR INDEX - FRAME END: ", dirIndex);
-          return dirIndex * 6 + 5;
-        },
+        frameStart: (dirIndex: number) => dirIndex * 6,
+        frameEnd: (dirIndex: number) => dirIndex * 6 + 5,
       },
       idle: {
         type: "sequential",
         framesPerDirection: 6,
-        frameRate: 8,
+        frameRate: 5,
         repeat: -1,
         spritesheet: SPRITE_SHEETS.PlayerIdle,
         frameStart: (dirIndex: number) => dirIndex * 6,
         frameEnd: (dirIndex: number) => dirIndex * 6 + 5,
       },
-      // 'roll': {
-      //   type: 'sequential',
-      //   framesPerDirection: 9,
-      //   frameRate: 15,
-      //   repeat: 0,
-      //   spritesheet: 'player-roll',
-      //   frameStart: (dirIndex: number) => dirIndex * 9,
-      //   frameEnd: (dirIndex: number) => dirIndex * 9 + 8
-      // },
+      roll: {
+        type: "sequential",
+        framesPerDirection: 9,
+        frameRate: 15,
+        repeat: 0,
+        spritesheet: SPRITE_SHEETS.PlayerRoll,
+        frameStart: (dirIndex: number) => dirIndex * 9,
+        frameEnd: (dirIndex: number) => dirIndex * 9 + 8,
+      },
       "attack-one-hand": {
         type: "sequential",
         framesPerDirection: 9,
@@ -171,42 +166,52 @@ export class PlayerCharacter extends BaseCharacter {
         frameStart: (dirIndex: number) => dirIndex * 9,
         frameEnd: (dirIndex: number) => dirIndex * 9 + 8,
       },
-      hit: {
+      "attack-one-hand-sword": {
         type: "sequential",
-        framesPerDirection: 8,
+        framesPerDirection: 9,
         frameRate: 15,
         repeat: 0,
-        spritesheet: SPRITE_SHEETS.PlayerDamage,
-        frameStart: (dirIndex: number) => dirIndex * 8,
-        frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
+        spritesheet: SPRITE_SHEETS.PlayerAttackOneHandSword,
+        frameStart: (dirIndex: number) => dirIndex * 9,
+        frameEnd: (dirIndex: number) => dirIndex * 9 + 8,
       },
-      "critical-hit": {
+      "carry-idle": {
         type: "sequential",
-        framesPerDirection: 8,
-        frameRate: 15,
-        repeat: 0,
-        spritesheet: SPRITE_SHEETS.PlayerDamage,
-        frameStart: (dirIndex: number) => dirIndex * 8,
-        frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
+        framesPerDirection: 6,
+        frameRate: 8,
+        repeat: -1,
+        spritesheet: SPRITE_SHEETS.PlayerCarryIdle,
+        frameStart: (dirIndex: number) => dirIndex * 6,
+        frameEnd: (dirIndex: number) => dirIndex * 6 + 5,
       },
-      // 'carry-walk': {
-      //   type: 'sequential',
-      //   framesPerDirection: 6,
-      //   frameRate: 10,
-      //   repeat: -1,
-      //   spritesheet: 'player-carry-walk',
-      //   frameStart: (dirIndex: number) => dirIndex * 6,
-      //   frameEnd: (dirIndex: number) => dirIndex * 6 + 5
+      "carry-walk": {
+        type: "sequential",
+        framesPerDirection: 6,
+        frameRate: 10,
+        repeat: -1,
+        spritesheet: SPRITE_SHEETS.PlayerCarryWalk,
+        frameStart: (dirIndex: number) => dirIndex * 6,
+        frameEnd: (dirIndex: number) => dirIndex * 6 + 5,
+      },
+      // hit: {
+      //   type: "sequential",
+      //   framesPerDirection: 8,
+      //   frameRate: 15,
+      //   repeat: 0,
+      //   spritesheet: SPRITE_SHEETS.PlayerDamage,
+      //   frameStart: (dirIndex: number) => dirIndex * 8,
+      //   frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
       // },
-      // 'carry-idle': {
-      //   type: 'sequential',
-      //   framesPerDirection: 6,
-      //   frameRate: 8,
-      //   repeat: -1,
-      //   spritesheet: 'player-carry-idle',
-      //   frameStart: (dirIndex: number) => dirIndex * 6,
-      //   frameEnd: (dirIndex: number) => dirIndex * 6 + 5
+      // "critical-hit": {
+      //   type: "sequential",
+      //   framesPerDirection: 8,
+      //   frameRate: 15,
+      //   repeat: 0,
+      //   spritesheet: SPRITE_SHEETS.PlayerDamage,
+      //   frameStart: (dirIndex: number) => dirIndex * 8,
+      //   frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
       // },
+
       // 'harvest': {
       //   type: 'sequential',
       //   framesPerDirection: 6,
@@ -292,8 +297,6 @@ export class PlayerCharacter extends BaseCharacter {
         this.facingDirection
       }`;
     } else {
-      console.log("PLAYER ACTION - ", action);
-      console.log("PLAYER DIRECTION - ", this.facingDirection);
       animationKey = `player-${action.toLowerCase()}-${this.facingDirection}`;
     }
 
@@ -312,14 +315,10 @@ export class PlayerCharacter extends BaseCharacter {
     if (this.isRolling || this.isHarvesting) return;
 
     this.isRolling = true;
-    const rollAnim =
-      this.animations[`roll-${this.facingDirection}` as IAnimationKey];
+    const rollAnimKey = this.animations[`roll-${this.facingDirection}`];
 
-    this.soundManager.playSFX(ESOUND_NAMES.PLAYER_DODGE);
-    // Add a speed boost during roll
+    // Apply roll velocity first
     const rollSpeed = this.stats.speed * 1.5;
-
-    // Apply velocity based on facing direction
     switch (this.facingDirection) {
       case "up":
         this.setVelocity(0, -rollSpeed);
@@ -335,17 +334,39 @@ export class PlayerCharacter extends BaseCharacter {
         break;
     }
 
-    this.play(rollAnim, true).once("animationcomplete", () => {
+    // Play sound effect
+    this.soundManager.playSFX(ESOUND_NAMES.PLAYER_DODGE);
+
+    // Store current direction to ensure it doesn't change during roll
+    const rollDirection = this.facingDirection;
+
+    // Set up a timer to end the roll
+    this.scene.time.delayedCall(300, () => {
       this.isRolling = false;
       this.setVelocity(0, 0);
 
-      // Return to idle animation
-      const idleAnim = this.isCarrying
-        ? this.animations[`idle-${this.facingDirection}` as AnimationKeyCarry]
-        : this.animations[`idle-${this.facingDirection}` as IAnimationKey];
-
-      this.play(idleAnim, true);
+      // Return to idle animation in the same direction we started rolling
+      const idleAnimKey = this.animations[`idle-${rollDirection}`];
+      if (idleAnimKey) {
+        this.play(idleAnimKey, true);
+      }
     });
+
+    // Play the roll animation if it exists
+    try {
+      if (this.scene.anims.exists(rollAnimKey)) {
+        this.play(rollAnimKey, true);
+      } else {
+        // Fallback to walk animation if roll animation fails
+        const walkAnimKey = this.animations[`walk-${rollDirection}`];
+        if (walkAnimKey) {
+          this.play(walkAnimKey, true);
+        }
+      }
+    } catch (error) {
+      console.error("Error during roll animation:", error);
+      this.isRolling = false;
+    }
   }
 
   public startHarvesting(onComplete?: () => void): void {
@@ -458,11 +479,16 @@ export class PlayerCharacter extends BaseCharacter {
         `attack-one-hand-${this.facingDirection}` as IAnimationKey
       ];
 
+    const attackAnimSword =
+      this.animations[
+        `attack-one-hand-sword-${this.facingDirection}` as IAnimationKey
+      ];
+
     this.weaponSprite.setVisible(true);
     this.weaponSprite.setPosition(this.x, this.y);
 
     // Play both animations
-    this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
+    // this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
     // Create attack hitbox based on facing direction
     // Create attack hitbox
     const hitbox = this.createAttackHitbox(direction);
@@ -471,7 +497,8 @@ export class PlayerCharacter extends BaseCharacter {
     this.checkAttackHit(hitbox);
 
     this.play(attackAnim, true);
-    this.weaponSprite.play(`weapon-attack-${direction}`);
+    // TODO SWORD SWING
+    this.weaponSprite.play(attackAnimSword);
 
     // Listen for animation completion
     this.weaponSprite.once("animationcomplete", () => {
