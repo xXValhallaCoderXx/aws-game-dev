@@ -193,6 +193,16 @@ export class PlayerCharacter extends BaseCharacter {
         frameStart: (dirIndex: number) => dirIndex * 6,
         frameEnd: (dirIndex: number) => dirIndex * 6 + 5,
       },
+
+      harvest: {
+        type: "sequential",
+        framesPerDirection: 6,
+        frameRate: 12,
+        repeat: 0,
+        spritesheet: SPRITE_SHEETS.PlayerCropPull,
+        frameStart: (dirIndex: number) => dirIndex * 6,
+        frameEnd: (dirIndex: number) => dirIndex * 6 + 5,
+      },
       // hit: {
       //   type: "sequential",
       //   framesPerDirection: 8,
@@ -211,16 +221,6 @@ export class PlayerCharacter extends BaseCharacter {
       //   frameStart: (dirIndex: number) => dirIndex * 8,
       //   frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
       // },
-
-      // 'harvest': {
-      //   type: 'sequential',
-      //   framesPerDirection: 6,
-      //   frameRate: 12,
-      //   repeat: 0,
-      //   spritesheet: 'player-harvest',
-      //   frameStart: (dirIndex: number) => dirIndex * 6,
-      //   frameEnd: (dirIndex: number) => dirIndex * 6 + 5
-      // }
     };
   }
 
@@ -373,10 +373,12 @@ export class PlayerCharacter extends BaseCharacter {
     if (this.isHarvesting) return;
 
     this.isHarvesting = true;
-
+    console.log("ANIMATIONS: ", this.animations);
     // Use the correct animation key from your animations object
     const harvestAnim =
       this.animations[`harvest-${this.facingDirection}` as IAnimationKey];
+
+    console.log("HARVBEST ANI: ", harvestAnim);
 
     this.play(harvestAnim, true).once("animationcomplete", () => {
       this.isHarvesting = false;

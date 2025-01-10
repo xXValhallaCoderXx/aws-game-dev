@@ -15,7 +15,8 @@ export type PlayerSpecificActions =
   | "roll"
   | "attack-one-hand-sword"
   | "carry-idle"
-  | "carry-walk";
+  | "carry-walk"
+  | "harvest";
 export type IPlayerActionType = IActionType & PlayerSpecificActions;
 export type IActionType =
   | "walk"

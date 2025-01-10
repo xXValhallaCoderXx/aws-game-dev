@@ -100,11 +100,7 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
 
         const baseKey = `${this.characterType}-${action}-${direction}`;
 
-        console.log(
-          "BASE CHARACTER - ANIMATION SPRITESHEET KEY: ",
-          spriteSheetKey
-        );
-        console.log("BASE CHARACTER - ANIMATION BASE KEY: ", baseKey);
+
 
         if (!this.scene.anims.exists(baseKey)) {
           let frames;
@@ -124,18 +120,6 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
               break;
 
             case "sequential":
-              console.log(
-                "BASE CHARACTER - SEQUENTIAL - DIRECTION INDEX: ",
-                directionIndex
-              );
-              console.log(
-                "BASE CHARACTER - SEQUENTIAL - FRAME START: ",
-                config.frameStart(directionIndex)
-              );
-              console.log(
-                "BASE CHARACTER - SEQUENTIAL - FRAME END: ",
-                config.frameEnd(directionIndex)
-              );
               frames = this.scene.anims.generateFrameNumbers(spriteSheetKey, {
                 start: config.frameStart(directionIndex),
                 end: config.frameEnd(directionIndex),
@@ -143,8 +127,7 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
 
               break;
           }
-          console.log("BASE CHARACTER - CREATING ANIMS KEY : ", baseKey);
-          console.log("BASE CHARACTER - CREATING ANIMS FRAMES: ", frames);
+  
           this.scene.anims.create({
             key: baseKey,
             frames: frames,
