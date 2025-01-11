@@ -31,6 +31,54 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     ],
     value: 50,
   },
+  [GAME_ITEM_KEYS.STRENGTH_POTION_LARGE]: {
+    id: GAME_ITEM_KEYS.STRENGTH_POTION_LARGE,
+    name: "Large Strength Potion",
+    description: "Increase strength for a longer amount of time",
+    category: ItemCategory.CONSUMABLE,
+    rarity: ItemRarity.RARE,
+    sprite: {
+      spritesheetName: ICON_SPRITE_SHEETS.POTIONS.file,
+      spriteFrame: 108, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.POTIONS.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.POTIONS.width,
+    },
+    stackable: true,
+    maxStack: 99,
+    effects: [
+      {
+        type: "strength",
+        value: 10,
+        description: "Increases strength for 120 seconds",
+      },
+    ],
+    value: 300,
+  },
+  [GAME_ITEM_KEYS.STRENGTH_POTION_SMALL]: {
+    id: GAME_ITEM_KEYS.STRENGTH_POTION_SMALL,
+    name: "Small Strength Potion",
+    description: "Increase strength for a short amount of time",
+    category: ItemCategory.CONSUMABLE,
+    rarity: ItemRarity.RARE,
+    sprite: {
+      spritesheetName: ICON_SPRITE_SHEETS.POTIONS.file,
+      spriteFrame: 110, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.POTIONS.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.POTIONS.width,
+    },
+    stackable: true,
+    maxStack: 99,
+    effects: [
+      {
+        type: "strength",
+        value: 10,
+        description: "Increases strength for 30 seconds",
+      },
+    ],
+    value: 300,
+  },
   [GAME_ITEM_KEYS.HEALTH_POTION_LARGE]: {
     id: GAME_ITEM_KEYS.HEALTH_POTION_LARGE,
     name: "Large Health Potion",

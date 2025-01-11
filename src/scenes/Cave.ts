@@ -39,7 +39,7 @@ export class CaveMap extends BaseScene {
     });
 
     this.player.inventory.addItem({
-      id: GAME_ITEM_KEYS.HEALTH_POTION_SMALL,
+      id: GAME_ITEM_KEYS.STRENGTH_POTION_SMALL,
       quantity: 1,
     });
 
