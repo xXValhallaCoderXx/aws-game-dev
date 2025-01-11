@@ -110,4 +110,29 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     effects: [],
     value: 10,
   },
+  [GAME_ITEM_KEYS.GOLDEN_SWORD]: {
+    id: GAME_ITEM_KEYS.GOLDEN_SWORD,
+    name: "Golden Sword",
+    description: "A simple sword - for slaying beasts",
+    category: ItemCategory.WEAPON,
+    rarity: ItemRarity.RARE,
+    sprite: {
+      spritesheetName: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.file,
+      spriteFrame: 467, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.width,
+    },
+    stats: {
+      weight: 2,
+      damage: {
+        minDamage: 10,
+        maxDamage: 15,
+      },
+    },
+    stackable: true,
+    maxStack: 99,
+    effects: [],
+    value: 10,
+  },
 };

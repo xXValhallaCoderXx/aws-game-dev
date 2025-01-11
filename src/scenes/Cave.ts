@@ -34,7 +34,7 @@ export class CaveMap extends BaseScene {
     this.createHomeMapEntrance();
 
     this.player.inventory.addItem({
-      id: GAME_ITEM_KEYS.BASIC_SWORD,
+      id: GAME_ITEM_KEYS.GOLDEN_SWORD,
       quantity: 1,
     });
 

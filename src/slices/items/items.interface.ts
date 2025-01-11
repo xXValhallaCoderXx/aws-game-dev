@@ -18,6 +18,7 @@ export enum GAME_ITEM_KEYS {
   CAULIFLOWER_SEEDS = "cauliflower-seed",
   RADISH_SEEDS = "radish-seed",
   BASIC_SWORD = "basic-sword",
+  GOLDEN_SWORD = "golden-sword",
 }
 
 export enum ItemCategory {
