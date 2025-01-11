@@ -3,19 +3,20 @@
     display: inline-block;
   }
   
-  .avatarButton {
+  .avatarDropdownContainer {
     background: none;
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-radius: 8px;
+    background: #d4a374;
+    padding: 12px;
     transition: background 0.3s;
   }
   
-  .avatarButton:hover {
-    background: #d4a374;
+  .avatarDropdownContainer:hover {
+
+    background: #a26336;
   }
   
   .avatarIcon {
@@ -27,20 +28,24 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    width: 200px;
+  
   }
   
   .healthBar, .staminaBar {
     background: #623b1c;
-  
+    padding: 5px;
     border-radius: 5px;
     color: #fff;
     font-size: 10px;
     text-align: center;
+    border: 1.5px solid black;
   }
   
   .healthBar {
-    padding: 5px;
-    background: linear-gradient(to right, #e57373, #a26336);
+    
+   
+    background: rgb(201, 109, 109);
   }
   
   .staminaBar {
@@ -48,15 +53,13 @@
   }
   
   .dropdownMenu {
-    position: absolute;
-    top: 100%;
-    right: 0;
+  
     background: #e5b885;
     border: 2px solid #a26336;
     border-radius: 8px;
     padding: 10px;
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
-    z-index: 100;
+  
   }
   
   .dropdownItem {
