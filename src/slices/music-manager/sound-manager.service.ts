@@ -26,7 +26,12 @@ type SFXKeys =
   | ESOUND_NAMES.SWORD_SWING_BASE
   | ESOUND_NAMES.PLAYER_WALKING
   | ESOUND_NAMES.PLAYER_DODGE
-  | ESOUND_NAMES.PLAYER_GRUNT_ONE;
+  | ESOUND_NAMES.PLAYER_GRUNT_ONE
+  | ESOUND_NAMES.PLAYER_LIGHT_PUNCH
+  | ESOUND_NAMES.ZOMBIE_GROWL_1
+  | ESOUND_NAMES.ZOMBIE_GROWL_2
+  | ESOUND_NAMES.ZOMBIE_GROWL_3
+  | ESOUND_NAMES.ZOMBIE_BITE_1;
 type UIKeys = ESOUND_NAMES.HARVEST_CROP;
 
 // Define the audio configuration interface
@@ -69,6 +74,26 @@ export class SoundManager {
     sfx: {
       [ESOUND_NAMES.HARVEST_CROP]: {
         key: ESOUND_NAMES.HARVEST_CROP,
+        volume: 0.7,
+      },
+      [ESOUND_NAMES.PLAYER_LIGHT_PUNCH]: {
+        key: ESOUND_NAMES.PLAYER_LIGHT_PUNCH,
+        volume: 0.7,
+      },
+      [ESOUND_NAMES.ZOMBIE_BITE_1]: {
+        key: ESOUND_NAMES.ZOMBIE_BITE_1,
+        volume: 0.7,
+      },
+      [ESOUND_NAMES.ZOMBIE_GROWL_1]: {
+        key: ESOUND_NAMES.ZOMBIE_GROWL_1,
+        volume: 0.7,
+      },
+      [ESOUND_NAMES.ZOMBIE_GROWL_2]: {
+        key: ESOUND_NAMES.ZOMBIE_GROWL_2,
+        volume: 0.7,
+      },
+      [ESOUND_NAMES.ZOMBIE_GROWL_3]: {
+        key: ESOUND_NAMES.ZOMBIE_GROWL_3,
         volume: 0.7,
       },
       [ESOUND_NAMES.PLACE_SEED]: { key: ESOUND_NAMES.PLACE_SEED, volume: 0.6 },
@@ -380,7 +405,6 @@ export class SoundManager {
 
   private setupSceneEventListeners(scene: Scene): void {
     scene.events.on("create", () => {
-
       this.activeScene = scene;
 
       this.handleSceneTransition(scene);

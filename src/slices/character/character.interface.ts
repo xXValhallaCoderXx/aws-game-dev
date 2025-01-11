@@ -104,9 +104,10 @@ export interface CharacterStats {
   level?: number;
 }
 
-export type ICharacterType = IEnemyType | IPlayerType;
+export type ICharacterType = IEnemyType | IPlayerType | INonPlayerCharacter;
 
 export type IPlayerType = "player";
+export type INonPlayerCharacter = "guide";
 
 // Enemy Interfaces
 

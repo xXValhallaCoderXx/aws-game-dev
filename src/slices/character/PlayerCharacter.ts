@@ -609,13 +609,14 @@ export class PlayerCharacter extends BaseCharacter {
         this.weaponSprite.setVisible(true);
         this.weaponSprite.setPosition(this.x, this.y);
         this.weaponSprite.play(attackAnimSword);
+        this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
+        this.soundManager.playSFX(ESOUND_NAMES.PLAYER_GRUNT_ONE);
       }
-      console.log("MAPPED ITEM: ", mappedItem);
+    } else {
+      this.soundManager.playSFX(ESOUND_NAMES.PLAYER_GRUNT_ONE);
+      this.soundManager.playSFX(ESOUND_NAMES.PLAYER_LIGHT_PUNCH);
     }
 
-    // Play both animations
-    // this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
-    // Create attack hitbox based on facing direction
     // Create attack hitbox
     const hitbox = this.createAttackHitbox(direction);
 
@@ -623,16 +624,11 @@ export class PlayerCharacter extends BaseCharacter {
     this.checkAttackHit(hitbox);
 
     this.play(attackAnim, true);
-    // TODO SWORD SWING
-
-    // Listen for animation completion
-    this.weaponSprite.once("animationcomplete", () => {
-      this.weaponSprite.setVisible(false);
-    });
 
     this.once("animationcomplete", () => {
       this.isAttacking = false;
       hitbox.destroy();
+      this.weaponSprite.setVisible(false);
       this.attackHitboxes.delete(direction);
       // Return to idle animation
       const idleAnim =
@@ -689,10 +685,10 @@ export class PlayerCharacter extends BaseCharacter {
 
   private createAttackHitbox(direction: Direction) {
     let offset = {
-      up: { x: 0, y: -16 },
-      down: { x: 0, y: 16 },
-      left: { x: -16, y: 0 },
-      right: { x: 16, y: 0 },
+      up: { x: 0, y: -12 },
+      down: { x: 0, y: 12 },
+      left: { x: -12, y: 0 },
+      right: { x: 12, y: 0 },
     };
 
     let boxWidth = 16;
@@ -703,10 +699,10 @@ export class PlayerCharacter extends BaseCharacter {
       boxWidth = 32;
 
       offset = {
-        up: { x: 0, y: -32 },
-        down: { x: 0, y: 32 },
-        left: { x: -32, y: 0 },
-        right: { x: 32, y: 0 },
+        up: { x: 0, y: -8 },
+        down: { x: 0, y: 8 },
+        left: { x: -8, y: 0 },
+        right: { x: 8, y: 0 },
       };
     }
 

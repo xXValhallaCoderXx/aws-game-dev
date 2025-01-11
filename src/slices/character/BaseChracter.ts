@@ -8,7 +8,7 @@ import {
   IAnimationConfig,
   IActionType,
 } from "./character.interface";
-import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
+// import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 
 export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
   public scene: Scene;

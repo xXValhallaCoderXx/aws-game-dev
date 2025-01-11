@@ -12,6 +12,8 @@ import {
 import { HealthBar } from "@/shared/components/phaser-components/HealthBar";
 import { createDamageData } from "../combat/combat.utils";
 import { CharacterStats } from "./character.interface";
+import { SoundManager } from "../music-manager/sound-manager.service";
+import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 
 export class EnemyCharacter extends BaseCharacter {
   private hpBar: HealthBar;
@@ -36,6 +38,7 @@ export class EnemyCharacter extends BaseCharacter {
   private patrolPoints: PatrolPoint[] = [];
   private moveEvent: Phaser.Time.TimerEvent | null = null;
   private waitTimer: Phaser.Time.TimerEvent | null = null;
+  private soundManager: SoundManager;
 
   constructor(config: EnemyConfig) {
     super(config);
@@ -44,7 +47,7 @@ export class EnemyCharacter extends BaseCharacter {
     this.detectionRadius = config.detectionRadius;
     this.attackRange = config.attackRange;
     this.attackCooldown = config.attackCooldown;
-
+    this.soundManager = SoundManager.getInstance();
     // Initialize Graphics
     this.hpBar = new HealthBar(this.scene);
     this.debugGraphics = this.showDebug ? this.scene.add.graphics() : null;
@@ -167,7 +170,7 @@ export class EnemyCharacter extends BaseCharacter {
 
   private moveTowardsPlayer(): void {
     if (!this.target) return;
-
+    this.soundManager.playSFX(ESOUND_NAMES.ZOMBIE_GROWL_1);
     // Calculate angle to player
     const angle = Phaser.Math.Angle.Between(
       this.x,
@@ -221,6 +224,7 @@ export class EnemyCharacter extends BaseCharacter {
       { x: this.x, y: this.y }
     );
 
+    this.soundManager.playSFX(ESOUND_NAMES.ZOMBIE_BITE_1);
     // Deal damage to player with the calculated damage data
     this.target.takeDamage(damageData);
 
