@@ -98,17 +98,7 @@ export class FarmingSystem {
         }
       }
     );
-    PhaserEventBus.on(
-      PLAYER_EVENTS.SELECT_ITEM,
-      (selectedSeedId: string | null) => {
-        console.log("Seed selected:", selectedSeedId);
-        if (selectedSeedId) {
-          this.changeSelectedSeed(selectedSeedId as EFarmingCrops);
-        } else {
-          this.clearSelectedSeed();
-        }
-      }
-    );
+
 
     this.scene.events.on("inventory:update", () => {
       // Optionally, handle inventory updates (e.g., refresh UI)

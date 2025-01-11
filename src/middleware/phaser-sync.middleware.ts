@@ -22,15 +22,15 @@ import {
   updateMaxHealth,
 } from "@/slices/character/player-character.slice";
 import { InventoryItem } from "@/slices/inventory/inventory.interface";
-import { PLAYER_EVENTS } from "@/slices/events/phaser-events.types";
+// import { PLAYER_EVENTS } from "@/slices/events/phaser-events.types";
 
 export const phaserSyncMiddleware: Middleware =
   () => (next) => (action: any) => {
     // Handle Redux -> Phaser sync
-    if (action.type === "inventory/setSelectedItem") {
-      console.log("SELECT ITEM - REDUX: ", action.payload);
-      PhaserEventBus.emit("inventory:seedSelected", action.payload);
-    }
+    // if (action.type === "inventory/setSelectedItem") {
+    //   console.log("SELECT ITEM - REDUX: ", action.payload);
+    //   PhaserEventBus.emit("inventory:seedSelected", action.payload);
+    // }
 
     if (action.type === toggleSound.type) {
       if (action.payload) {
@@ -68,7 +68,7 @@ export const initializePhaserSync = (store: any) => {
     store.dispatch(disableSound());
   });
 
-  PhaserEventBus.on("inventory:itemSelected", (itemId: any) => {
+  PhaserEventBus.on(PLAYER_EVENTS.SELECT_ITEM, (itemId: string) => {
     store.dispatch(setSelectedItem(itemId));
   });
 

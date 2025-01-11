@@ -2,6 +2,7 @@ import { GAME_ITEM_KEYS } from "../items/items.interface";
 import { InventoryItem } from "./inventory.interface";
 import { INVENTORY_EVENTS } from "../events/phaser-events.types";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
+import { PLAYER_EVENTS } from "../events/phaser-events.types";
 
 interface InventoryConfig {
   maxCapacity?: number;

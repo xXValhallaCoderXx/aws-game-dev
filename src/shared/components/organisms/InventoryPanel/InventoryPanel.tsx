@@ -3,7 +3,7 @@ import { RootState } from "@/shared/services/redux-store.service";
 import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 import { useSelector } from "react-redux";
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
-
+import { PLAYER_EVENTS } from "@/slices/events/phaser-events.types";
 import { ITEM_REGISTRY } from "@/slices/items/item-registry";
 
 const InventoryPanel = () => {
@@ -13,7 +13,7 @@ const InventoryPanel = () => {
     const index = Number(event.currentTarget.id);
     const item = items[index];
 
-    PhaserEventBus.emit("inventory:seedSelected", item?.id);
+    PhaserEventBus.emit(PLAYER_EVENTS.SELECT_ITEM, item?.id);
   };
 
   // Create an array of 18 slots (2 rows x 9 columns)

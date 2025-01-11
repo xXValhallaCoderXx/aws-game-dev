@@ -2,7 +2,10 @@
 import { Scene } from "phaser";
 import { ESCENE_KEYS } from "../shared/scene-keys";
 import { ESOUND_NAMES } from "@/slices/music-manager/sound-manager.types";
-import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
+import {
+  SPRITE_SHEETS,
+  ICON_SPRITE_SHEETS,
+} from "@/shared/constants/sprite-sheet-names";
 
 export class Preloader extends Scene {
   constructor() {
@@ -183,8 +186,17 @@ export class Preloader extends Scene {
       }
     );
     this.load.spritesheet(
-      SPRITE_SHEETS.SeedPackets,
-      "sprites/crops/seed-packets.png",
+      ICON_SPRITE_SHEETS.FARMING.file,
+      ICON_SPRITE_SHEETS.FARMING.path,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet(
+      ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.file,
+      ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.path,
       {
         frameWidth: 16,
         frameHeight: 16,

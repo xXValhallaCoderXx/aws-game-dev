@@ -24,6 +24,7 @@ import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 import { KEY_BINDINGS } from "@/shared/constants/key-bindings";
 import { InventoryModifyDTO } from "../inventory/inventory.interface";
 import { GAME_ITEM_KEYS } from "../items/items.interface";
+import { ITEM_REGISTRY } from "../items/item-registry";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
@@ -36,9 +37,10 @@ export class PlayerCharacter extends BaseCharacter {
   public isAttacking: boolean = false;
   public inventory: Inventory;
 
+  private carriedItemSprite?: Phaser.GameObjects.Sprite;
   private debugGraphics: Phaser.GameObjects.Graphics | null = null;
-  private readonly showDebug: boolean =
-    import.meta.env.VITE_DEBUG_HITBOX === "true";
+  private readonly showDebug: boolean = true;
+  private readonly CARRIED_ITEM_OFFSET_Y = 8; // Adjust based on your character's size
 
   private isKnockedBack: boolean = false;
   private knockbackConfig: KnockbackConfig = {
@@ -88,6 +90,7 @@ export class PlayerCharacter extends BaseCharacter {
     );
     this.weaponSprite.setVisible(false); // Hide initially
 
+    this.setupKeyboardListeners();
     this.inventory.setupKeyboardListeners(this.scene);
 
     this.scene.input.keyboard?.addKey(KEY_BINDINGS.ROLL).on("down", () => {
@@ -220,6 +223,39 @@ export class PlayerCharacter extends BaseCharacter {
       //   frameEnd: (dirIndex: number) => dirIndex * 8 + 7,
       // },
     };
+  }
+
+  private setupKeyboardListeners(): void {
+    PhaserEventBus.on(PLAYER_EVENTS.SELECT_ITEM, (itemId: string | null) => {
+      if (itemId) {
+        this.isCarrying = true;
+        this.carriedItem = itemId;
+        // Remove existing seed packet sprite if it exists
+        if (this.carriedItemSprite) {
+          this.carriedItemSprite.destroy();
+        }
+        const mappedItem = ITEM_REGISTRY[itemId];
+
+        // Create a new seed packet sprite
+        this.carriedItemSprite = this.scene.add.sprite(
+          this.x,
+          this.y - this.CARRIED_ITEM_OFFSET_Y,
+          mappedItem.sprite.spritesheetName, // Ensure 'seed-packets' sprite sheet is loaded
+          mappedItem.sprite.spriteFrame
+        );
+        this.carriedItemSprite.setOrigin(0.5, 1);
+        this.carriedItemSprite.setDepth(this.depth + 1);
+      } else {
+        this.isCarrying = false;
+        this.carriedItem = undefined;
+
+        // Remove the seed packet sprite
+        if (this.carriedItemSprite) {
+          this.carriedItemSprite.destroy();
+          this.carriedItemSprite = undefined;
+        }
+      }
+    });
   }
 
   public handleMovement(): void {
