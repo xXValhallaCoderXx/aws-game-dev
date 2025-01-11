@@ -45,8 +45,13 @@ export class CaveMap extends BaseScene {
       quantity: 1,
     });
 
-    const x = this.player.inventory.getAllItems();
-    console.log("ALL ITEMS: ", x);
+    this.player.inventory.addItem({
+      id: GAME_ITEM_KEYS.HEALTH_POTION_SMALL,
+      quantity: 1,
+    });
+
+
+   
 
     // Initialize the wave combat manager
     // this.waveCombatManager = new WaveCombatManager(

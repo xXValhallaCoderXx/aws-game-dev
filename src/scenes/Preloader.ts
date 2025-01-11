@@ -195,6 +195,15 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
+      ICON_SPRITE_SHEETS.POTIONS.file,
+      ICON_SPRITE_SHEETS.POTIONS.path,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet(
       ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.file,
       ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.path,
       {
