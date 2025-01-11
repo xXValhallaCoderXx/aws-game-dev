@@ -50,6 +50,10 @@ export interface ItemStats {
   defense?: number;
   speed?: number;
   weight?: number;
+  damage?: {
+    minDamage: number;
+    maxDamage: number;
+  };
 }
 
 export interface ItemSprite {

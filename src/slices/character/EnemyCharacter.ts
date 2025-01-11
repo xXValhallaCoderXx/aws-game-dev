@@ -10,6 +10,8 @@ import {
   IAnimationConfig,
 } from "./character.interface";
 import { HealthBar } from "@/shared/components/phaser-components/HealthBar";
+import { createDamageData } from "../combat/combat.utils";
+import { CharacterStats } from "./character.interface";
 
 export class EnemyCharacter extends BaseCharacter {
   private hpBar: HealthBar;
@@ -53,7 +55,6 @@ export class EnemyCharacter extends BaseCharacter {
       this.patrolPoints = [...config.patrolPoints];
       this.startPatrol();
     } else {
-
       this.play(this.animations["idle-down"], true);
     }
 
@@ -211,13 +212,16 @@ export class EnemyCharacter extends BaseCharacter {
       this.animations[
         `attack-one-hand-${this.facingDirection}` as IAnimationKey
       ];
-    const damageData: DamageData = {
-      damage: this.stats.strength,
-      strength: this.stats.strength * 0.9, // Use enemy's strength stat
-      sourcePosition: { x: this.x, y: this.y },
-    };
+    if (!this.target) return;
 
-    // Deal damage to player with the damage data
+    const damageData = createDamageData(
+      this.stats,
+      this.target.getStats(),
+      undefined, // Enemies typically don't have weapons
+      { x: this.x, y: this.y }
+    );
+
+    // Deal damage to player with the calculated damage data
     this.target.takeDamage(damageData);
 
     // Play attack animation and wait for it to complete
@@ -232,6 +236,11 @@ export class EnemyCharacter extends BaseCharacter {
     this.scene.time.delayedCall(this.attackCooldown, () => {
       this.canAttack = true;
     });
+  }
+
+  // Add methods to handle stats
+  public getStats(): CharacterStats {
+    return { ...this.stats }; // Return a copy to prevent direct modification
   }
 
   update(time: number, delta: number): void {

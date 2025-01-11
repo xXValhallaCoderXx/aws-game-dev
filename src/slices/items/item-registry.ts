@@ -93,10 +93,17 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     rarity: ItemRarity.COMMON,
     sprite: {
       spritesheetName: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.file,
-      spriteFrame: 475, // Update with actual frame number
+      spriteFrame: 466, // Update with actual frame number
       spriteSize: 16,
       filepath: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.path,
       spritesheetWidth: ICON_SPRITE_SHEETS.BLACKSMITH_ICONS.width,
+    },
+    stats: {
+      weight: 2,
+      damage: {
+        minDamage: 5,
+        maxDamage: 10,
+      },
     },
     stackable: true,
     maxStack: 99,

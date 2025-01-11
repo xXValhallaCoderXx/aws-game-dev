@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { EFarmingCrops } from "@slices/farming/farming.interface";
+import { ItemStats } from "../items/items.interface";
 
 // Create a type that appends 'Seeds' to each crop type
 type InventoryItem = `${EFarmingCrops}`;
@@ -129,8 +130,9 @@ export interface PlayerConfig extends BaseCharacterConfig {}
 
 export interface DamageData {
   damage: number;
-  strength: number; // Enemy's strength stat
+  strength: number; // Attacker's strength stat
   sourcePosition: { x: number; y: number };
+  weaponStats?: ItemStats;
 }
 
 export interface KnockbackConfig {

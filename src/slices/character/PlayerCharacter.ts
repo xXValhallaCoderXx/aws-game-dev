@@ -25,6 +25,8 @@ import { KEY_BINDINGS } from "@/shared/constants/key-bindings";
 import { InventoryModifyDTO } from "../inventory/inventory.interface";
 import { GAME_ITEM_KEYS } from "../items/items.interface";
 import { ITEM_REGISTRY } from "../items/item-registry";
+import { ItemStats } from "../items/items.interface";
+import { createDamageData } from "../combat/combat.utils";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
 export class PlayerCharacter extends BaseCharacter {
@@ -589,12 +591,23 @@ export class PlayerCharacter extends BaseCharacter {
         );
       }
       if (overlapping) {
-        const damage = this.stats.strength || 10;
-        enemy.takeDamage({
-          damage,
-          strength: damage,
-          sourcePosition: { x: this.x, y: this.y },
-        });
+        let weaponStats: ItemStats | undefined;
+
+        if (this.carriedItem) {
+          const mappedItem = ITEM_REGISTRY[this.carriedItem];
+          if (mappedItem.category === "weapon") {
+            weaponStats = mappedItem.stats;
+          }
+        }
+
+        const damageData = createDamageData(
+          this.stats,
+          enemy.getStats(),
+          weaponStats,
+          { x: this.x, y: this.y }
+        );
+
+        enemy.takeDamage(damageData);
       }
     });
   }
