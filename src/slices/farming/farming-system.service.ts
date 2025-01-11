@@ -14,6 +14,7 @@ import { SoundManager } from "../music-manager/sound-manager.service";
 import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 import { PLAYER_EVENTS } from "../events/phaser-events.types";
+import { GAME_ITEM_KEYS } from "../items/items.interface";
 interface FarmingConfig {
   scene: Phaser.Scene;
   map: Phaser.Tilemaps.Tilemap;
@@ -99,7 +100,6 @@ export class FarmingSystem {
       }
     );
 
-
     this.scene.events.on("inventory:update", () => {
       // Optionally, handle inventory updates (e.g., refresh UI)
     });
@@ -137,10 +137,10 @@ export class FarmingSystem {
 
     if (!this.crops[tileKey]) {
       // Plant a new crop if the tile is farmable and player has seeds
-      const seedId = `${this.selectedSeedType}` as InventoryItem;
+      const seedId = `${this.selectedSeedType}` as GAME_ITEM_KEYS;
       const seedItem = this.player.inventory.getItem(seedId);
       if (seedItem && seedItem.quantity > 0) {
-        this.player.useItem(seedId, 1); // Deduct one seed
+        this.player.useItem({ id: seedId, quantity: 1 }); // Deduct one seed
 
         const worldX = tile.getCenterX();
         const worldY = tile.getCenterY();
@@ -193,7 +193,8 @@ export class FarmingSystem {
           delete this.crops[tileKey];
 
           // Add crop to inventory
-
+          // TODO - FIX
+          window.alert("Fix me");
           this.player.pickUpItem({
             id: this.CROP_HARVEST_CONFIG[crop.cropType as EFarmingCrops].cropId,
             name: `${crop.cropType}`,

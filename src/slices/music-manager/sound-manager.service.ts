@@ -31,7 +31,8 @@ type SFXKeys =
   | ESOUND_NAMES.ZOMBIE_GROWL_1
   | ESOUND_NAMES.ZOMBIE_GROWL_2
   | ESOUND_NAMES.ZOMBIE_GROWL_3
-  | ESOUND_NAMES.ZOMBIE_BITE_1;
+  | ESOUND_NAMES.ZOMBIE_BITE_1
+  | ESOUND_NAMES.POTION_DRINK_1;
 type UIKeys = ESOUND_NAMES.HARVEST_CROP;
 
 // Define the audio configuration interface
@@ -74,6 +75,10 @@ export class SoundManager {
     sfx: {
       [ESOUND_NAMES.HARVEST_CROP]: {
         key: ESOUND_NAMES.HARVEST_CROP,
+        volume: 0.7,
+      },
+      [ESOUND_NAMES.POTION_DRINK_1]: {
+        key: ESOUND_NAMES.POTION_DRINK_1,
         volume: 0.7,
       },
       [ESOUND_NAMES.PLAYER_LIGHT_PUNCH]: {

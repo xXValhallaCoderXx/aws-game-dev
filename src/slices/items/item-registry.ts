@@ -198,8 +198,8 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     stats: {
       weight: 2,
       damage: {
-        minDamage: 10,
-        maxDamage: 15,
+        minDamage: 45,
+        maxDamage: 60,
       },
     },
     stackable: true,

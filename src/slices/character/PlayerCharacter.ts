@@ -29,7 +29,10 @@ import { ItemStats } from "../items/items.interface";
 import { createDamageData } from "../combat/combat.utils";
 
 // NOTE - May need to make animationsCreated static to ensure only 1 instance
+import { ActiveEffects, PotionEffect } from "./potion-effects";
+
 export class PlayerCharacter extends BaseCharacter {
+  private activeEffects: ActiveEffects = {};
   private attackHitboxes: Map<string, Phaser.GameObjects.Rectangle> = new Map();
 
   public carriedItem?: string;
@@ -41,7 +44,7 @@ export class PlayerCharacter extends BaseCharacter {
 
   private carriedItemSprite?: Phaser.GameObjects.Sprite;
   private debugGraphics: Phaser.GameObjects.Graphics | null = null;
-  private readonly showDebug: boolean = true;
+  private readonly showDebug: boolean = false;
   private readonly CARRIED_ITEM_OFFSET_Y = 8; // Adjust based on your character's size
 
   private isKnockedBack: boolean = false;
@@ -68,6 +71,7 @@ export class PlayerCharacter extends BaseCharacter {
   private readonly eventConfig = {
     keyboard: [
       { key: KEY_BINDINGS.ROLL, handler: () => this.roll() },
+      { key: KEY_BINDINGS.INTERACT, handler: () => this.handleInteraction() },
       { key: KEY_BINDINGS.ATTACK, handler: () => this.attackOneHand() },
     ],
     eventBus: [
@@ -305,49 +309,6 @@ export class PlayerCharacter extends BaseCharacter {
     };
   }
 
-  private setupKeyboardListeners(): void {
-    PhaserEventBus.on(PLAYER_EVENTS.SELECT_ITEM, (itemId: string | null) => {
-      if (itemId) {
-        const mappedItem = ITEM_REGISTRY[itemId];
-
-        if (mappedItem.category === "weapon") {
-          if (this.carriedItemSprite) {
-            this.carriedItemSprite.destroy();
-          }
-          this.isCarrying = false;
-          this.carriedItem = itemId;
-          return;
-        }
-
-        this.isCarrying = true;
-        this.carriedItem = itemId;
-        // Remove existing seed packet sprite if it exists
-        if (this.carriedItemSprite) {
-          this.carriedItemSprite.destroy();
-        }
-
-        // Create a new seed packet sprite
-        this.carriedItemSprite = this.scene.add.sprite(
-          this.x,
-          this.y - this.CARRIED_ITEM_OFFSET_Y,
-          mappedItem.sprite.spritesheetName, // Ensure 'seed-packets' sprite sheet is loaded
-          mappedItem.sprite.spriteFrame
-        );
-        this.carriedItemSprite.setOrigin(0.5, 1);
-        this.carriedItemSprite.setDepth(this.depth + 1);
-      } else {
-        this.isCarrying = false;
-        this.carriedItem = undefined;
-
-        // Remove the seed packet sprite
-        if (this.carriedItemSprite) {
-          this.carriedItemSprite.destroy();
-          this.carriedItemSprite = undefined;
-        }
-      }
-    });
-  }
-
   public handleMovement(): void {
     if (
       !this.cursors ||
@@ -498,6 +459,33 @@ export class PlayerCharacter extends BaseCharacter {
     }
   }
 
+  private handleInteraction(): void {
+    if (this.isCarrying && this.carriedItem && this.carriedItemSprite) {
+      const mappedItem = ITEM_REGISTRY[this.carriedItem];
+      console.log("MAPPED ITTEM: ", mappedItem);
+      // Check if the carried item is a potion
+      if (mappedItem.category.includes("consumable")) {
+        // Try to use the potion
+        const used = this.useItem({
+          id: this.carriedItem as GAME_ITEM_KEYS,
+          quantity: 1,
+        });
+        console.log("USED: ", used);
+        if (used) {
+          // Reset carried state
+          this.isCarrying = false;
+          this.carriedItemSprite.destroy();
+          this.carriedItem = undefined;
+
+          this.carriedItemSprite = undefined;
+          // Play drinking animation
+
+          this.soundManager.playSFX(ESOUND_NAMES.POTION_DRINK_1);
+        }
+      }
+    }
+  }
+
   public startHarvesting(onComplete?: () => void): void {
     if (
       this.isHarvesting ||
@@ -567,18 +555,66 @@ export class PlayerCharacter extends BaseCharacter {
    * @param quantity The quantity to use.
    */
   public useItem(data: InventoryModifyDTO): boolean {
+    // Check if item exists in inventory before trying to use it
     const success = this.inventory.removeItem(data);
-    if (success) {
-      this.scene.events.emit("inventory:update");
-      PhaserEventBus.emit(
-        INVENTORY_EVENTS.GET_ALL_ITEMS,
-        this.inventory.getAllItems()
-      );
-      return true;
-    } else {
+    if (!success) {
       console.log(`Not enough ${data.id} to use.`);
       return false;
     }
+
+    // Handle different potion types
+    switch (data.id) {
+      case GAME_ITEM_KEYS.HEALTH_POTION_SMALL:
+        this.heal(25);
+        break;
+      case GAME_ITEM_KEYS.HEALTH_POTION_LARGE:
+        this.heal(50);
+        break;
+      case GAME_ITEM_KEYS.STRENGTH_POTION_SMALL:
+        this.applyStrengthBuff(1.5, 10000); // 1.5x strength for 10 seconds
+        break;
+      case GAME_ITEM_KEYS.STRENGTH_POTION_LARGE:
+        this.applyStrengthBuff(2, 15000); // 2x strength for 15 seconds
+        break;
+      default:
+        console.log(`Item ${data.id} cannot be consumed`);
+        return false;
+    }
+
+    // Update inventory UI
+    this.scene.events.emit("inventory:update");
+    PhaserEventBus.emit(
+      INVENTORY_EVENTS.GET_ALL_ITEMS,
+      this.inventory.getAllItems()
+    );
+    return true;
+  }
+
+  private applyStrengthBuff(multiplier: number, duration: number): void {
+    // Clear any existing strength buff
+    if (this.activeEffects.strength) {
+      clearTimeout(this.activeEffects.strength.timeout);
+    }
+
+    // Apply new strength buff
+    const baseStrength = this.stats.strength;
+    this.stats.strength *= multiplier;
+
+    // Set up the buff removal after duration
+    const effect: PotionEffect = {
+      type: "strength",
+      value: multiplier,
+      duration,
+      startTime: Date.now(),
+      timeout: setTimeout(() => {
+        this.stats.strength = baseStrength;
+        delete this.activeEffects.strength;
+        // PhaserEventBus.emit(PLAYER_EVENTS.BUFF_EXPIRED, { type: 'strength' });
+      }, duration),
+    };
+
+    this.activeEffects.strength = effect;
+    // PhaserEventBus.emit(PLAYER_EVENTS.BUFF_APPLIED, { type: 'strength', multiplier, duration });
   }
 
   public attackOneHand(): void {
@@ -699,10 +735,10 @@ export class PlayerCharacter extends BaseCharacter {
       boxWidth = 32;
 
       offset = {
-        up: { x: 0, y: -8 },
-        down: { x: 0, y: 8 },
-        left: { x: -8, y: 0 },
-        right: { x: 8, y: 0 },
+        up: { x: 0, y: -16 },
+        down: { x: 0, y: 16 },
+        left: { x: -16, y: 0 },
+        right: { x: 16, y: 0 },
       };
     }
 

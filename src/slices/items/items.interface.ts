@@ -46,7 +46,12 @@ export interface ItemEffect {
   value: number;
   duration?: number;
   description: string;
+  startTime?: number;
+  timeout?: NodeJS.Timeout;
 }
+
+
+
 
 export interface ItemStats {
   health?: number;

@@ -18,7 +18,7 @@ import { ESOUND_NAMES } from "../music-manager/sound-manager.types";
 export class EnemyCharacter extends BaseCharacter {
   private hpBar: HealthBar;
   declare body: Phaser.Physics.Arcade.Body;
-  private readonly showDebug: boolean = true;
+  private readonly showDebug: boolean = false;
   private debugGraphics: Phaser.GameObjects.Graphics | null = null;
 
   // Enemy Character State

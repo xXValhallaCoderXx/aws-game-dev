@@ -34,6 +34,11 @@ export class CaveMap extends BaseScene {
     this.createHomeMapEntrance();
 
     this.player.inventory.addItem({
+      id: GAME_ITEM_KEYS.BASIC_SWORD,
+      quantity: 1,
+    });
+
+    this.player.inventory.addItem({
       id: GAME_ITEM_KEYS.GOLDEN_SWORD,
       quantity: 1,
     });
@@ -107,7 +112,7 @@ export class CaveMap extends BaseScene {
       targetScene: ESCENE_KEYS.HOME_MAP,
       targetStartingPosition: { x: 360, y: 60 }, // Starting position in HomeMap
       comingFrom: ESCENE_KEYS.TOWN_MAP,
-      debug: true, // Set to true for debugging borders
+      debug: false, // Set to true for debugging borders
     };
     this.createEntrance(homeMapEntranceConfig);
   }

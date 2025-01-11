@@ -21,6 +21,7 @@ export class Preloader extends Scene {
       "sounds/player-light-punch.wav"
     );
     this.load.audio(ESOUND_NAMES.ZOMBIE_BITE_1, "sounds/zombie-bite-1.mp3");
+    this.load.audio(ESOUND_NAMES.POTION_DRINK_1, "sounds/potion-drink-1.wav");
     this.load.audio(ESOUND_NAMES.ZOMBIE_GROWL_1, "sounds/zombie-growl-1.mp3");
     this.load.audio(ESOUND_NAMES.ZOMBIE_GROWL_2, "sounds/zombie-growl-2.mp3");
     this.load.audio(ESOUND_NAMES.ZOMBIE_GROWL_3, "sounds/zombie-growl-3.mp3");

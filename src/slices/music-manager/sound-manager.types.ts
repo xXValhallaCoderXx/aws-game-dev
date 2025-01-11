@@ -11,4 +11,5 @@ export enum ESOUND_NAMES {
   ZOMBIE_GROWL_2 = "zombie-growl-2",
   ZOMBIE_GROWL_3 = "zombie-growl-3",
   ZOMBIE_BITE_1 = "zombie-bite-1",
+  POTION_DRINK_1 = "potion-drink-1",
 }
