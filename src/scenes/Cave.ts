@@ -44,20 +44,20 @@ export class CaveMap extends BaseScene {
     });
 
     // Initialize the wave combat manager
-    this.waveCombatManager = new WaveCombatManager(
-      this,
-      this.player,
-      caveWaveConfigs
-    );
+    // this.waveCombatManager = new WaveCombatManager(
+    //   this,
+    //   this.player,
+    //   caveWaveConfigs
+    // );
 
-    // Start listening for wave complete events
-    this.events.on("waveComplete", this.handleWaveComplete, this);
+    // // Start listening for wave complete events
+    // this.events.on("waveComplete", this.handleWaveComplete, this);
 
-    // Add UI for wave information
-    this.createWaveUI();
+    // // Add UI for wave information
+    // this.createWaveUI();
 
-    // Start the first wave
-    this.waveCombatManager.startNextWave();
+    // // Start the first wave
+    // this.waveCombatManager.startNextWave();
   }
 
   update(time: number, delta: number) {

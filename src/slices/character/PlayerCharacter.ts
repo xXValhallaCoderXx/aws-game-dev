@@ -64,6 +64,60 @@ export class PlayerCharacter extends BaseCharacter {
   private weaponSprite: Phaser.GameObjects.Sprite;
   protected cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
+  private keyboardListeners: Phaser.Input.Keyboard.Key[] = [];
+  private readonly eventConfig = {
+    keyboard: [
+      { key: KEY_BINDINGS.ROLL, handler: () => this.roll() },
+      { key: KEY_BINDINGS.ATTACK, handler: () => this.attackOneHand() },
+    ],
+    eventBus: [
+      {
+        event: PLAYER_EVENTS.SELECT_ITEM,
+        handler: (itemId: string | null) => {
+          if (itemId) {
+            const mappedItem = ITEM_REGISTRY[itemId];
+
+            if (mappedItem.category === "weapon") {
+              if (this.carriedItemSprite) {
+                this.carriedItemSprite.destroy();
+              }
+              this.isCarrying = false;
+              this.carriedItem = itemId;
+              return;
+            }
+
+            this.isCarrying = true;
+            this.carriedItem = itemId;
+            // Remove existing seed packet sprite if it exists
+            if (this.carriedItemSprite) {
+              this.carriedItemSprite.destroy();
+            }
+
+            // Create a new seed packet sprite
+            this.carriedItemSprite = this.scene.add.sprite(
+              this.x,
+              this.y - this.CARRIED_ITEM_OFFSET_Y,
+              mappedItem.sprite.spritesheetName, // Ensure 'seed-packets' sprite sheet is loaded
+              mappedItem.sprite.spriteFrame
+            );
+            this.carriedItemSprite.setOrigin(0.5, 1);
+            this.carriedItemSprite.setDepth(this.depth + 1);
+          } else {
+            this.isCarrying = false;
+            this.carriedItem = undefined;
+
+            // Remove the seed packet sprite
+            if (this.carriedItemSprite) {
+              this.carriedItemSprite.destroy();
+              this.carriedItemSprite = undefined;
+            }
+          }
+        },
+      },
+      // Add more event bus listeners here
+    ],
+  };
+
   constructor(config: PlayerConfig) {
     super(config);
     if (this.scene) {
@@ -80,7 +134,7 @@ export class PlayerCharacter extends BaseCharacter {
     this.soundManager = SoundManager.getInstance();
     this.cursors = this.scene.input.keyboard?.createCursorKeys();
     // this.carryAnimations = this.getCarryAnimations();
-    this.inventory = new Inventory({
+    this.inventory = Inventory.getInstance({
       scene: this.scene,
     });
     this.initializeStartingInventory();
@@ -92,16 +146,16 @@ export class PlayerCharacter extends BaseCharacter {
     );
     this.weaponSprite.setVisible(false); // Hide initially
 
-    this.setupKeyboardListeners();
+    this.setupListeners();
     this.inventory.setupKeyboardListeners(this.scene);
 
-    this.scene.input.keyboard?.addKey(KEY_BINDINGS.ROLL).on("down", () => {
-      this.roll();
-    });
+    // this.scene.input.keyboard?.addKey(KEY_BINDINGS.ROLL).on("down", () => {
+    //   this.roll();
+    // });
 
-    this.scene.input.keyboard?.addKey(KEY_BINDINGS.ATTACK).on("down", () => {
-      this.attackOneHand();
-    });
+    // this.scene.input.keyboard?.addKey(KEY_BINDINGS.ATTACK).on("down", () => {
+    //   this.attackOneHand();
+    // });
 
     this.emitHealthStats();
 
@@ -113,6 +167,30 @@ export class PlayerCharacter extends BaseCharacter {
     if (this.showDebug) {
       this.debugGraphics = this.scene.add.graphics();
     }
+
+    this.scene.events.once("shutdown", () => this.cleanup());
+  }
+
+  private setupListeners(): void {
+    // Setup keyboard listeners
+    if (this.scene.input.keyboard) {
+      this.eventConfig.keyboard.forEach(({ key, handler }) => {
+        this.keyboardListeners.push(
+          this.scene.input.keyboard!.addKey(key).on("down", handler)
+        );
+      });
+
+      // Add cursor keys
+      this.cursors = this.scene.input.keyboard.createCursorKeys();
+      Object.values(this.cursors).forEach((key) => {
+        this.keyboardListeners.push(key);
+      });
+    }
+
+    // Setup event bus listeners
+    this.eventConfig.eventBus.forEach(({ event, handler }) => {
+      PhaserEventBus.on(event, handler);
+    });
   }
 
   private emitHealthStats(): void {
@@ -520,23 +598,20 @@ export class PlayerCharacter extends BaseCharacter {
         `attack-one-hand-${this.facingDirection}` as IAnimationKey
       ];
 
-      if (this.carriedItem) {
-        const mappedItem = ITEM_REGISTRY[this.carriedItem];
-        if (mappedItem.category === "weapon") {
-          const attackAnimSword =
-            this.animations[
-              `attack-one-hand-sword-${this.facingDirection}` as IAnimationKey
-            ];
+    if (this.carriedItem) {
+      const mappedItem = ITEM_REGISTRY[this.carriedItem];
+      if (mappedItem.category === "weapon") {
+        const attackAnimSword =
+          this.animations[
+            `attack-one-hand-sword-${this.facingDirection}` as IAnimationKey
+          ];
 
-          this.weaponSprite.setVisible(true);
-          this.weaponSprite.setPosition(this.x, this.y);
-          this.weaponSprite.play(attackAnimSword);
-        }
-        console.log("MAPPED ITEM: ", mappedItem);
+        this.weaponSprite.setVisible(true);
+        this.weaponSprite.setPosition(this.x, this.y);
+        this.weaponSprite.play(attackAnimSword);
       }
-     
-
- 
+      console.log("MAPPED ITEM: ", mappedItem);
+    }
 
     // Play both animations
     // this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
@@ -622,7 +697,7 @@ export class PlayerCharacter extends BaseCharacter {
 
     let boxWidth = 16;
     let boxHeight = 16;
-   
+
     if (this.carriedItem) {
       boxHeight = 32;
       boxWidth = 32;
@@ -634,7 +709,6 @@ export class PlayerCharacter extends BaseCharacter {
         right: { x: 32, y: 0 },
       };
     }
- 
 
     const hitbox = this.scene.add.rectangle(
       this.x + offset[direction].x,
@@ -893,5 +967,24 @@ export class PlayerCharacter extends BaseCharacter {
     // Implement death behavior
     this.scene.scene.restart();
     // Or implement your own game over logic
+  }
+
+  private cleanup(): void {
+    // Clean up event bus listeners
+    this.eventConfig.eventBus.forEach(({ event, handler }) => {
+      PhaserEventBus.off(event, handler);
+    });
+
+    // Clean up keyboard listeners
+    this.keyboardListeners.forEach((key) => key.removeAllListeners());
+    this.keyboardListeners = [];
+
+    // Clean up game objects
+    [this.carriedItemSprite, this.weaponSprite, this.debugGraphics]
+      .filter(Boolean)
+      .forEach((obj) => obj?.destroy());
+
+    this.attackHitboxes.forEach((hitbox) => hitbox.destroy());
+    this.attackHitboxes.clear();
   }
 }

@@ -8,17 +8,35 @@ import { PLAYER_EVENTS } from "../events/phaser-events.types";
 interface InventoryConfig {
   maxCapacity?: number;
   scene: Phaser.Scene;
+  initialItems?: InventoryItem[];
 }
 
 export class Inventory {
+  private static instance: Inventory | null = null;
   private scene: Phaser.Scene;
   private inventoryItems: Map<GAME_ITEM_KEYS, InventoryItem> = new Map();
   private maxCapacity: number;
 
-  constructor({ maxCapacity = 100, scene }: InventoryConfig) {
+  constructor(config: InventoryConfig) {
     // Default capacity
-    this.maxCapacity = maxCapacity;
-    this.scene = scene;
+    this.maxCapacity = config.maxCapacity ?? 100;
+    this.scene = config.scene;
+
+    if (config.initialItems && config.initialItems.length > 0) {
+      config.initialItems.forEach((item) => {
+        this.inventoryItems.set(item.id, item);
+      });
+    }
+  }
+
+  public static getInstance(config?: InventoryConfig): Inventory {
+    if (!Inventory.instance && config) {
+      Inventory.instance = new Inventory(config);
+    }
+    if (!Inventory.instance) {
+      throw new Error("Inventory must be initialized with config first");
+    }
+    return Inventory.instance;
   }
 
   addItem(data: { id: GAME_ITEM_KEYS; quantity: number }): boolean {
@@ -125,12 +143,10 @@ export class Inventory {
         // TODO - FIX IGNORE
         // @ts-ignore
         scene.input.keyboard.on(`keydown-${key}`, () => {
-          console.log("KEY: ", keys.ONE);
-          console.log(`Key ${key} pressed`);
           const items = this.getAllItems();
           // @ts-ignore
           const selectedIndex = keyIndexMap[key] - 1; // Convert key to index
-          console.log("SELECTED INDEX: ", selectedIndex);
+
           if (items[selectedIndex]) {
             PhaserEventBus.emit(
               PLAYER_EVENTS.SELECT_ITEM,
@@ -143,28 +159,6 @@ export class Inventory {
         });
       });
 
-      // Handle numeric keys 0-9
-      // for (let i = 0; i <= 9; i++) {
-      //   const keyCode = i === 0 ? "ZERO" : `${i}`;
-      //   console.log("KEEYBOAD");
-      //   scene.input.keyboard.on(`keydown-${keyCode}`, () => {
-      //     console.log(`Key ${i} pressed`);
-      //     const items = this.getAllItems();
-      //     const selectedIndex = i === 0 ? 9 : i - 1; // Convert 0 to last position (9)
-
-      //     if (items[selectedIndex]) {
-      //       PhaserEventBus.emit(
-      //         PLAYER_EVENTS.SELECT_ITEM,
-      //         items[selectedIndex].id
-      //       );
-      //     } else {
-      //       console.log(`No item available in slot ${selectedIndex + 1}`);
-      //       PhaserEventBus.emit(PLAYER_EVENTS.SELECT_ITEM, null); // Deselect if not available
-      //     }
-      //   });
-      // }
-
-      // Keep the ESC handler for deselection
       scene.input.keyboard.on("keydown-ESC", () => {
         PhaserEventBus.emit(PLAYER_EVENTS.SELECT_ITEM, null);
       });
@@ -177,5 +171,10 @@ export class Inventory {
       console.log(`Item ${key}:`, item);
       console.log("Is frozen:", Object.isFrozen(item));
     });
+  }
+
+  // Optional: Method to update scene reference if needed
+  public updateScene(scene: Phaser.Scene): void {
+    this.scene = scene;
   }
 }
