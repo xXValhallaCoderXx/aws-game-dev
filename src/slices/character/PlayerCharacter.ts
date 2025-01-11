@@ -508,13 +508,16 @@ export class PlayerCharacter extends BaseCharacter {
         `attack-one-hand-${this.facingDirection}` as IAnimationKey
       ];
 
-    const attackAnimSword =
-      this.animations[
-        `attack-one-hand-sword-${this.facingDirection}` as IAnimationKey
-      ];
+    if (this.isCarrying) {
+      const attackAnimSword =
+        this.animations[
+          `attack-one-hand-sword-${this.facingDirection}` as IAnimationKey
+        ];
 
-    this.weaponSprite.setVisible(true);
-    this.weaponSprite.setPosition(this.x, this.y);
+      this.weaponSprite.setVisible(true);
+      this.weaponSprite.setPosition(this.x, this.y);
+      this.weaponSprite.play(attackAnimSword);
+    }
 
     // Play both animations
     // this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
@@ -527,7 +530,6 @@ export class PlayerCharacter extends BaseCharacter {
 
     this.play(attackAnim, true);
     // TODO SWORD SWING
-    this.weaponSprite.play(attackAnimSword);
 
     // Listen for animation completion
     this.weaponSprite.once("animationcomplete", () => {
@@ -581,18 +583,34 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   private createAttackHitbox(direction: Direction) {
-    const offset = {
-      up: { x: 0, y: -32 },
-      down: { x: 0, y: 32 },
-      left: { x: -32, y: 0 },
-      right: { x: 32, y: 0 },
+    let offset = {
+      up: { x: 0, y: -16 },
+      down: { x: 0, y: 16 },
+      left: { x: -16, y: 0 },
+      right: { x: 16, y: 0 },
     };
+
+    let boxWidth = 16;
+    let boxHeight = 16;
+
+    if (this.isCarrying) {
+      boxHeight = 32;
+      boxWidth = 32;
+
+      offset = {
+        up: { x: 0, y: -32 },
+        down: { x: 0, y: 32 },
+        left: { x: -32, y: 0 },
+        right: { x: 32, y: 0 },
+      };
+    }
+ 
 
     const hitbox = this.scene.add.rectangle(
       this.x + offset[direction].x,
       this.y + offset[direction].y,
-      32,
-      32,
+      boxWidth,
+      boxHeight,
       0xff0000,
       this.showDebug ? 0.4 : 0
     );

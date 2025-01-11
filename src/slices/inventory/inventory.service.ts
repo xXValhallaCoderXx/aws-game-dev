@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { GAME_ITEM_KEYS } from "../items/items.interface";
 import { InventoryItem } from "./inventory.interface";
 import { INVENTORY_EVENTS } from "../events/phaser-events.types";
@@ -88,32 +89,84 @@ export class Inventory {
    */
   public setupKeyboardListeners(scene: Phaser.Scene): void {
     if (scene.input.keyboard) {
-      // Define key mappings: keys 1, 2, 3 correspond to seed slots
-      const keyMappings: { [keyCode: string]: string } = {
-        ONE: "carrot-seed",
-        TWO: "radish-seed",
-        THREE: "cauliflower-seed",
-        // Add more mappings as needed
+      const keys = {
+        ZERO: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ZERO),
+        ONE: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE),
+        TWO: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO),
+        THREE: scene.input.keyboard.addKey(
+          Phaser.Input.Keyboard.KeyCodes.THREE
+        ),
+        FOUR: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR),
+        FIVE: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FIVE),
+        SIX: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SIX),
+        SEVEN: scene.input.keyboard.addKey(
+          Phaser.Input.Keyboard.KeyCodes.SEVEN
+        ),
+        EIGHT: scene.input.keyboard.addKey(
+          Phaser.Input.Keyboard.KeyCodes.EIGHT
+        ),
+        NINE: scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NINE),
       };
 
-      Object.entries(keyMappings).forEach(([keyCode, seedId]) => {
-        if (scene?.input?.keyboard) {
-          scene.input.keyboard.on(`keydown-${keyCode}`, () => {
-            if (this.inventoryItems.has(seedId)) {
-              scene.events.emit("inventory:seedSelected", seedId);
-            } else {
-              console.log(`No ${seedId} available in inventory.`);
-              scene.events.emit("inventory:seedSelected", null); // Deselect if not available
-            }
-          });
-        } else {
-          console.log("ERROR");
-        }
+      const keyIndexMap = {
+        ZERO: 0,
+        ONE: 1,
+        TWO: 2,
+        THREE: 3,
+        FOUR: 4,
+        FIVE: 5,
+        SIX: 6,
+        SEVEN: 7,
+        EIGHT: 8,
+        NINE: 9,
+      };
+
+      Object.keys(keys).forEach((key) => {
+        // TODO - FIX IGNORE
+        // @ts-ignore
+        scene.input.keyboard.on(`keydown-${key}`, () => {
+          console.log("KEY: ", keys.ONE);
+          console.log(`Key ${key} pressed`);
+          const items = this.getAllItems();
+          // @ts-ignore
+          const selectedIndex = keyIndexMap[key] - 1; // Convert key to index
+          console.log("SELECTED INDEX: ", selectedIndex);
+          if (items[selectedIndex]) {
+            PhaserEventBus.emit(
+              PLAYER_EVENTS.SELECT_ITEM,
+              items[selectedIndex].id
+            );
+          } else {
+            console.log(`No item available in slot ${selectedIndex + 1}`);
+            PhaserEventBus.emit(PLAYER_EVENTS.SELECT_ITEM, null); // Deselect if not available
+          }
+        });
       });
 
-      // Optionally, handle deselection with a specific key, e.g., ESC
+      // Handle numeric keys 0-9
+      // for (let i = 0; i <= 9; i++) {
+      //   const keyCode = i === 0 ? "ZERO" : `${i}`;
+      //   console.log("KEEYBOAD");
+      //   scene.input.keyboard.on(`keydown-${keyCode}`, () => {
+      //     console.log(`Key ${i} pressed`);
+      //     const items = this.getAllItems();
+      //     const selectedIndex = i === 0 ? 9 : i - 1; // Convert 0 to last position (9)
+
+      //     if (items[selectedIndex]) {
+      //       PhaserEventBus.emit(
+      //         PLAYER_EVENTS.SELECT_ITEM,
+      //         items[selectedIndex].id
+      //       );
+      //     } else {
+      //       console.log(`No item available in slot ${selectedIndex + 1}`);
+      //       PhaserEventBus.emit(PLAYER_EVENTS.SELECT_ITEM, null); // Deselect if not available
+      //     }
+      //   });
+      // }
+
+      // Keep the ESC handler for deselection
       scene.input.keyboard.on("keydown-ESC", () => {
-        scene.events.emit("inventory:seedSelected", null);
+        PhaserEventBus.emit(PLAYER_EVENTS.SELECT_ITEM, null);
       });
     }
   }
