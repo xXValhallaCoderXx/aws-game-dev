@@ -228,13 +228,23 @@ export class PlayerCharacter extends BaseCharacter {
   private setupKeyboardListeners(): void {
     PhaserEventBus.on(PLAYER_EVENTS.SELECT_ITEM, (itemId: string | null) => {
       if (itemId) {
+        const mappedItem = ITEM_REGISTRY[itemId];
+
+        if (mappedItem.category === "weapon") {
+          if (this.carriedItemSprite) {
+            this.carriedItemSprite.destroy();
+          }
+          this.isCarrying = false;
+          this.carriedItem = itemId;
+          return;
+        }
+
         this.isCarrying = true;
         this.carriedItem = itemId;
         // Remove existing seed packet sprite if it exists
         if (this.carriedItemSprite) {
           this.carriedItemSprite.destroy();
         }
-        const mappedItem = ITEM_REGISTRY[itemId];
 
         // Create a new seed packet sprite
         this.carriedItemSprite = this.scene.add.sprite(
@@ -508,16 +518,23 @@ export class PlayerCharacter extends BaseCharacter {
         `attack-one-hand-${this.facingDirection}` as IAnimationKey
       ];
 
-    if (this.isCarrying) {
-      const attackAnimSword =
-        this.animations[
-          `attack-one-hand-sword-${this.facingDirection}` as IAnimationKey
-        ];
+      if (this.carriedItem) {
+        const mappedItem = ITEM_REGISTRY[this.carriedItem];
+        if (mappedItem.category === "weapon") {
+          const attackAnimSword =
+            this.animations[
+              `attack-one-hand-sword-${this.facingDirection}` as IAnimationKey
+            ];
 
-      this.weaponSprite.setVisible(true);
-      this.weaponSprite.setPosition(this.x, this.y);
-      this.weaponSprite.play(attackAnimSword);
-    }
+          this.weaponSprite.setVisible(true);
+          this.weaponSprite.setPosition(this.x, this.y);
+          this.weaponSprite.play(attackAnimSword);
+        }
+        console.log("MAPPED ITEM: ", mappedItem);
+      }
+     
+
+ 
 
     // Play both animations
     // this.soundManager.playSFX(ESOUND_NAMES.SWORD_SWING_BASE);
@@ -592,8 +609,8 @@ export class PlayerCharacter extends BaseCharacter {
 
     let boxWidth = 16;
     let boxHeight = 16;
-
-    if (this.isCarrying) {
+   
+    if (this.carriedItem) {
       boxHeight = 32;
       boxWidth = 32;
 
