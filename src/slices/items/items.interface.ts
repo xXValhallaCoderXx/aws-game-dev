@@ -14,6 +14,9 @@ export interface GameItem {
 
 export enum GAME_ITEM_KEYS {
   HEALTH_POTION_SMALL = "health-potion-small",
+  HEALTH_POTION_LARGE = "health-potion-large",
+  STRENGTH_POTION_SMALL = "strength-potion-small",
+  STRENGTH_POTION_LARGE = "strength-potion-large",
   CARROT_SEEDS = "carrot-seed",
   CAULIFLOWER_SEEDS = "cauliflower-seed",
   RADISH_SEEDS = "radish-seed",

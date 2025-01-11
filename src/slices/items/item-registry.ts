@@ -15,7 +15,7 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
     rarity: ItemRarity.COMMON,
     sprite: {
       spritesheetName: ICON_SPRITE_SHEETS.POTIONS.file,
-      spriteFrame: 0, // Update with actual frame number
+      spriteFrame: 42, // Update with actual frame number
       spriteSize: 16,
       filepath: ICON_SPRITE_SHEETS.POTIONS.path,
       spritesheetWidth: ICON_SPRITE_SHEETS.POTIONS.width,
@@ -30,6 +30,30 @@ export const ITEM_REGISTRY: Record<string, GameItem> = {
       },
     ],
     value: 50,
+  },
+  [GAME_ITEM_KEYS.HEALTH_POTION_LARGE]: {
+    id: GAME_ITEM_KEYS.HEALTH_POTION_LARGE,
+    name: "Large Health Potion",
+    description: "Restores a large amount of health",
+    category: ItemCategory.CONSUMABLE,
+    rarity: ItemRarity.UNCOMMON,
+    sprite: {
+      spritesheetName: ICON_SPRITE_SHEETS.POTIONS.file,
+      spriteFrame: 36, // Update with actual frame number
+      spriteSize: 16,
+      filepath: ICON_SPRITE_SHEETS.POTIONS.path,
+      spritesheetWidth: ICON_SPRITE_SHEETS.POTIONS.width,
+    },
+    stackable: true,
+    maxStack: 99,
+    effects: [
+      {
+        type: "heal",
+        value: 60,
+        description: "Heals 60 HP",
+      },
+    ],
+    value: 150,
   },
   [GAME_ITEM_KEYS.CARROT_SEEDS]: {
     id: GAME_ITEM_KEYS.CARROT_SEEDS,

@@ -16,7 +16,7 @@ export const ICON_SPRITE_SHEETS = {
   POTIONS: {
     file: "potion-icons",
     path: "/sprites/items/potion-icons.png",
-    width: 672,
+    width: 576,
   },
   FARMING: {
     file: "crops-objects",

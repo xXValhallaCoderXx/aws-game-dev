@@ -43,6 +43,12 @@ export class CaveMap extends BaseScene {
       quantity: 1,
     });
 
+
+    this.player.inventory.addItem({
+      id: GAME_ITEM_KEYS.HEALTH_POTION_LARGE,
+      quantity: 1,
+    });
+
     // Initialize the wave combat manager
     this.waveCombatManager = new WaveCombatManager(
       this,
