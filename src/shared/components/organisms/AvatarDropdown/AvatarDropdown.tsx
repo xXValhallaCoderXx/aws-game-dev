@@ -26,6 +26,8 @@ const ProfileAvatar = () => {
   const handleToggleSettings = () => {
     dispatch(toggleSettings(!isSettingsOpen));
   };
+  const maxHealth = 120;
+  const healthPercentage = (health / maxHealth) * 100;
 
   return (
     <Menu.Root>
@@ -48,8 +50,14 @@ const ProfileAvatar = () => {
           </div>
           <div>
             <div className={styles.healthBarContainer}>
-              <div style={{ color: "black" }} className={styles.healthBar}>
-                Health: {health}
+              <div
+                style={{
+                  color: "black",
+                  background: `linear-gradient(to right, #ff5555 ${healthPercentage}%, #d4a374 ${healthPercentage}%)`,
+                }}
+                className={styles.healthBar}
+              >
+                Health: {health}/{maxHealth}
               </div>
               <div className={styles.staminaBar}>Stamina: 60%</div>
             </div>
