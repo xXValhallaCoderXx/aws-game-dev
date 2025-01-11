@@ -816,6 +816,15 @@ export class PlayerCharacter extends BaseCharacter {
       this.weaponSprite.setDepth(this.depth);
     }
 
+    // Add this: Update carried item position
+    if (this.carriedItemSprite) {
+      this.carriedItemSprite.setPosition(
+        this.x,
+        this.y - this.CARRIED_ITEM_OFFSET_Y
+      );
+      this.carriedItemSprite.setDepth(this.depth + 1);
+    }
+
     // Draw debug visualizations
     if (this.showDebug) {
       this.drawDebugHitAreas();
