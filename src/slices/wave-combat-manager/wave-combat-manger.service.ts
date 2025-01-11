@@ -42,8 +42,7 @@ export class WaveCombatManager {
         // Random position calculation (you might want to adjust these values)
         const x = Math.random() * 400 + 100; // Assuming map boundaries
         const y = Math.random() * 200 + 100;
-        console.log("Spawning enemy at", x, y);
-        console.log("PLAYER: ", this.player);
+
         const enemy = new EnemyCharacter({
           scene: this.scene,
           x,

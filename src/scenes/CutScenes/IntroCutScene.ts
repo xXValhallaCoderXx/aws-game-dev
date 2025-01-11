@@ -10,7 +10,6 @@ export class IntroCutScene extends BaseScene {
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private waterAnimatedLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private backgroundMusic: Phaser.Sound.BaseSound | null = null;
-  private cutsceneStep: number = 0;
 
   constructor() {
     super(ESCENE_KEYS.INTRO_CUTSCENE);
@@ -51,11 +50,11 @@ export class IntroCutScene extends BaseScene {
     this.input.enabled = false;
     // this.player.setVisible(false); // Optionally hide the player during the cutscene
 
-    // Create Guide NPC starting further away
+    // Create Guide NPC
     this.guideNPC = new GuideCharacter({
       scene: this,
-      x: 400, // Start further away
-      y: 200,
+      x: 250,
+      y: 100,
       texture: "guide-idle",
       characterType: "guide",
       stats: {
@@ -65,13 +64,8 @@ export class IntroCutScene extends BaseScene {
         speed: 2,
         strength: 10,
       },
+
       dialogues: [
-        {
-          key: "initial",
-          dialogues: [
-            { speaker: "Guide", text: "Oh! A new visitor to our village!" },
-          ],
-        },
         {
           key: "start",
           dialogues: [
@@ -114,19 +108,17 @@ export class IntroCutScene extends BaseScene {
           ],
         },
       ],
-      initialBranchKey: "initial",
+      initialBranchKey: "start",
     });
 
     // Make sure the guide is added to the scene and visible
     this.add.existing(this.guideNPC);
     this.guideNPC.setDepth(10); // Set a depth value higher than the map layers
 
-    // Start with initial dialogue
-    this.startCutsceneSequence();
-
-    // Listen for dialogue choices and end events
-    PhaserEventBus.on("choose-dialogue", this.handleDialogueChoice, this);
-    PhaserEventBus.on("cutscene-end", this.handleDialogueEnd, this);
+    // Start Dialogue
+    this.guideNPC.initiateDialogue();
+    // Listen for cutscene-end event to transition to HomeMap
+    PhaserEventBus.on("cutscene-end", this.endCutscene, this);
   }
 
   protected createMap(): void {
@@ -203,50 +195,6 @@ export class IntroCutScene extends BaseScene {
 
     if (this.waterAnimatedLayer) {
       this.waterAnimatedLayer.setCollisionByProperty({ collides: true });
-    }
-  }
-
-  private startCutsceneSequence() {
-    // Start with initial greeting
-    this.guideNPC.initiateDialogue();
-  }
-
-  private handleDialogueEnd = () => {
-    this.cutsceneStep++;
-    
-    switch (this.cutsceneStep) {
-      case 1:
-        // After initial greeting, move closer to player
-        this.guideNPC.moveAlongPath(
-          [{ x: 250, y: 100 }],
-          150,
-          () => {
-            // After reaching the position, start main dialogue
-            this.time.delayedCall(500, () => {
-              this.guideNPC.handleDialogueChoice("start");
-            });
-          }
-        );
-        break;
-      
-      case 2:
-        // Final step - end cutscene
-        this.endCutscene();
-        break;
-    }
-  }
-
-  private handleDialogueChoice = (choice: string) => {
-    if (choice === "startAdventure") {
-      // Move to a new position before ending
-      this.guideNPC.moveAlongPath(
-        [{ x: 200, y: 150 }],
-        150,
-        () => this.endCutscene()
-      );
-    } else {
-      // For "tellMore", just continue the dialogue
-      this.guideNPC.initiateDialogue();
     }
   }
 
