@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BaseCharacter } from "./BaseChracter";
 import type {
   BaseCharacterConfig,
@@ -7,6 +8,7 @@ import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 import { GAME_ITEM_KEYS } from "../items/items.interface";
 import { IActionType, IAnimationConfig } from "./character.interface";
 import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
+import { KEY_BINDINGS } from "@/shared/constants/key-bindings";
 
 interface SpiritCharacterConfig extends BaseCharacterConfig {
   questItem: GAME_ITEM_KEYS;
@@ -23,6 +25,11 @@ export class SpiritCharacter extends BaseCharacter {
   private rewards: SpiritCharacterConfig["rewards"];
   private dialogueListener: (branchKey: string) => void;
 
+  private interactionRadius: number = 100;
+  private playerRef: Phaser.GameObjects.GameObject | null = null;
+
+  private keyboardListeners: Phaser.Input.Keyboard.Key[] = [];
+
   constructor(config: SpiritCharacterConfig) {
     super({
       ...config,
@@ -34,8 +41,23 @@ export class SpiritCharacter extends BaseCharacter {
     this.rewards = config.rewards;
 
     // Bind the dialogue choice handler
+    this.setupListeners();
     this.dialogueListener = this.handleDialogueChoice.bind(this);
     PhaserEventBus.on("choose-dialogue", this.dialogueListener);
+
+    // Create interaction circle for debug visualization
+    if (process.env.NODE_ENV === "development") {
+      const circle = this.scene.add.circle(
+        this.x,
+        this.y,
+        this.interactionRadius,
+        0x00ff00,
+        0.2
+      );
+      this.scene.events.on("update", () => {
+        circle.setPosition(this.x, this.y);
+      });
+    }
   }
 
   protected override getAnimationConfigs(): Record<
@@ -66,7 +88,40 @@ export class SpiritCharacter extends BaseCharacter {
     };
   }
 
-  public initiateDialogue() {
+  public setPlayer(player: Phaser.GameObjects.GameObject) {
+    this.playerRef = player;
+  }
+
+  private isPlayerInRange(): boolean {
+    console.log("IS THERE A PLAYER REF: ", this.playerRef);
+    if (!this.playerRef) return false;
+
+    const distance = Phaser.Math.Distance.Between(
+      this.x,
+      this.y,
+      (this.playerRef as any).x,
+      (this.playerRef as any).y
+    );
+
+    return distance <= this.interactionRadius;
+  }
+
+  private setupListeners(): void {
+    // Add interaction key listener
+    if (this.scene.input.keyboard) {
+      this.keyboardListeners.push(
+        this.scene.input.keyboard
+          .addKey(KEY_BINDINGS.INTERACT)
+          .on("down", () => {
+            if (this.isPlayerInRange()) {
+              this.initiateDialogue();
+            }
+          })
+      );
+    }
+  }
+
+  private initiateDialogue() {
     const dialogueBranch: DialogueBranch = {
       key: "spirit-initial",
       dialogues: [

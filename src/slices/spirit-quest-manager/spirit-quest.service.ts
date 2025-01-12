@@ -16,21 +16,24 @@ export class SpiritManager {
   private spawnTimer: Phaser.Time.TimerEvent | null = null;
   private currentSpirit: SpiritCharacter | null = null;
   private questConfigs: SpiritQuestConfig[];
+  private player: Phaser.GameObjects.GameObject;
 
-  constructor(scene: Scene) {
+  constructor(scene: Scene, player: Phaser.GameObjects.GameObject) {
     this.scene = scene;
+
+    this.player = player;
     // Example quest configurations - can be expanded
     this.questConfigs = [
       {
-        questItem: GAME_ITEM_KEYS.HEALTH_POTION_SMALL,
-        questAmount: 5,
+        questItem: GAME_ITEM_KEYS.CARROT_SEEDS,
+        questAmount: 1,
         rewards: {
           gold: 100,
         },
       },
       {
-        questItem: GAME_ITEM_KEYS.HEALTH_POTION_SMALL,
-        questAmount: 3,
+        questItem: GAME_ITEM_KEYS.CARROT_SEEDS,
+        questAmount: 1,
         rewards: {
           items: [{ item: GAME_ITEM_KEYS.HEALTH_POTION_LARGE, amount: 2 }],
         },
@@ -40,8 +43,8 @@ export class SpiritManager {
   }
 
   public startRandomSpawning(
-    minInterval: number = 5000,
-    maxInterval: number = 10000
+    minInterval: number = 1000,
+    maxInterval: number = 2000
   ) {
     // Start the spawn timer (default 5-10 minutes)
     this.scheduleNextSpawn(minInterval, maxInterval);
@@ -56,7 +59,7 @@ export class SpiritManager {
 
   private scheduleNextSpawn(minInterval: number, maxInterval: number) {
     const delay = Phaser.Math.Between(minInterval, maxInterval);
-    console.log("SCENENEE: ", this.scene);
+
     this.spawnTimer = this.scene.time.addEvent({
       delay,
       callback: () => {
@@ -115,9 +118,11 @@ export class SpiritManager {
     this.currentSpirit.once("destroy", () => {
       this.currentSpirit = null;
     });
-
-    // Start the initial dialogue
-    this.currentSpirit.initiateDialogue();
+    console.log("PLAAAAYER: ", this.player);
+    // Set up the spirit with player reference for interaction checking
+    if (this.player) {
+      this.currentSpirit.setPlayer(this.player);
+    }
   }
 
   public destroy() {

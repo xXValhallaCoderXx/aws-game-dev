@@ -33,7 +33,6 @@ export class HomeMap extends BaseScene {
 
   constructor() {
     super(ESCENE_KEYS.HOME_MAP);
-    this.spiritManager = new SpiritManager(this);
   }
 
   protected getDefaultStartingPosition(): { x: number; y: number } {
@@ -191,10 +190,12 @@ export class HomeMap extends BaseScene {
 
     // Then call parent's create which will handle player creation and camera setup
     super.create();
+    console.log("CON: ", this.player);
+    this.spiritManager = new SpiritManager(this, this.player);
     this.createDoor();
-    
+
     // Start spirit spawning after scene is fully initialized
-    this.spiritManager.startRandomSpawning();
+
     this.isDoorOpen = false;
 
     // Create the building entrance zone
@@ -235,6 +236,7 @@ export class HomeMap extends BaseScene {
       // harvestCropSound: this.harvestCropSound,
     });
 
+    this.spiritManager.startRandomSpawning();
     // Initialize the Animated Tile System with all animated layers
     this.animatedTileSystem = new AnimatedTileSystem(this, this.map, [
       this.waterAnimatedLayer!,
