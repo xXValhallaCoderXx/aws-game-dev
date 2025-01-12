@@ -153,14 +153,6 @@ export class PlayerCharacter extends BaseCharacter {
     this.setupListeners();
     this.inventory.setupKeyboardListeners(this.scene);
 
-    // this.scene.input.keyboard?.addKey(KEY_BINDINGS.ROLL).on("down", () => {
-    //   this.roll();
-    // });
-
-    // this.scene.input.keyboard?.addKey(KEY_BINDINGS.ATTACK).on("down", () => {
-    //   this.attackOneHand();
-    // });
-
     this.emitHealthStats();
 
     PhaserEventBus.emit(

@@ -62,6 +62,33 @@ export class Preloader extends Scene {
     );
 
     this.load.spritesheet(
+      SPRITE_SHEETS.SpiritNormal,
+      `sprites/characters/enemy/${SPRITE_SHEETS.SpiritNormal}.png`,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet(
+      SPRITE_SHEETS.SpiritRare,
+      `sprites/characters/enemy/${SPRITE_SHEETS.SpiritRare}.png`,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet(
+      SPRITE_SHEETS.SpiritEpic,
+      `sprites/characters/enemy/${SPRITE_SHEETS.SpiritEpic}.png`,
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
+
+    this.load.spritesheet(
       "slime-epic",
       "sprites/characters/enemy/slime-epic.png",
       {

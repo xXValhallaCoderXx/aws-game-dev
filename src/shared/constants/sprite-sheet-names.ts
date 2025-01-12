@@ -10,6 +10,9 @@ export const SPRITE_SHEETS = {
   PlayerWalk: "player-walk",
   SeedPackets: "seed-packets",
   PotionIcons: "potion-icons",
+  SpiritNormal: "spirit-normal",
+  SpiritRare: "spirit-rare",
+  SpiritEpic: "spirit-epic",
 };
 
 export const ICON_SPRITE_SHEETS = {

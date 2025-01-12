@@ -96,10 +96,14 @@ export abstract class BaseCharacter extends Phaser.Physics.Arcade.Sprite {
 
     this.directions.forEach((direction, directionIndex) => {
       Object.entries(configs).forEach(([action, config]) => {
+        
+        console.log("CONFIG : ", config);
+        console.log("TEXTURE: ", this.texture);
         const spriteSheetKey = config?.spritesheet ?? this.texture.key;
+         console.log("SPRITE SHEET KEY: ", spriteSheetKey);
+         const baseKey = `${this.characterType}-${action}-${direction}`;
 
-        const baseKey = `${this.characterType}-${action}-${direction}`;
-
+         console.log("BASE KEY: ", baseKey);
 
 
         if (!this.scene.anims.exists(baseKey)) {

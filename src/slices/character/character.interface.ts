@@ -106,7 +106,7 @@ export interface CharacterStats {
 export type ICharacterType = IEnemyType | IPlayerType | INonPlayerCharacter;
 
 export type IPlayerType = "player";
-export type INonPlayerCharacter = "guide";
+export type INonPlayerCharacter = "guide" | "spirit-normal";
 
 // Enemy Interfaces
 

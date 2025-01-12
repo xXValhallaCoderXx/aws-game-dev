@@ -5,9 +5,10 @@ import { ESCENE_KEYS } from "../shared/scene-keys";
 import { FarmingSystem } from "../slices/farming/farming-system.service";
 import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
-
+import { SpiritManager } from "@/slices/spirit-quest-manager/spirit-quest.service";
 
 export class HomeMap extends BaseScene {
+  private spiritManager: SpiritManager;
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private waterAnimatedLayer: Phaser.Tilemaps.TilemapLayer | null = null;
@@ -32,6 +33,7 @@ export class HomeMap extends BaseScene {
 
   constructor() {
     super(ESCENE_KEYS.HOME_MAP);
+    this.spiritManager = new SpiritManager(this);
   }
 
   protected getDefaultStartingPosition(): { x: number; y: number } {
@@ -190,6 +192,9 @@ export class HomeMap extends BaseScene {
     // Then call parent's create which will handle player creation and camera setup
     super.create();
     this.createDoor();
+    
+    // Start spirit spawning after scene is fully initialized
+    this.spiritManager.startRandomSpawning();
     this.isDoorOpen = false;
 
     // Create the building entrance zone
@@ -424,5 +429,9 @@ export class HomeMap extends BaseScene {
       debug: false, // Set to true for debugging borders
     };
     this.createEntrance(townEntranceConfig);
+  }
+
+  cleanup() {
+    this.spiritManager.destroy();
   }
 }
