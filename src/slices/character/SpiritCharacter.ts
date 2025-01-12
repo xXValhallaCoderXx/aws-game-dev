@@ -9,6 +9,8 @@ import { GAME_ITEM_KEYS } from "../items/items.interface";
 import { IActionType, IAnimationConfig } from "./character.interface";
 import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 import { KEY_BINDINGS } from "@/shared/constants/key-bindings";
+import { Inventory } from "../inventory/inventory.service";
+import { INVENTORY_EVENTS } from "../events/phaser-events.types";
 
 interface SpiritCharacterConfig extends BaseCharacterConfig {
   questItem: GAME_ITEM_KEYS;
@@ -164,12 +166,9 @@ export class SpiritCharacter extends BaseCharacter {
         break;
       case "check-inventory":
         console.log("CHECKING INVETORY: ", this.playerRef);
-        PhaserEventBus.emit(
-          "check-inventory",
-          (inventory: Record<string, number>) => {
-            this.checkQuestCompletion(inventory);
-          }
-        );
+        PhaserEventBus.emit("check-inventory", () => {
+          this.checkQuestCompletion();
+        });
         break;
       case "delay-completion":
         PhaserEventBus.emit("show-dialogue", {
@@ -196,7 +195,9 @@ export class SpiritCharacter extends BaseCharacter {
         },
       ],
     };
+
     PhaserEventBus.emit("show-dialogue", dialogueBranch);
+    this.fadeAway();
   }
 
   private handleQuestRejected() {
@@ -213,32 +214,14 @@ export class SpiritCharacter extends BaseCharacter {
     this.fadeAway();
   }
 
-  public checkQuestCompletion(inventory?: Record<string, number>) {
-    console.log("CHECK COMPLETEION: ", inventory);
-    if (!inventory) {
-      const dialogueBranch: DialogueBranch = {
-        key: "quest-progress",
-        dialogues: [
-          {
-            speaker: "Spirit",
-            text: `Have you gathered the ${this.questAmount} ${this.questItem} I requested?`,
-          },
-        ],
-        choices: [
-          {
-            text: "Let me check",
-            nextBranch: "check-inventory",
-          },
-          {
-            text: "Not yet",
-            nextBranch: "delay-completion",
-          },
-        ],
-      };
-      PhaserEventBus.emit("show-dialogue", dialogueBranch);
-      return;
-    }
-    if (inventory[this.questItem] >= this.questAmount) {
+  public checkQuestCompletion() {
+    const inventoryInstance = Inventory.getInstance();
+    const questItem = inventoryInstance.getItem(
+      this.questItem as GAME_ITEM_KEYS
+    );
+    const itemQuantity = questItem?.quantity || 0;
+
+    if (itemQuantity >= this.questAmount) {
       const dialogueBranch: DialogueBranch = {
         key: "can-complete",
         dialogues: [
@@ -280,6 +263,15 @@ export class SpiritCharacter extends BaseCharacter {
       amount: this.questAmount,
     });
 
+    const inventoryInstance = Inventory.getInstance();
+    inventoryInstance.removeItem({
+      id: this.questItem,
+      quantity: this.questAmount,
+    });
+    const items = inventoryInstance.getAllItems();
+
+    PhaserEventBus.emit(INVENTORY_EVENTS.GET_ALL_ITEMS, items);
+
     // Give rewards
     if (this.rewards.gold) {
       PhaserEventBus.emit("add-gold", this.rewards.gold);
@@ -309,10 +301,7 @@ export class SpiritCharacter extends BaseCharacter {
   }
 
   private fadeAway() {
-    this.play("spirit-fade");
-    this.once("animationcomplete", () => {
-      this.destroy();
-    });
+    this.destroy();
   }
 
   public destroy(fromScene?: boolean): void {
