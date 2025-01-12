@@ -28,7 +28,7 @@ const App = () => {
           id="top-right-container"
           style={{
             position: "absolute",
-            right: 10,
+            right: 0,
             top: 0,
             zIndex: 10,
           }}

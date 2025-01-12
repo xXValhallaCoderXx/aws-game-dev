@@ -5,10 +5,11 @@ import classes from "./sprite-icon.module.css";
 interface ISpriteIconProps {
   iconWidth?: number;
   iconHeight?: number;
-  hotkeyNumber: number;
+  hotkeyNumber?: number;
   itemCount: number;
   data?: any;
   isEmpty?: boolean;
+  scale?: number;
   onClick?: (iconInfo: any) => void;
   spriteSheet: {
     path: string;
@@ -23,12 +24,12 @@ const SpriteIconNew: FC<ISpriteIconProps> = ({
   iconWidth = 16,
   hotkeyNumber,
   itemCount,
+  scale = 2,
   onClick,
   data,
   spriteSheet,
   isEmpty = false,
 }) => {
-  const scale = 2;
   // Calculate sprite position based on frameNumber
   const spritesPerRow = Math.floor(
     spriteSheet.spritesheetWidth / spriteSheet.spriteSize

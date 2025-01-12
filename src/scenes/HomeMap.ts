@@ -406,7 +406,7 @@ export class HomeMap extends BaseScene {
       targetScene: ESCENE_KEYS.TOWN_MAP,
       targetStartingPosition: { x: 25, y: 205 }, // Starting position in TownMap
       comingFrom: ESCENE_KEYS.HOME_MAP,
-      debug: true, // Set to true for debugging borders
+      debug: false, // Set to true for debugging borders
     };
     this.createEntrance(townEntranceConfig);
   }
@@ -421,7 +421,7 @@ export class HomeMap extends BaseScene {
       targetScene: ESCENE_KEYS.CAVE_MAP,
       targetStartingPosition: { x: 90, y: 330 }, // Starting position in TownMap
       comingFrom: ESCENE_KEYS.HOME_MAP,
-      debug: true, // Set to true for debugging borders
+      debug: false, // Set to true for debugging borders
     };
     this.createEntrance(townEntranceConfig);
   }

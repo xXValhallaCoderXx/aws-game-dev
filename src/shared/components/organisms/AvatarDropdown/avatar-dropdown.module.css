@@ -11,6 +11,7 @@
     align-items: center;
     background: #d4a374;
     padding: 12px;
+    gap: 8px;
     transition: background 0.3s;
   }
   
