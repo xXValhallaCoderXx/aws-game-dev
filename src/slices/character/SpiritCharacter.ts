@@ -93,7 +93,6 @@ export class SpiritCharacter extends BaseCharacter {
   }
 
   private isPlayerInRange(): boolean {
-    console.log("IS THERE A PLAYER REF: ", this.playerRef);
     if (!this.playerRef) return false;
 
     const distance = Phaser.Math.Distance.Between(
@@ -121,7 +120,14 @@ export class SpiritCharacter extends BaseCharacter {
     }
   }
 
+  private questAccepted = false;
+
   private initiateDialogue() {
+    if (this.questAccepted) {
+      this.checkQuestCompletion();
+      return;
+    }
+
     const dialogueBranch: DialogueBranch = {
       key: "spirit-initial",
       dialogues: [
@@ -156,10 +162,31 @@ export class SpiritCharacter extends BaseCharacter {
       case "complete-quest":
         this.completeQuest();
         break;
+      case "check-inventory":
+        console.log("CHECKING INVETORY: ", this.playerRef);
+        PhaserEventBus.emit(
+          "check-inventory",
+          (inventory: Record<string, number>) => {
+            this.checkQuestCompletion(inventory);
+          }
+        );
+        break;
+      case "delay-completion":
+        PhaserEventBus.emit("show-dialogue", {
+          key: "delay-completion",
+          dialogues: [
+            {
+              speaker: "Spirit",
+              text: "I will await your return.",
+            },
+          ],
+        });
+        break;
     }
   }
 
   private handleQuestAccepted() {
+    this.questAccepted = true;
     const dialogueBranch: DialogueBranch = {
       key: "quest-accepted",
       dialogues: [
@@ -186,7 +213,31 @@ export class SpiritCharacter extends BaseCharacter {
     this.fadeAway();
   }
 
-  public checkQuestCompletion(inventory: Record<string, number>) {
+  public checkQuestCompletion(inventory?: Record<string, number>) {
+    console.log("CHECK COMPLETEION: ", inventory);
+    if (!inventory) {
+      const dialogueBranch: DialogueBranch = {
+        key: "quest-progress",
+        dialogues: [
+          {
+            speaker: "Spirit",
+            text: `Have you gathered the ${this.questAmount} ${this.questItem} I requested?`,
+          },
+        ],
+        choices: [
+          {
+            text: "Let me check",
+            nextBranch: "check-inventory",
+          },
+          {
+            text: "Not yet",
+            nextBranch: "delay-completion",
+          },
+        ],
+      };
+      PhaserEventBus.emit("show-dialogue", dialogueBranch);
+      return;
+    }
     if (inventory[this.questItem] >= this.questAmount) {
       const dialogueBranch: DialogueBranch = {
         key: "can-complete",
