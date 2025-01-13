@@ -18,17 +18,18 @@
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx": {
             "scale": 1.274017857142857,
-            "selectedLayer": 7,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 280.2158525474806,
-                "y": 279.82339337024314
+                "x": 251.95879178639007,
+                "y": 286.1027402060411
             }
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#buildings-main": {
             "scaleInDock": 1
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#caves-main": {
-            "scaleInDock": 1
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#crops-tiles-main": {
             "scaleInDock": 1
@@ -37,6 +38,12 @@
             "scaleInDock": 2
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#terrain-village-2": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#village-nature-objects": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#village-objects": {
             "scaleInDock": 1
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#water-blank": {
@@ -82,10 +89,10 @@
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx"
     ],
     "project": "",
-    "property.type": "string",
+    "property.type": "bool",
     "recentFiles": [
-        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
-        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx"
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx",
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {

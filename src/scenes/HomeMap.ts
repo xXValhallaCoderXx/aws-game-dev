@@ -21,7 +21,10 @@ export class HomeMap extends BaseScene {
   private playerNearDoor: boolean = false; // Track if player is near the door
   private spaceKey!: Phaser.Input.Keyboard.Key;
   private buildingBaseLayer: Phaser.Tilemaps.TilemapLayer | null = null;
+  private grassLayerAccessories: Phaser.Tilemaps.TilemapLayer | null = null;
+  private grassLayerAccessories2: Phaser.Tilemaps.TilemapLayer | null = null;
   private buildingRoofLayer: Phaser.Tilemaps.TilemapLayer | null = null;
+  private caveWallLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   private buildingRoofAccessoriesLayer: Phaser.Tilemaps.TilemapLayer | null =
     null;
 
@@ -129,7 +132,7 @@ export class HomeMap extends BaseScene {
     }
 
     this.map.createLayer("GrassBaseLayer", terrainVillage1Tileset, 0, 0);
-    this.map.createLayer(
+    this.grassLayerAccessories = this.map.createLayer(
       "GrassAccessoriesLayer",
       [terrainVillage1Tileset, villageNatureObjectsTileset],
       0,
@@ -176,11 +179,16 @@ export class HomeMap extends BaseScene {
       0
     );
 
-    this.map.createLayer("CaveWalls", caveWallsTileset, 0, 0);
+    this.caveWallLayer = this.map.createLayer(
+      "CaveWalls",
+      caveWallsTileset,
+      0,
+      0
+    );
     this.map.createLayer("CaveEntrance", caveWallsTileset, 0, 0);
     this.map.createLayer("CaveWallAccessories", caveWallsTileset, 0, 0);
 
-    this.map.createLayer(
+    this.grassLayerAccessories2 = this.map.createLayer(
       "GrassAcessoriesLayer2",
       [villageNatureObjectsTileset, villageObjectsTileset],
       0,
@@ -191,6 +199,18 @@ export class HomeMap extends BaseScene {
       this.farmableLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
         tile.properties.farmable = true;
       });
+    }
+
+    if (this.grassLayerAccessories) {
+      this.grassLayerAccessories.setCollisionByProperty({ collides: true });
+    }
+
+    if (this.caveWallLayer) {
+      this.caveWallLayer.setCollisionByProperty({ collides: true });
+    }
+
+    if (this.grassLayerAccessories2) {
+      this.grassLayerAccessories2.setCollisionByProperty({ collides: true });
     }
 
     if (this.waterLayer) {
@@ -297,6 +317,15 @@ export class HomeMap extends BaseScene {
   }
 
   private setupCollisions(): void {
+    if (this.caveWallLayer && this.player) {
+      this.physics.add.collider(this.player, this.caveWallLayer);
+    }
+    if (this.grassLayerAccessories && this.player) {
+      this.physics.add.collider(this.player, this.grassLayerAccessories);
+    }
+    if (this.grassLayerAccessories2 && this.player) {
+      this.physics.add.collider(this.player, this.grassLayerAccessories2);
+    }
     if (this.waterLayer && this.player) {
       this.physics.add.collider(this.player, this.waterLayer);
     }
