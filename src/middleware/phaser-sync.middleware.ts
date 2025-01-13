@@ -7,6 +7,7 @@ import {
   INVENTORY_EVENTS,
   SYSTEM_EVENTS,
   EventPayloads,
+  MERCHANT_EVENTS,
 } from "@/slices/events/phaser-events.types";
 import {
   updateItems,
@@ -18,6 +19,7 @@ import {
   enableSound,
   disableSound,
   setIsMerchantStoreOpen,
+  setMerchantItems,
 } from "@/slices/platform/game.slice";
 import {
   updateHealth,
@@ -62,6 +64,10 @@ export const initializePhaserSync = (store: any) => {
 
   PhaserEventBus.on(SYSTEM_EVENTS.SET_MERCHANT_STORE_UI, (isOpen: boolean) => {
     store.dispatch(setIsMerchantStoreOpen(isOpen));
+  });
+
+  PhaserEventBus.on(MERCHANT_EVENTS.GET_ITEMS, (data: any) => {
+    store.dispatch(setMerchantItems(data));
   });
 
   PhaserEventBus.on(INVENTORY_EVENTS.GET_GOLD, (gold: number) => {

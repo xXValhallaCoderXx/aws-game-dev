@@ -9,7 +9,7 @@ import {
   PlayerSpecificActions,
   IAnimationConfig,
 } from "../character/character.interface";
-import { SYSTEM_EVENTS } from "../events/phaser-events.types";
+import { MERCHANT_EVENTS, SYSTEM_EVENTS } from "../events/phaser-events.types";
 
 export class Merchant extends BaseCharacter {
   private merchantId: string;
@@ -178,12 +178,6 @@ export class Merchant extends BaseCharacter {
         this.width,
         this.height
       );
-      console.log("Interaction zone created at:", {
-        x: this.x,
-        y: this.y,
-        width: this.width + 32,
-        height: this.height + 32,
-      });
     }
   }
 
@@ -277,6 +271,7 @@ export class Merchant extends BaseCharacter {
 
   private openMerchantUI(): void {
     PhaserEventBus.emit(SYSTEM_EVENTS.SET_MERCHANT_STORE_UI, true);
+    PhaserEventBus.emit(MERCHANT_EVENTS.GET_ITEMS, this.inventory);
   }
 
   private startRestockTimer(): void {

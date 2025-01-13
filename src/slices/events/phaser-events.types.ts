@@ -21,6 +21,12 @@ export enum PLAYER_EVENTS {
   GET_PLAYER_STATS = "player:get-stats",
 }
 
+export enum MERCHANT_EVENTS {
+  GET_ITEMS = "merchant:get-items",
+}
+
+
+
 export interface EventPayloads {
   [PLAYER_EVENTS.HEALTH_CHANGED]: number;
   [PLAYER_EVENTS.HEALTH_INITIALIZED]: number;

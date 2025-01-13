@@ -4,6 +4,7 @@ import { ESCENE_KEYS } from "@shared/scene-keys";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 import { Merchant } from "@/slices/merchant/MerchantCharacter";
+import { GAME_ITEM_KEYS } from "@/slices/items/items.interface";
 
 export class TownMap extends BaseScene {
   constructor() {
@@ -97,7 +98,7 @@ export class TownMap extends BaseScene {
       {
         id: "weapon-smith",
         name: "Marcus the Blacksmith",
-        type: "weaponsmith",
+        type: "merchant-blacksmith",
         x: 345,
         y: 265,
         texture: "blacksmith-merchant-idle",
@@ -106,13 +107,18 @@ export class TownMap extends BaseScene {
         restockInterval: 300000, // 5 minutes
         possibleItems: [
           {
-            id: "iron-sword",
-            name: "Iron Sword",
+            id: GAME_ITEM_KEYS.BASIC_SWORD,
+
             price: 100,
-            quantity: 0,
+            quantity: 1,
             maxQuantity: 3,
-            type: "weapon",
-            description: "A basic iron sword",
+          },
+          {
+            id: GAME_ITEM_KEYS.GOLDEN_SWORD,
+
+            price: 2000,
+            quantity: 1,
+            maxQuantity: 3,
           },
           // Add more weapons...
         ],
@@ -143,7 +149,7 @@ export class TownMap extends BaseScene {
       {
         id: "weapon-smith",
         name: "Marcus the Blacksmith",
-        type: "weaponsmith",
+        type: "merchant-blacksmith",
         x: 265,
         y: 265,
         texture: "blacksmith-merchant-idle",
@@ -152,13 +158,18 @@ export class TownMap extends BaseScene {
         restockInterval: 300000, // 5 minutes
         possibleItems: [
           {
-            id: "iron-sword",
-            name: "Iron Sword",
+            id: GAME_ITEM_KEYS.BASIC_SWORD,
+
             price: 100,
-            quantity: 0,
+            quantity: 1,
             maxQuantity: 3,
-            type: "weapon",
-            description: "A basic iron sword",
+          },
+          {
+            id: GAME_ITEM_KEYS.GOLDEN_SWORD,
+
+            price: 2000,
+            quantity: 1,
+            maxQuantity: 3,
           },
           // Add more weapons...
         ],
@@ -189,7 +200,7 @@ export class TownMap extends BaseScene {
       {
         id: "weapon-smith",
         name: "Marcus the Blacksmith",
-        type: "weaponsmith",
+        type: "merchant-blacksmith",
         x: 425,
         y: 265,
         texture: "blacksmith-merchant-idle",
@@ -198,13 +209,18 @@ export class TownMap extends BaseScene {
         restockInterval: 300000, // 5 minutes
         possibleItems: [
           {
-            id: "iron-sword",
-            name: "Iron Sword",
+            id: GAME_ITEM_KEYS.BASIC_SWORD,
+
             price: 100,
-            quantity: 0,
+            quantity: 1,
             maxQuantity: 3,
-            type: "weapon",
-            description: "A basic iron sword",
+          },
+          {
+            id: GAME_ITEM_KEYS.GOLDEN_SWORD,
+
+            price: 2000,
+            quantity: 1,
+            maxQuantity: 3,
           },
           // Add more weapons...
         ],

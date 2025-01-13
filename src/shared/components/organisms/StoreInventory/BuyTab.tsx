@@ -16,7 +16,10 @@ interface SelectedItem {
 const MerchantBuyTab: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
   const playerGold = useSelector((state: RootState) => state.inventory.gold);
-  const merchantItems: any = [];
+  const merchantItems = useSelector(
+    (state: RootState) => state.platform.merchantItems
+  );
+  console.log("MERCHANT ITEMS: ", merchantItems);
   const handlePurchase = (items: any[]) => {
     // Handle purchase logic here
     console.log("Purchasing items:", items);

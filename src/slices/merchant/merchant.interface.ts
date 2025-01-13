@@ -1,19 +1,20 @@
 // src/interfaces/merchant.interface.ts
-export interface IMerchantInventoryItem {
-  id: string;
-  name: string;
+
+import { InventoryItem } from "../inventory/inventory.interface";
+
+export interface IMerchantInventoryItem extends InventoryItem {
   price: number;
-  quantity: number;
+
   maxQuantity: number;
   restockTime?: number; // Time in milliseconds
-  description?: string;
-  type: "weapon" | "armor" | "potion" | "misc";
 }
+
+
 
 export interface IMerchantConfig {
   id: string;
   name: string;
-  type: "weaponsmith" | "alchemist" | "generalStore";
+  type: "merchant-blacksmith" | "merchant-general";
   startingGold: number;
   maxGold: number;
   restockInterval: number; // Time in milliseconds

@@ -80,15 +80,12 @@ export const PhaserGame = forwardRef<PhaserGameRef, PhaserGameProps>(
 
         // Fetch active scenes
         const activeScenes = game.current?.scene.getScenes(true); // 'true' to include active scenes
-        console.log(
-          `Active scenes:`,
-          activeScenes?.map((scene: any) => scene.scene.key)
-        );
+   
 
         const activeScene =
           activeScenes && activeScenes.length > 0 ? activeScenes[0] : null;
         const activeSceneKey = activeScene?.scene.key;
-        console.log(`Active scene key: ${activeSceneKey}`);
+      
 
         if (activeScene && activeSceneKey) {
           const phaserScene = game.current?.scene.getScene(

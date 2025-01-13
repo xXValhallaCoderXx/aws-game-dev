@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -5,12 +6,14 @@ export interface IPlatformState {
   isMerchantStoreOpen: boolean;
   isSettingsOpen: boolean;
   isSoundEnabled: boolean;
+  merchantItems: any;
 }
 
 const initialState: IPlatformState = {
   isSettingsOpen: false,
   isSoundEnabled: true,
   isMerchantStoreOpen: false,
+  merchantItems: [],
 };
 
 export const platformSlice = createSlice({
@@ -32,6 +35,9 @@ export const platformSlice = createSlice({
     setIsMerchantStoreOpen(state, action: PayloadAction<boolean>) {
       state.isMerchantStoreOpen = action.payload;
     },
+    setMerchantItems(state, action: any) {
+      state.merchantItems = action.payload;
+    },
   },
 });
 
@@ -42,6 +48,7 @@ export const {
   enableSound,
   disableSound,
   setIsMerchantStoreOpen,
+  setMerchantItems,
 } = platformSlice.actions;
 
 export default platformSlice.reducer;
