@@ -4,6 +4,7 @@ export const INVENTORY_EVENTS = {
   ITEM_UPDATED: "inventory:itemUpdated",
   INVENTORY_CHANGED: "inventory:changed",
   GET_ALL_ITEMS: "inventory:getAllItems",
+  GET_GOLD: "inventory:getGold",
 } as const;
 
 export const SYSTEM_EVENTS = {

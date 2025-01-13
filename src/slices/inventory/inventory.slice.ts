@@ -4,11 +4,13 @@ import { InventoryItem } from "./inventory.interface";
 
 interface InventoryState {
   items: InventoryItem[];
+  gold: number;
   selectedItem: string | null;
 }
 
 const initialState: InventoryState = {
   items: [],
+  gold: 0,
   selectedItem: null,
 };
 
@@ -22,8 +24,11 @@ export const inventorySlice = createSlice({
     setSelectedItem: (state, action: PayloadAction<string | null>) => {
       state.selectedItem = action.payload;
     },
+    setGold: (state, action: PayloadAction<number>) => {
+      state.gold = action.payload;
+    },
   },
 });
 
-export const { updateItems, setSelectedItem } = inventorySlice.actions;
+export const { updateItems, setSelectedItem, setGold } = inventorySlice.actions;
 export default inventorySlice.reducer;

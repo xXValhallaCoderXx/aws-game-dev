@@ -9,6 +9,7 @@ interface InventoryConfig {
   maxCapacity?: number;
   scene: Phaser.Scene;
   initialItems?: InventoryItem[];
+  initialGold?: number;
 }
 
 export class Inventory {
@@ -16,11 +17,13 @@ export class Inventory {
   private scene: Phaser.Scene;
   private inventoryItems: Map<GAME_ITEM_KEYS, InventoryItem> = new Map();
   private maxCapacity: number;
+  private gold: number = 0;
 
   constructor(config: InventoryConfig) {
     // Default capacity
     this.maxCapacity = config.maxCapacity ?? 100;
     this.scene = config.scene;
+    this.gold = config.initialGold ?? 0;
 
     if (config.initialItems && config.initialItems.length > 0) {
       config.initialItems.forEach((item) => {
@@ -37,6 +40,18 @@ export class Inventory {
       throw new Error("Inventory must be initialized with config first");
     }
     return Inventory.instance;
+  }
+
+  private setGold(amount: number): void {
+    this.gold = amount;
+  }
+
+  public addGold(amount: number): void {
+    this.setGold(this.gold + amount);
+  }
+
+  public getGold(): number {
+    return this.gold;
   }
 
   addItem(data: { id: GAME_ITEM_KEYS; quantity: number }): boolean {

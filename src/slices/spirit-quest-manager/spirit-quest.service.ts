@@ -43,6 +43,7 @@ export class SpiritManager {
         questAmount: 1,
         rewards: {
           items: [{ item: GAME_ITEM_KEYS.HEALTH_POTION_LARGE, amount: 2 }],
+          gold: 50,
         },
       },
       // Add more configurations as needed

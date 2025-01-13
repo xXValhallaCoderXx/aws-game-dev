@@ -282,7 +282,7 @@ export class SpiritCharacter extends BaseCharacter {
 
     // Give rewards
     if (this.rewards.gold) {
-      PhaserEventBus.emit("add-gold", this.rewards.gold);
+      inventoryInstance.addGold(this.rewards.gold);
     }
 
     if (this.rewards.items) {
@@ -295,8 +295,10 @@ export class SpiritCharacter extends BaseCharacter {
     }
 
     const items = inventoryInstance.getAllItems();
+    const gold = inventoryInstance.getGold();
 
     PhaserEventBus.emit(INVENTORY_EVENTS.GET_ALL_ITEMS, items);
+    PhaserEventBus.emit(INVENTORY_EVENTS.GET_GOLD, gold);
 
     const dialogueBranch: DialogueBranch = {
       key: "quest-complete",

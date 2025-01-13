@@ -11,6 +11,7 @@ import {
 import {
   updateItems,
   setSelectedItem,
+  setGold,
 } from "@slices/inventory/inventory.slice";
 import {
   toggleSound,
@@ -57,6 +58,10 @@ export const initializePhaserSync = (store: any) => {
       store.dispatch(updateItems(items));
     }
   );
+
+  PhaserEventBus.on(INVENTORY_EVENTS.GET_GOLD, (gold: number) => {
+    store.dispatch(setGold(gold));
+  });
 
   PhaserEventBus.on(SYSTEM_EVENTS.ENABLE_MUSIC, () => {
     console.log("PHASER MIDDLEWARE - EVENT ON - ENABLE MUSIC");

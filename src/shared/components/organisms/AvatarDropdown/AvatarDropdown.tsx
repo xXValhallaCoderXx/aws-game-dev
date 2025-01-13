@@ -9,6 +9,7 @@ import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 const ProfileAvatar = () => {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
+  const { gold } = useSelector((state: RootState) => state.inventory);
   const health = useSelector((state: RootState) => state.player.health);
   const avatarRef = useRef(null); // Create a ref for the dropdown container
 
@@ -79,7 +80,7 @@ const ProfileAvatar = () => {
             <div
               style={{ display: "flex", justifyContent: "start", fontSize: 14 }}
             >
-              Gold: 0
+              Gold: {gold}
             </div>
           </div>
         </div>
