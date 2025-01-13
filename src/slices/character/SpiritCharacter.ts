@@ -43,6 +43,18 @@ export class SpiritCharacter extends BaseCharacter {
     this.questAmount = config.questAmount;
     this.rewards = config.rewards;
 
+    // Enable physics for the spirit character
+    this.scene.physics.add.existing(this);
+    const body = this.body as Phaser.Physics.Arcade.Body;
+
+    if (body) {
+      body.setImmovable(true); // Spirit won't move when player collides
+      // Adjust collision box size (adjust values as needed)
+      body.setSize(this.width * 0.6, this.height * 0.6);
+      // Center the collision box
+      body.setOffset(this.width * 0.2, this.height * 0.2);
+    }
+
     // Bind the dialogue choice handler
     this.setupListeners();
     this.dialogueListener = this.handleDialogueChoice.bind(this);
@@ -93,6 +105,16 @@ export class SpiritCharacter extends BaseCharacter {
 
   public setPlayer(player: Phaser.GameObjects.GameObject) {
     this.playerRef = player;
+    // Add collision between player and spirit
+    if (this.scene && this.playerRef) {
+      this.scene.physics.add.collider(
+        this.playerRef,
+        this,
+        undefined,
+        undefined,
+        this
+      );
+    }
   }
 
   private isPlayerInRange(): boolean {
