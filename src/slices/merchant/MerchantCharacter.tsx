@@ -21,6 +21,7 @@ export class Merchant extends BaseCharacter {
   private maxGold: number;
   private restockInterval: number;
   private possibleItems: IMerchantInventoryItem[];
+  private isPlayerInRange: boolean = false;
   private dialogue: {
     greeting: string[];
     farewell: string[];
@@ -135,6 +136,28 @@ export class Merchant extends BaseCharacter {
 
     this.scene.physics.add.existing(interactionZone);
 
+    const zoneBody = interactionZone.body as Phaser.Physics.Arcade.Body;
+    if (zoneBody) {
+      zoneBody.setAllowGravity(false);
+      zoneBody.moves = false;
+    }
+
+    // Add update callback to check if player is still in range
+    this.scene.events.on("update", () => {
+      const wasInRange = this.isPlayerInRange;
+      this.isPlayerInRange = this.scene.physics.overlap(
+        this.player,
+        interactionZone
+      );
+
+      // If player just left the range
+      if (wasInRange && !this.isPlayerInRange) {
+        console.log("Player left merchant interaction zone");
+        // Close the merchant UI
+        PhaserEventBus.emit(SYSTEM_EVENTS.SET_MERCHANT_STORE_UI, false);
+      }
+    });
+
     // Handle player overlap
     this.scene.physics.add.overlap(this.player, interactionZone, () => {
       if (
@@ -166,22 +189,60 @@ export class Merchant extends BaseCharacter {
 
   private interact(): void {
     console.log("Merchant interaction triggered");
-    // Show greeting dialogue
-    const greeting =
-      this.dialogue.greeting[
-        Math.floor(Math.random() * this.dialogue.greeting.length)
-      ];
 
-    PhaserEventBus.emit(SYSTEM_EVENTS.SET_MERCHANT_STORE_UI, true);
+    // Create dialogue branch for merchant
+    const dialogueBranch = {
+      key: "merchant-initial",
+      dialogues: [
+        {
+          speaker: this.merchantName,
+          text: this.dialogue.greeting[
+            Math.floor(Math.random() * this.dialogue.greeting.length)
+          ],
+        },
+      ],
+      choices: [
+        {
+          text: "Let's trade",
+          nextBranch: "open-merchant",
+        },
+        {
+          text: "Goodbye",
+          nextBranch: "farewell",
+        },
+      ],
+    };
 
-    // Emit event to show merchant UI
-    PhaserEventBus.emit("show-merchant-ui", {
-      merchantId: this.merchantId,
-      merchantName: this.merchantName,
-      inventory: this.inventory,
-      gold: this.gold,
-      greeting,
-    });
+    // Setup dialogue choice handler
+    const handleDialogueChoice = (chosenBranch: string) => {
+      console.log("DIALOGUE CHOSEN: ", chosenBranch);
+      switch (chosenBranch) {
+        case "open-merchant":
+          this.openMerchantUI();
+          break;
+        case "farewell":
+          PhaserEventBus.emit("show-dialogue", {
+            speaker: this.merchantName,
+            text: this.dialogue.farewell[
+              Math.floor(Math.random() * this.dialogue.farewell.length)
+            ],
+          });
+          break;
+      }
+    };
+
+    // Setup one-time listener for dialogue choice
+    const dialogueListener = (choice: string) => {
+      handleDialogueChoice(choice);
+      // Remove listener after handling choice
+      PhaserEventBus.off("choose-dialogue", dialogueListener);
+    };
+
+    // Add listener for dialogue choice
+    PhaserEventBus.on("choose-dialogue", dialogueListener);
+
+    // Show initial dialogue
+    PhaserEventBus.emit("show-dialogue", dialogueBranch);
   }
 
   private restockInventory(): void {
@@ -212,6 +273,10 @@ export class Merchant extends BaseCharacter {
       inventory: this.inventory,
       gold: this.gold,
     });
+  }
+
+  private openMerchantUI(): void {
+    PhaserEventBus.emit(SYSTEM_EVENTS.SET_MERCHANT_STORE_UI, true);
   }
 
   private startRestockTimer(): void {

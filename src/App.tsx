@@ -50,6 +50,7 @@ const App = () => {
           }}
         >
           <GameManagerWindow />
+          <StoreInventoryWindow />
         </div>
 
         {/* Center bottom container */}
@@ -66,7 +67,7 @@ const App = () => {
           }}
         >
           <Dialogue />
-          <StoreInventoryWindow />
+
           <PopoverDialogue />
           <InventoryToolbar />
         </div>

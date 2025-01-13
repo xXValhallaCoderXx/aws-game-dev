@@ -1,14 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import styles from "./inventory-panel.module.css";
 import { useSelector } from "react-redux";
 import { RootState } from "@/shared/services/redux-store.service";
 import SellTab from "./SellTab";
 import BuyTab from "./BuyTab";
-
-const TABS = [
-  { key: "buy", label: "Buy", component: BuyTab },
-  { key: "sell", label: "Sell", component: SellTab },
-];
 
 const StoreInventoryWindow = () => {
   const { isMerchantStoreOpen } = useSelector(
@@ -17,6 +13,15 @@ const StoreInventoryWindow = () => {
   const [activeTab, setActiveTab] = useState("buy");
 
   if (!isMerchantStoreOpen) return null;
+
+  const TABS = [
+    {
+      key: "buy",
+      label: "Buy",
+      component: BuyTab,
+    },
+    { key: "sell", label: "Sell", component: SellTab },
+  ];
 
   const ActiveTabComponent = TABS.find(
     (tab) => tab.key === activeTab
