@@ -6,8 +6,6 @@ import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
 import { Merchant } from "@/slices/merchant/MerchantCharacter";
 
 export class TownMap extends BaseScene {
-  private backgroundMusic: Phaser.Sound.BaseSound | null = null;
-
   constructor() {
     super(ESCENE_KEYS.TOWN_MAP);
   }
@@ -23,7 +21,6 @@ export class TownMap extends BaseScene {
     this.load.image("terrain-city", "tilesets/terrain-city.png");
     this.load.image("market-canopies", "tilesets/market-canopies.png");
     this.load.image("market-objects", "tilesets/market-objects.png");
-    this.load.audio("backgroundMusic", "sounds/main-bgm.mp3");
 
     this.load.spritesheet(
       SPRITE_SHEETS.BlacksmithMerchantIdle,
@@ -39,14 +36,6 @@ export class TownMap extends BaseScene {
     super.create();
 
     this.createMap();
-
-    this.backgroundMusic = this.sound.add("backgroundMusic", {
-      volume: 0.2,
-      loop: true,
-    });
-
-    // Play the background music
-    // this.backgroundMusic.play();
 
     this.createHomeMapEntrance();
 
