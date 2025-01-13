@@ -6,9 +6,11 @@
     "activeFile": "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx",
     "expandedProjectPaths": [
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
-            "scaleInDock": 1
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "#caves-main": {
             "scaleInDock": 1
@@ -18,10 +20,10 @@
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx": {
             "scale": 1.274017857142857,
-            "selectedLayer": 2,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 251.95879178639007,
-                "y": 286.1027402060411
+                "x": 248.81911836849113,
+                "y": 286.8876585605158
             }
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#buildings-main": {
@@ -91,8 +93,8 @@
     "project": "",
     "property.type": "bool",
     "recentFiles": [
-        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx",
-        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx"
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {

@@ -19,6 +19,8 @@ export class TownMap extends BaseScene {
     this.load.tilemapTiledJSON("town-map", "maps/town-map.json");
     this.load.image("terrain-village-1", "tilesets/terrain-village-1.png");
     this.load.image("terrain-city", "tilesets/terrain-city.png");
+    this.load.image("market-canopies", "tilesets/market-canopies.png");
+    this.load.image("market-objects", "tilesets/market-objects.png");
     this.load.audio("backgroundMusic", "sounds/main-bgm.mp3");
   }
 
@@ -55,12 +57,38 @@ export class TownMap extends BaseScene {
       "terrain-city"
     );
 
-    if (!terrainVillageTileset1 || !terrainCityTileset) {
+    const marketCanopiesTileset = this.map.addTilesetImage(
+      "market-canopies",
+      "market-canopies"
+    );
+
+    const marketObjectsTileset = this.map.addTilesetImage(
+      "market-objects",
+      "market-objects"
+    );
+
+    if (
+      !terrainVillageTileset1 ||
+      !terrainCityTileset ||
+      !marketCanopiesTileset ||
+      !marketObjectsTileset
+    ) {
       throw new Error("Failed to load terrain tileset");
     }
 
     this.map.createLayer("GrassLayer", terrainVillageTileset1, 0, 0);
-    this.map.createLayer("CityPathLayer", terrainCityTileset, 0, 0);
+    this.map.createLayer(
+      "CityPathLayer",
+      [terrainCityTileset, terrainVillageTileset1],
+      0,
+      0
+    );
+    this.map.createLayer("PathAccessories", terrainVillageTileset1, 0, 0);
+    this.map.createLayer("MarketBaseLayer", terrainVillageTileset1, 0, 0);
+    this.map.createLayer("MarketShopLayer", marketObjectsTileset, 0, 0);
+    this.map.createLayer("MarketCanopyLayer", marketCanopiesTileset, 0, 0);
+   
+   
   }
 
   private createHomeMapEntrance(): void {
