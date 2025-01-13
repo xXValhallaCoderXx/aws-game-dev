@@ -26,6 +26,7 @@ export class SpiritCharacter extends BaseCharacter {
   private questAmount: number;
   private rewards: SpiritCharacterConfig["rewards"];
   private dialogueListener: (branchKey: string) => void;
+  private isDebugEnabled: boolean = false;
 
   private interactionRadius: number = 100;
   private playerRef: Phaser.GameObjects.GameObject | null = null;
@@ -48,7 +49,7 @@ export class SpiritCharacter extends BaseCharacter {
     PhaserEventBus.on("choose-dialogue", this.dialogueListener);
 
     // Create interaction circle for debug visualization
-    if (process.env.NODE_ENV === "development") {
+    if (this.isDebugEnabled) {
       const circle = this.scene.add.circle(
         this.x,
         this.y,
@@ -125,6 +126,10 @@ export class SpiritCharacter extends BaseCharacter {
   private questAccepted = false;
 
   private initiateDialogue() {
+    console.log(
+      "SPIRIT CHARACTER - INITIATE DIALOGUE - QUEST ACCEPTED?? ",
+      this.questAccepted
+    );
     if (this.questAccepted) {
       this.checkQuestCompletion();
       return;
@@ -135,7 +140,11 @@ export class SpiritCharacter extends BaseCharacter {
       dialogues: [
         {
           speaker: "Spirit",
-          text: `Greetings, traveler. I seek ${this.questAmount} ${this.questItem}. Will you help me?`,
+          text: `Ohh, hello! You...You see me?. I don't know how I got here, but I need help.`,
+        },
+        {
+          speaker: "Spirit",
+          text: `I feel so scared,  Could you help me gather them ${this.questAmount} ${this.questItem}(s), I miss those.`,
         },
       ],
       choices: [
@@ -154,6 +163,7 @@ export class SpiritCharacter extends BaseCharacter {
   }
 
   private handleDialogueChoice(nextBranchKey: string) {
+    console.log("SPRITI CHARACTER - HANDLE DIALOGUE CHOICE: ", nextBranchKey);
     switch (nextBranchKey) {
       case "accept-quest":
         this.handleQuestAccepted();
@@ -186,6 +196,10 @@ export class SpiritCharacter extends BaseCharacter {
 
   private handleQuestAccepted() {
     this.questAccepted = true;
+    console.log(
+      "SPIRIT CHARACTER - HANDLE QUEST ACCEPTED: ",
+      this.questAccepted
+    );
     const dialogueBranch: DialogueBranch = {
       key: "quest-accepted",
       dialogues: [
@@ -197,7 +211,7 @@ export class SpiritCharacter extends BaseCharacter {
     };
 
     PhaserEventBus.emit("show-dialogue", dialogueBranch);
-    this.fadeAway();
+    // this.fadeAway();
   }
 
   private handleQuestRejected() {
@@ -211,14 +225,17 @@ export class SpiritCharacter extends BaseCharacter {
       ],
     };
     PhaserEventBus.emit("show-dialogue", dialogueBranch);
-    this.fadeAway();
+    // this.fadeAway();
   }
 
   public checkQuestCompletion() {
     const inventoryInstance = Inventory.getInstance();
+    console.log("CHECK QUEST COMPLETION - ACCEPTED?: ", this.questAccepted);
+    console.log("CHECK QUEST COMPLETION: - QUEST ITEM  ", this.questItem);
     const questItem = inventoryInstance.getItem(
       this.questItem as GAME_ITEM_KEYS
     );
+    console.log("CHECK QUEST COMPLETION: - INVENTORY ITEM  ", questItem);
     const itemQuantity = questItem?.quantity || 0;
 
     if (itemQuantity >= this.questAmount) {
@@ -257,20 +274,11 @@ export class SpiritCharacter extends BaseCharacter {
   }
 
   private completeQuest() {
-    // Emit event to remove items from inventory
-    PhaserEventBus.emit("inventory-remove", {
-      item: this.questItem,
-      amount: this.questAmount,
-    });
-
     const inventoryInstance = Inventory.getInstance();
     inventoryInstance.removeItem({
       id: this.questItem,
       quantity: this.questAmount,
     });
-    const items = inventoryInstance.getAllItems();
-
-    PhaserEventBus.emit(INVENTORY_EVENTS.GET_ALL_ITEMS, items);
 
     // Give rewards
     if (this.rewards.gold) {
@@ -279,12 +287,16 @@ export class SpiritCharacter extends BaseCharacter {
 
     if (this.rewards.items) {
       this.rewards.items.forEach(({ item, amount }) => {
-        PhaserEventBus.emit("inventory-add", {
-          item,
-          amount,
+        inventoryInstance.addItem({
+          id: item,
+          quantity: amount,
         });
       });
     }
+
+    const items = inventoryInstance.getAllItems();
+
+    PhaserEventBus.emit(INVENTORY_EVENTS.GET_ALL_ITEMS, items);
 
     const dialogueBranch: DialogueBranch = {
       key: "quest-complete",

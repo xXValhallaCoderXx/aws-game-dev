@@ -14,14 +14,21 @@ interface SpiritQuestConfig {
 export class SpiritManager {
   private scene: Scene;
   private spawnTimer: Phaser.Time.TimerEvent | null = null;
-  private currentSpirit: SpiritCharacter | null = null;
+
   private questConfigs: SpiritQuestConfig[];
   private player: Phaser.GameObjects.GameObject;
+  private maxAllowedSpirits: number = 1; // Default to 1
+  private activeSpirits: SpiritCharacter[] = []; // Track all active spirits
 
-  constructor(scene: Scene, player: Phaser.GameObjects.GameObject) {
+  constructor(
+    scene: Scene,
+    player: Phaser.GameObjects.GameObject,
+    maxSpirits: number = 1
+  ) {
     this.scene = scene;
-
+    this.maxAllowedSpirits = maxSpirits;
     this.player = player;
+    this.activeSpirits = [];
     // Example quest configurations - can be expanded
     this.questConfigs = [
       {
@@ -32,7 +39,7 @@ export class SpiritManager {
         },
       },
       {
-        questItem: GAME_ITEM_KEYS.CARROT_SEEDS,
+        questItem: GAME_ITEM_KEYS.RADISH_SEEDS,
         questAmount: 1,
         rewards: {
           items: [{ item: GAME_ITEM_KEYS.HEALTH_POTION_LARGE, amount: 2 }],
@@ -43,8 +50,8 @@ export class SpiritManager {
   }
 
   public startRandomSpawning(
-    minInterval: number = 1000,
-    maxInterval: number = 2000
+    minInterval: number = 5000,
+    maxInterval: number = 10000
   ) {
     // Start the spawn timer (default 5-10 minutes)
     this.scheduleNextSpawn(minInterval, maxInterval);
@@ -90,14 +97,16 @@ export class SpiritManager {
 
   public spawnSpirit() {
     // If there's already a spirit, don't spawn another one
-    if (this.currentSpirit) {
+    console.log("SPIRIT QUEST SERVICE - ACTIVE SPIRITS: ", this.activeSpirits);
+    console.log("SPIRIT QUEST SERVICE - MAX SPIRITS: ", this.maxAllowedSpirits);
+    if (this.activeSpirits.length >= this.maxAllowedSpirits) {
       return;
     }
 
     const spawnPos = this.getRandomSpawnPosition();
     const questConfig = this.getRandomQuestConfig();
 
-    this.currentSpirit = new SpiritCharacter({
+    const spirit = new SpiritCharacter({
       scene: this.scene,
       x: spawnPos.x,
       y: spawnPos.y,
@@ -113,23 +122,42 @@ export class SpiritManager {
       ...questConfig,
     });
 
-    this.currentSpirit.play("spirit-normal-idle-down");
-    // When the spirit is destroyed (fades away), clear the reference
-    this.currentSpirit.once("destroy", () => {
-      this.currentSpirit = null;
+    spirit.play("spirit-normal-idle-down");
+
+    // Add to active spirits array
+    this.activeSpirits.push(spirit);
+    // When the spirit is destroyed, remove it from the array
+    spirit.once("destroy", () => {
+      const index = this.activeSpirits.indexOf(spirit);
+      if (index > -1) {
+        this.activeSpirits.splice(index, 1);
+      }
     });
-    console.log("PLAAAAYER: ", this.player);
+
     // Set up the spirit with player reference for interaction checking
     if (this.player) {
-      this.currentSpirit.setPlayer(this.player);
+      spirit.setPlayer(this.player);
     }
   }
 
   public destroy() {
     this.stopRandomSpawning();
-    if (this.currentSpirit) {
-      this.currentSpirit.destroy();
-      this.currentSpirit = null;
-    }
+    // Destroy all active spirits
+    this.activeSpirits.forEach((spirit) => {
+      spirit.destroy();
+    });
+    this.activeSpirits = [];
+  }
+
+  public setMaxSpirits(max: number) {
+    this.maxAllowedSpirits = max;
+  }
+
+  public getCurrentSpiritCount(): number {
+    return this.activeSpirits.length;
+  }
+
+  public getMaxAllowedSpirits(): number {
+    return this.maxAllowedSpirits;
   }
 }
