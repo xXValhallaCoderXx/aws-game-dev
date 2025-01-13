@@ -6,9 +6,11 @@ import { FarmingSystem } from "../slices/farming/farming-system.service";
 import { AnimatedTileSystem } from "../slices/animated-tiles/animated-tiles-system.service";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
 import { SpiritManager } from "@/slices/spirit-quest-manager/spirit-quest.service";
+import { InteractionZone } from "@/shared/components/phaser-components/InteractableObject";
 
 export class HomeMap extends BaseScene {
   private spiritManager: SpiritManager;
+  private interactionZones: InteractionZone[] = [];
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private waterAnimatedLayer: Phaser.Tilemaps.TilemapLayer | null = null;
@@ -134,7 +136,6 @@ export class HomeMap extends BaseScene {
       0
     );
 
-
     this.buildingBaseLayer = this.map.createLayer(
       "BuildingBaseLayer",
       buildingTileset,
@@ -179,7 +180,6 @@ export class HomeMap extends BaseScene {
     this.map.createLayer("CaveEntrance", caveWallsTileset, 0, 0);
     this.map.createLayer("CaveWallAccessories", caveWallsTileset, 0, 0);
 
-
     this.map.createLayer(
       "GrassAcessoriesLayer2",
       [villageNatureObjectsTileset, villageObjectsTileset],
@@ -221,6 +221,8 @@ export class HomeMap extends BaseScene {
 
     // Then call parent's create which will handle player creation and camera setup
     super.create();
+
+    this.createInteractionZones();
     console.log("CON: ", this.player);
     this.spiritManager = new SpiritManager(this, this.player);
     this.createDoor();
@@ -355,6 +357,30 @@ export class HomeMap extends BaseScene {
     });
   }
 
+  private createInteractionZones(): void {
+    const interactionsLayer = this.map.getObjectLayer("HomeInteractableLayer");
+
+    if (!interactionsLayer) return;
+
+    interactionsLayer.objects.forEach((object) => {
+      const zone = new InteractionZone(
+        this,
+        object.x! + (object.width ? object.width / 2 : 0), // Center the zone
+        object.y! + (object.height ? object.height / 2 : 0),
+        object.width || 32, // Use object width or default
+        object.height || 32, // Use object height or default
+        {
+          type: object.type,
+          ...object.properties,
+        },
+        this.player
+      );
+
+      this.add.existing(zone);
+      this.interactionZones.push(zone);
+    });
+  }
+
   private createDoorAnimations(): void {
     // Open Door Animation
     this.anims.create({
@@ -466,5 +492,6 @@ export class HomeMap extends BaseScene {
 
   cleanup() {
     this.spiritManager.destroy();
+    this.interactionZones.forEach((zone) => zone.destroy());
   }
 }

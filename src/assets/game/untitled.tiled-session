@@ -82,6 +82,7 @@
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx"
     ],
     "project": "",
+    "property.type": "string",
     "recentFiles": [
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx",
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx"

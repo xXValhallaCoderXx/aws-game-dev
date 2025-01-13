@@ -3,6 +3,7 @@
 import { PhaserGame } from "@components/organisms/PhaserGame";
 import { useRef } from "react";
 import Dialogue from "@components/molecules/Dialogue";
+import PopoverDialogue from "./shared/components/molecules/PopoverDialogue";
 import useKeyEventManager from "./shared/hooks/useKeyEventManager";
 import { InventoryToolbar } from "./shared/components/organisms/InventoryToolbar";
 import { GameManagerWindow } from "./shared/components/organisms/GameManagerWindow";
@@ -64,6 +65,7 @@ const App = () => {
           }}
         >
           <Dialogue />
+          <PopoverDialogue />
           <InventoryToolbar />
         </div>
       </div>

@@ -85,8 +85,8 @@ export class SpiritManager {
     // const mapHeight = this.scene.game.scale.height;
 
     return {
-      x: 100,
-      y: 200,
+      x: 75,
+      y: 450,
     };
   }
 

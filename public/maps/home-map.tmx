@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="35" height="35" tilewidth="16" tileheight="16" infinite="0" nextlayerid="18" nextobjectid="1">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="35" height="35" tilewidth="16" tileheight="16" infinite="0" nextlayerid="19" nextobjectid="6">
  <editorsettings>
   <export target="home-map.json" format="json"/>
  </editorsettings>
@@ -777,9 +777,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12109,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12136,12137,12138,0,0,0,0,12147,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12174,12175,12176,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11921,11922,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11959,11960,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11689,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1045,4 +1045,33 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="18" name="HomeInteractableLayer">
+  <object id="3" x="401.093" y="64.3633" width="29.8269" height="31.3967">
+   <properties>
+    <property name="collision" type="bool" value="true"/>
+    <property name="id" value="ancient-well"/>
+    <property name="interactable" type="bool" value="true"/>
+    <property name="message" value="An ancient well, it may have once been used many centuries ago."/>
+    <property name="name" value="Ancient Well"/>
+   </properties>
+  </object>
+  <object id="4" x="480.37" y="95.76" width="14.9134" height="14.1285">
+   <properties>
+    <property name="collision" type="bool" value="true"/>
+    <property name="id" value="sign"/>
+    <property name="interactable" type="bool" value="true"/>
+    <property name="message" value="To Googly Cove"/>
+    <property name="name" value="Road Sign"/>
+   </properties>
+  </object>
+  <object id="5" x="80.8466" y="416.792" width="44.7403" height="30.6118">
+   <properties>
+    <property name="collision" type="bool" value="true"/>
+    <property name="id" value="magic-well"/>
+    <property name="interactable" type="bool" value="true"/>
+    <property name="message" value="This well has a curious aura about it."/>
+    <property name="name" value="Magic Well"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

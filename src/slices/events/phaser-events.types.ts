@@ -18,6 +18,7 @@ export enum PLAYER_EVENTS {
   HEALTH_INITIALIZED = "player:health-initialized",
   MAX_HEALTH_CHANGED = "player:max-health-changed",
   SELECT_ITEM = "player:select-item",
+  GET_PLAYER_STATS = "player:get-stats",
 }
 
 export interface EventPayloads {
