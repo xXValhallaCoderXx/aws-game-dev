@@ -47,6 +47,11 @@ export class HomeMap extends BaseScene {
     this.load.image("water-main-animated", "tilesets/water-main-animated.png"); // Add this line
     this.load.image("crops-tiles-main", "tilesets/crops-tiles-main.png");
     this.load.image("buildings-main", "tilesets/buildings-main.png");
+    this.load.image(
+      "village-nature-objects",
+      "tilesets/village-nature-objects.png"
+    );
+    this.load.image("village-objects", "tilesets/village-objects.png");
     this.load.image("caves-main", "tilesets/caves-main.png");
     this.load.spritesheet(
       "crops-objects",
@@ -71,6 +76,16 @@ export class HomeMap extends BaseScene {
     const terrainVillage1Tileset = this.map.addTilesetImage(
       "terrain-village-1",
       "terrain-village-1"
+    );
+
+    const villageObjectsTileset = this.map.addTilesetImage(
+      "village-objects",
+      "village-objects"
+    );
+
+    const villageNatureObjectsTileset = this.map.addTilesetImage(
+      "village-nature-objects",
+      "village-nature-objects"
     );
 
     const caveWallsTileset = this.map.addTilesetImage(
@@ -104,13 +119,21 @@ export class HomeMap extends BaseScene {
       !waterAnimatedTileset ||
       !cropsTileset ||
       !buildingTileset ||
-      !caveWallsTileset
+      !caveWallsTileset ||
+      !villageNatureObjectsTileset ||
+      !villageObjectsTileset
     ) {
       throw new Error("Failed to load terrain tileset");
     }
 
     this.map.createLayer("GrassBaseLayer", terrainVillage1Tileset, 0, 0);
-    this.map.createLayer("GrassAccessoriesLayer", terrainVillage1Tileset, 0, 0);
+    this.map.createLayer(
+      "GrassAccessoriesLayer",
+      [terrainVillage1Tileset, villageNatureObjectsTileset],
+      0,
+      0
+    );
+
 
     this.buildingBaseLayer = this.map.createLayer(
       "BuildingBaseLayer",
@@ -155,6 +178,14 @@ export class HomeMap extends BaseScene {
     this.map.createLayer("CaveWalls", caveWallsTileset, 0, 0);
     this.map.createLayer("CaveEntrance", caveWallsTileset, 0, 0);
     this.map.createLayer("CaveWallAccessories", caveWallsTileset, 0, 0);
+
+
+    this.map.createLayer(
+      "GrassAcessoriesLayer2",
+      [villageNatureObjectsTileset, villageObjectsTileset],
+      0,
+      0
+    );
 
     if (this.farmableLayer) {
       this.farmableLayer.forEachTile((tile: Phaser.Tilemaps.Tile) => {
