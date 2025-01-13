@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 // import type { PayloadAction } from "@reduxjs/toolkit";
 
 export interface IPlatformState {
+  isMerchantStoreOpen: boolean;
   isSettingsOpen: boolean;
   isSoundEnabled: boolean;
 }
@@ -9,6 +10,7 @@ export interface IPlatformState {
 const initialState: IPlatformState = {
   isSettingsOpen: false,
   isSoundEnabled: true,
+  isMerchantStoreOpen: false,
 };
 
 export const platformSlice = createSlice({
@@ -27,11 +29,19 @@ export const platformSlice = createSlice({
     disableSound(state) {
       state.isSoundEnabled = false;
     },
+    setIsMerchantStoreOpen(state, action: PayloadAction<boolean>) {
+      state.isMerchantStoreOpen = action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { toggleSettings, toggleSound, enableSound, disableSound } =
-  platformSlice.actions;
+export const {
+  toggleSettings,
+  toggleSound,
+  enableSound,
+  disableSound,
+  setIsMerchantStoreOpen,
+} = platformSlice.actions;
 
 export default platformSlice.reducer;

@@ -13,6 +13,7 @@ export const SPRITE_SHEETS = {
   SpiritNormal: "spirit-normal",
   SpiritRare: "spirit-rare",
   SpiritEpic: "spirit-epic",
+  BlacksmithMerchantIdle: "blacksmith-merchant-idle",
 };
 
 export const ICON_SPRITE_SHEETS = {

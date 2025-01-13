@@ -106,7 +106,13 @@ export interface CharacterStats {
 export type ICharacterType = IEnemyType | IPlayerType | INonPlayerCharacter;
 
 export type IPlayerType = "player";
-export type INonPlayerCharacter = "guide" | "spirit-normal";
+export type INonPlayerCharacter =
+  | "guide"
+  | "spirit-normal"
+  | "spirit-rare"
+  | "spirit-epic"
+  | "merchant-blacksmith"
+  | "merchant-general";
 
 // Enemy Interfaces
 

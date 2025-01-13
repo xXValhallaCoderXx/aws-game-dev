@@ -2,6 +2,8 @@
 import { BaseScene } from "./BaseScene";
 import { ESCENE_KEYS } from "@shared/scene-keys";
 import { IEntranceConfig } from "@/slices/scenes/scenes.interface";
+import { SPRITE_SHEETS } from "@/shared/constants/sprite-sheet-names";
+import { Merchant } from "@/slices/merchant/MerchantCharacter";
 
 export class TownMap extends BaseScene {
   private backgroundMusic: Phaser.Sound.BaseSound | null = null;
@@ -22,6 +24,15 @@ export class TownMap extends BaseScene {
     this.load.image("market-canopies", "tilesets/market-canopies.png");
     this.load.image("market-objects", "tilesets/market-objects.png");
     this.load.audio("backgroundMusic", "sounds/main-bgm.mp3");
+
+    this.load.spritesheet(
+      SPRITE_SHEETS.BlacksmithMerchantIdle,
+      "sprites/characters/merchants/blacksmith-merchant-idle.png",
+      {
+        frameWidth: 80,
+        frameHeight: 80,
+      }
+    );
   }
 
   create() {
@@ -38,6 +49,8 @@ export class TownMap extends BaseScene {
     // this.backgroundMusic.play();
 
     this.createHomeMapEntrance();
+
+    this.createMerchants();
   }
 
   protected getDefaultStartingPosition(): { x: number; y: number } {
@@ -87,8 +100,146 @@ export class TownMap extends BaseScene {
     this.map.createLayer("MarketBaseLayer", terrainVillageTileset1, 0, 0);
     this.map.createLayer("MarketShopLayer", marketObjectsTileset, 0, 0);
     this.map.createLayer("MarketCanopyLayer", marketCanopiesTileset, 0, 0);
-   
-   
+  }
+
+  private createMerchants(): void {
+    const alchemistMerchant = new Merchant(
+      this,
+      {
+        id: "weapon-smith",
+        name: "Marcus the Blacksmith",
+        type: "weaponsmith",
+        x: 345,
+        y: 265,
+        texture: "blacksmith-merchant-idle",
+        startingGold: 1000,
+        maxGold: 2000,
+        restockInterval: 300000, // 5 minutes
+        possibleItems: [
+          {
+            id: "iron-sword",
+            name: "Iron Sword",
+            price: 100,
+            quantity: 0,
+            maxQuantity: 3,
+            type: "weapon",
+            description: "A basic iron sword",
+          },
+          // Add more weapons...
+        ],
+        dialogue: {
+          greeting: [
+            "Welcome to my forge! Need any weapons?",
+            "Ah, a customer! Looking for something sharp?",
+          ],
+          farewell: [
+            "Come back when you need more weapons!",
+            "Stay sharp out there!",
+          ],
+          noGold: [
+            "Sorry, I can't afford that right now.",
+            "Come back later when I've made some sales.",
+          ],
+          playerNoGold: [
+            "No gold, no goods. That's how it works.",
+            "Come back when you've got coin to spend.",
+          ],
+        },
+      },
+      this.player
+    );
+
+    const blacksmithMerchant = new Merchant(
+      this,
+      {
+        id: "weapon-smith",
+        name: "Marcus the Blacksmith",
+        type: "weaponsmith",
+        x: 265,
+        y: 265,
+        texture: "blacksmith-merchant-idle",
+        startingGold: 1000,
+        maxGold: 2000,
+        restockInterval: 300000, // 5 minutes
+        possibleItems: [
+          {
+            id: "iron-sword",
+            name: "Iron Sword",
+            price: 100,
+            quantity: 0,
+            maxQuantity: 3,
+            type: "weapon",
+            description: "A basic iron sword",
+          },
+          // Add more weapons...
+        ],
+        dialogue: {
+          greeting: [
+            "Welcome to my forge! Need any weapons?",
+            "Ah, a customer! Looking for something sharp?",
+          ],
+          farewell: [
+            "Come back when you need more weapons!",
+            "Stay sharp out there!",
+          ],
+          noGold: [
+            "Sorry, I can't afford that right now.",
+            "Come back later when I've made some sales.",
+          ],
+          playerNoGold: [
+            "No gold, no goods. That's how it works.",
+            "Come back when you've got coin to spend.",
+          ],
+        },
+      },
+      this.player
+    );
+
+    const generalMerchant = new Merchant(
+      this,
+      {
+        id: "weapon-smith",
+        name: "Marcus the Blacksmith",
+        type: "weaponsmith",
+        x: 425,
+        y: 265,
+        texture: "blacksmith-merchant-idle",
+        startingGold: 1000,
+        maxGold: 2000,
+        restockInterval: 300000, // 5 minutes
+        possibleItems: [
+          {
+            id: "iron-sword",
+            name: "Iron Sword",
+            price: 100,
+            quantity: 0,
+            maxQuantity: 3,
+            type: "weapon",
+            description: "A basic iron sword",
+          },
+          // Add more weapons...
+        ],
+        dialogue: {
+          greeting: [
+            "Welcome to my forge! Need any weapons?",
+            "Ah, a customer! Looking for something sharp?",
+          ],
+          farewell: [
+            "Come back when you need more weapons!",
+            "Stay sharp out there!",
+          ],
+          noGold: [
+            "Sorry, I can't afford that right now.",
+            "Come back later when I've made some sales.",
+          ],
+          playerNoGold: [
+            "No gold, no goods. That's how it works.",
+            "Come back when you've got coin to spend.",
+          ],
+        },
+      },
+      this.player
+    );
   }
 
   private createHomeMapEntrance(): void {

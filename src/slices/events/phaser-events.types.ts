@@ -7,11 +7,11 @@ export const INVENTORY_EVENTS = {
   GET_GOLD: "inventory:getGold",
 } as const;
 
-export const SYSTEM_EVENTS = {
-  ENABLE_MUSIC: "game:disableMusic",
-  DISABLE_MUSIC: "game:enableMusic",
-};
-
+export enum SYSTEM_EVENTS {
+  ENABLE_MUSIC = "game:disableMusic",
+  DISABLE_MUSIC = "game:enableMusic",
+  SET_MERCHANT_STORE_UI = "game:setMerchantStoreUi",
+}
 
 export enum PLAYER_EVENTS {
   HEALTH_CHANGED = "player:health-changed",
@@ -26,4 +26,5 @@ export interface EventPayloads {
   [PLAYER_EVENTS.HEALTH_INITIALIZED]: number;
   [PLAYER_EVENTS.MAX_HEALTH_CHANGED]: number;
   [PLAYER_EVENTS.SELECT_ITEM]: number;
+  [SYSTEM_EVENTS.SET_MERCHANT_STORE_UI]: boolean;
 }

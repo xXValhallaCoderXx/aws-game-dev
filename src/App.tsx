@@ -7,6 +7,7 @@ import PopoverDialogue from "./shared/components/molecules/PopoverDialogue";
 import useKeyEventManager from "./shared/hooks/useKeyEventManager";
 import { InventoryToolbar } from "./shared/components/organisms/InventoryToolbar";
 import { GameManagerWindow } from "./shared/components/organisms/GameManagerWindow";
+import { StoreInventoryWindow } from "./shared/components/organisms/StoreInventory";
 import { AvatarDropdown } from "./shared/components/organisms/AvatarDropdown";
 
 const App = () => {
@@ -65,6 +66,7 @@ const App = () => {
           }}
         >
           <Dialogue />
+          <StoreInventoryWindow />
           <PopoverDialogue />
           <InventoryToolbar />
         </div>

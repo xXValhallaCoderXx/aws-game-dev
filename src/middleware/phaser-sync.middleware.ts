@@ -17,6 +17,7 @@ import {
   toggleSound,
   enableSound,
   disableSound,
+  setIsMerchantStoreOpen,
 } from "@/slices/platform/game.slice";
 import {
   updateHealth,
@@ -58,6 +59,10 @@ export const initializePhaserSync = (store: any) => {
       store.dispatch(updateItems(items));
     }
   );
+
+  PhaserEventBus.on(SYSTEM_EVENTS.SET_MERCHANT_STORE_UI, (isOpen: boolean) => {
+    store.dispatch(setIsMerchantStoreOpen(isOpen));
+  });
 
   PhaserEventBus.on(INVENTORY_EVENTS.GET_GOLD, (gold: number) => {
     store.dispatch(setGold(gold));
