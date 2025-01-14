@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { PhaserGame } from "@components/organisms/PhaserGame";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Dialogue from "@components/molecules/Dialogue";
 import PopoverDialogue from "./shared/components/molecules/PopoverDialogue";
 import useKeyEventManager from "./shared/hooks/useKeyEventManager";
@@ -10,15 +10,44 @@ import { GameManagerWindow } from "./shared/components/organisms/GameManagerWind
 import { StoreInventoryWindow } from "./shared/components/organisms/StoreInventory";
 import { AvatarDropdown } from "./shared/components/organisms/AvatarDropdown";
 
+import type { Schema } from '../amplify/data/resource'
+import { generateClient } from 'aws-amplify/data'
+
+const client = generateClient<Schema>()
+
 const App = () => {
   //  References to the PhaserGame component (game and scene are exposed)
   const phaserRef = useRef<any>();
-
+  const [todos, setTodos] = useState<Schema["Todo"]["type"][]>([]);
   useKeyEventManager();
+
+  const fetchTodos = async () => {
+    const { data: items, errors } = await client.models.Todo.list();
+    setTodos(items);
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
   const currentScene = (scene: any) => {
     console.log("Current Scene: ", scene.scene.key);
   };
+
+  const createTodo = async () => {
+    await client.models.Todo.create({
+      content: window.prompt("Todo content?"),
+    
+    })
+  }
+
+  return <div>
+    <button onClick={createTodo}>Add new todo <ul>
+        {todos.map(({ id, content }) => (
+          <li style={{color: "red"}} key={id}>ss{content}</li>
+        ))}
+      </ul></button>
+  </div>
 
   return (
     <div id="app">
