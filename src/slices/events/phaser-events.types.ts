@@ -19,6 +19,7 @@ export enum PLAYER_EVENTS {
   MAX_HEALTH_CHANGED = "player:max-health-changed",
   SELECT_ITEM = "player:select-item",
   GET_PLAYER_STATS = "player:get-stats",
+  INITIALIZE_PLAYER = "player:initialize",
 }
 
 export enum MERCHANT_EVENTS {

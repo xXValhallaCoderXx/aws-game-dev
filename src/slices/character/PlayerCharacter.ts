@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BaseCharacter } from "./BaseChracter";
 import { EnemyCharacter } from "./EnemyCharacter";
@@ -168,6 +169,9 @@ export class PlayerCharacter extends BaseCharacter {
   }
 
   private setupListeners(): void {
+    PhaserEventBus.on(PLAYER_EVENTS.INITIALIZE_PLAYER, (data: any) => {
+      console.log("INITIITITI: ", data)
+    })
     // Setup keyboard listeners
     if (this.scene.input.keyboard) {
       this.eventConfig.keyboard.forEach(({ key, handler }) => {

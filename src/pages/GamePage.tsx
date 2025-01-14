@@ -8,7 +8,7 @@ import { InventoryToolbar } from "../shared/components/organisms/InventoryToolba
 import { GameManagerWindow } from "../shared/components/organisms/GameManagerWindow";
 import { StoreInventoryWindow } from "../shared/components/organisms/StoreInventory";
 import { AvatarDropdown } from "../shared/components/organisms/AvatarDropdown";
-
+import { PLAYER_EVENTS } from "@/slices/events/phaser-events.types";
 
 
 
@@ -18,12 +18,13 @@ import useKeyEventManager from "../shared/hooks/useKeyEventManager";
 
 import type { Schema } from '../../amplify/data/resource'
 import { generateClient } from 'aws-amplify/data'
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 
 
 const client = generateClient<Schema>()
 
 const GamePage = ({ signOut, user }: any) => {
-    console.log("CURRENT USER: ", user)
+
     useKeyEventManager();
   const phaserRef = useRef<any>();
   const [isLoading, setIsLoading] = useState(true);
@@ -60,6 +61,14 @@ const fetchPlayer = async () => {
         console.log("CREATE NEW USER: ", player)
     } else {
         console.log("USER EXISTS: ", data)
+        // Sync Phaser State with Save State
+        PhaserEventBus.emit(PLAYER_EVENTS.INITIALIZE_PLAYER, {
+            player: {
+
+            },
+            inventory: [],
+            gold: 1000
+        })
     }
 };
 
