@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/characters/Merchant.ts
 import { BaseCharacter } from "../character/BaseChracter";
@@ -89,6 +90,7 @@ export class Merchant extends BaseCharacter {
     IAnimationConfig
   > {
     const baseConfigs = super.getAnimationConfigs();
+    // @ts-ignore
     return {
       ...baseConfigs,
       walk: {

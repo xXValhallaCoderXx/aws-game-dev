@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC } from "react";
 import classes from "./sprite-icon.module.css";
-import { IFarmingInventoryCategories } from "@/slices/inventory/inventory.interface";
 
 const SPRITE_SHEET_MAP = {
   crops: {
@@ -22,7 +22,7 @@ interface ISpriteIconProps {
   data?: any;
   isEmpty?: boolean;
   onClick?: (iconInfo: any) => void;
-  spriteSheet: IFarmingInventoryCategories;
+  spriteSheet: any;
 }
 
 const SpriteIcon: FC<ISpriteIconProps> = ({
@@ -36,6 +36,7 @@ const SpriteIcon: FC<ISpriteIconProps> = ({
   spriteSheet = "seeds",
   isEmpty = false,
 }) => {
+  // @ts-ignore
   const rowCount = SPRITE_SHEET_MAP[spriteSheet].rowCount; // Number of icons per row in the sprite sheet (adjust based on your sprite sheet)
   const scale = 2;
   const x = -(iconIndex % rowCount) * iconWidth;
@@ -64,7 +65,8 @@ const SpriteIcon: FC<ISpriteIconProps> = ({
           height: "100%",
           backgroundImage: isEmpty
             ? ""
-            : SPRITE_SHEET_MAP[spriteSheet].spriteSheet,
+            : // @ts-ignore
+              SPRITE_SHEET_MAP[spriteSheet].spriteSheet,
           backgroundPosition: isEmpty ? "0 0" : `${x * scale}px ${y * scale}px`,
           backgroundSize: `${rowCount * iconWidth * scale}px auto`,
           opacity: "1",

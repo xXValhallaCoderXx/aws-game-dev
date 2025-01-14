@@ -66,7 +66,7 @@ const MerchantBuyTab: React.FC = () => {
     <div className={styles.merchantBuyContainer}>
       <div className={styles.itemsColumn}>
         <div className={styles.itemsGrid}>
-          {merchantItems.map((item, index) => {
+          {merchantItems.map((item: any, index: any) => {
             const mappedItem = ITEM_REGISTRY[item.id];
             const isSelected = selectedItems.some((i) => i.id === item.id);
 

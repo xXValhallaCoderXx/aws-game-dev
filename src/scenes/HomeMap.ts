@@ -9,7 +9,7 @@ import { SpiritManager } from "@/slices/spirit-quest-manager/spirit-quest.servic
 import { InteractionZone } from "@/shared/components/phaser-components/InteractableObject";
 
 export class HomeMap extends BaseScene {
-  private spiritManager: SpiritManager;
+  private spiritManager!: SpiritManager;
   private interactionZones: InteractionZone[] = [];
   private waterLayer?: Phaser.Tilemaps.TilemapLayer | null;
   private farmableLayer?: Phaser.Tilemaps.TilemapLayer | null;
