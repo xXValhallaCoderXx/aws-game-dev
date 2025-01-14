@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { RootState } from "@/shared/services/redux-store.service";
 import { useState, useEffect, useRef } from "react";
@@ -6,7 +7,7 @@ import styles from "./avatar-dropdown.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 
-const ProfileAvatar = () => {
+const ProfileAvatar = ({ signOut }: any) => {
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const { gold } = useSelector((state: RootState) => state.inventory);
@@ -99,11 +100,8 @@ const ProfileAvatar = () => {
               Settings
             </button>
 
-            <button
-              className={styles.dropdownItem}
-              onClick={handleToggleSettings}
-            >
-              Settings
+            <button className={styles.dropdownItem} onClick={signOut}>
+              Log Out
             </button>
           </div>
         )}
