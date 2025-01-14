@@ -10,20 +10,34 @@ const schema = a.schema({
     // 2. Create a belongsTo relationship with the reference field
     player: a.belongsTo('Player', 'playerId'),
   }),
+  Quest: a.model({
+    questId: a.string().required(),
+    collected: a.integer(),
+    isCompleted: a.boolean().required(),
+    // 1. Create a reference field
+    playerId: a.id(),
+    // 2. Create a belongsTo relationship with the reference field
+    player: a.belongsTo('Player', 'playerId'),
+  }),
 
   Player: a.model({
     userId: a.string().required(),
-    mantra: a.string().required(),
+
     gold: a.integer(),
     stats: a.customType({
       strength: a.integer(),
       health: a.integer(),
       maxHealth: a.integer(),
- 
+      defense: a.integer(),
+      speed: a.integer(),
+      level: a.integer()
     }),
+    quests: a.hasMany("Quest", "playerId"),
     items: a.hasMany('Item', 'playerId'),
   }),
 }).authorization((allow) => allow.publicApiKey());
+
+
 
 export type Schema = ClientSchema<typeof schema>;
 

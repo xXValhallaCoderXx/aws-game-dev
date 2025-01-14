@@ -9,13 +9,7 @@ import { GameManagerWindow } from "../shared/components/organisms/GameManagerWin
 import { StoreInventoryWindow } from "../shared/components/organisms/StoreInventory";
 import { AvatarDropdown } from "../shared/components/organisms/AvatarDropdown";
 import { PLAYER_EVENTS } from "@/slices/events/phaser-events.types";
-
-
-
 import useKeyEventManager from "../shared/hooks/useKeyEventManager";
-
-
-
 import type { Schema } from '../../amplify/data/resource'
 import { generateClient } from 'aws-amplify/data'
 import { PhaserEventBus } from "@/shared/services/phaser-event.service";
@@ -40,31 +34,31 @@ const fetchPlayer = async () => {
         const {data: player} = await client.models.Player.create({
             id: user?.userId,
             userId: user?.userId,
-            mantra: "",
-            gold: 100,
+            gold: 101,
             stats: {
-                strength: 1
+                strength: 1,
+                defense: 1,
+                health: 110,
+                maxHealth: 110,
+                level: 1,
             }    
-   
         });
-        if(player){
-            const { data: items } = await player.items();
-            const x = await client.models.Item.create({
-                playerId: player.id, 
-                itemId: "basic-sword",
-                quantity: 1
-            })
-            console.log("ITEMS: ", x)
-        }
-
-       
         console.log("CREATE NEW USER: ", player)
     } else {
         console.log("USER EXISTS: ", data)
+        const items = await data.items;
+        console.log("USER INVENTORY: ", items)
+
+        const quests = await data.quests;
+        console.log("USER QUESTS: ", quests)
         // Sync Phaser State with Save State
         PhaserEventBus.emit(PLAYER_EVENTS.INITIALIZE_PLAYER, {
             player: {
-
+              strength: data?.stats?.strength  ?? 5,
+              defense: data?.stats?.defense ?? 5,
+              health: data?.stats?.health ?? 101,
+              maxHealth: data?.stats?.maxHealth ?? 101,
+              level: data?.stats?.level ?? 1,
             },
             inventory: [],
             gold: 1000

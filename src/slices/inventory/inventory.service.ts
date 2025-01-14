@@ -50,6 +50,8 @@ export class Inventory {
 
   public addGold(amount: number): void {
     this.setGold(this.gold + amount);
+    console.log("GOLD: ", this.gold);
+    PhaserEventBus.emit(INVENTORY_EVENTS.GET_GOLD, this.gold);
   }
 
   public getGold(): number {

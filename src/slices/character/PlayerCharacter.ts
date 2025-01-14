@@ -171,6 +171,16 @@ export class PlayerCharacter extends BaseCharacter {
   private setupListeners(): void {
     PhaserEventBus.on(PLAYER_EVENTS.INITIALIZE_PLAYER, (data: any) => {
       console.log("INITIITITI: ", data)
+      if(data?.gold){
+        this.inventory.addGold(data?.gold)
+      }
+      if(data?.player){
+        this.stats.defense = data?.player?.defense ?? 5;
+     
+        this.stats.maxHealth = data?.player?.maxHealth ?? 222;
+        this.stats.health = data?.player?.health ?? 222;
+        this.stats.speed = data?.player?.speed ?? 50;
+      }
     })
     // Setup keyboard listeners
     if (this.scene.input.keyboard) {
