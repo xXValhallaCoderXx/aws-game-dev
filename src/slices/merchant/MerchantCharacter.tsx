@@ -9,7 +9,11 @@ import {
   PlayerSpecificActions,
   IAnimationConfig,
 } from "../character/character.interface";
-import { MERCHANT_EVENTS, SYSTEM_EVENTS } from "../events/phaser-events.types";
+import {
+  MERCHANT_EVENTS,
+  SYSTEM_EVENTS,
+  INVENTORY_EVENTS,
+} from "../events/phaser-events.types";
 
 export class Merchant extends BaseCharacter {
   private merchantId: string;
@@ -74,6 +78,8 @@ export class Merchant extends BaseCharacter {
 
     // Setup interaction
     this.setupInteraction();
+
+    this.setupCommerceListeners();
 
     this.play("merchant-blacksmith-idle-left");
   }
@@ -321,6 +327,174 @@ export class Merchant extends BaseCharacter {
       gold: this.gold,
     });
     return true;
+  }
+
+  private setupCommerceListeners(): void {
+    // Listen for purchase requests
+    PhaserEventBus.on(MERCHANT_EVENTS.BUY_ITEMS, (data: any) => {
+      console.log("SETUP ECOMMERE", this.merchantId);
+      console.log("DATA: ", data);
+
+      if (data?.id !== this.merchantId) return;
+
+      console.log("MERCHANT EVENT - BUY ITEMS CALLED");
+      if (data?.items?.length < 1) {
+        PhaserEventBus.emit(MERCHANT_EVENTS.TRANSACTION_RESULT, {
+          success: false,
+          message: "No items to be purchased",
+        });
+        return;
+      }
+
+      let totalCost = 0;
+
+      data?.items?.forEach((item: any) => {
+        totalCost += item.price * item.quantity;
+      });
+
+      const playerGold = this.player?.inventory?.getGold();
+
+      console.log("MERCHANT: BUYI ITEM - PLAYER GOLD: ", playerGold);
+      if (playerGold < totalCost) {
+        PhaserEventBus.emit(MERCHANT_EVENTS.TRANSACTION_RESULT, {
+          success: false,
+          message: "Not enough gold to purchase items",
+        });
+        return;
+      }
+
+      const playerGoldAfterPurchase = playerGold - totalCost;
+      console.log(
+        "MERCHANT: BUYI ITEM - PLAYER GOLD AFTER: ",
+        playerGoldAfterPurchase
+      );
+
+      this?.player?.inventory?.setGold(playerGoldAfterPurchase);
+      // Give Gold to merchant
+      this.gold = this.gold + totalCost;
+
+      data?.items?.forEach((item: any) => {
+        const purchaseData = {
+          id: item?.id,
+          quantity: item?.quantity,
+        };
+        this.player.inventory.addItem(purchaseData);
+      });
+
+      // PhaserEventBus.emit(INVENTORY_EVENTS.GET_ALL_ITEMS, this.player.inventory.inventoryItems)
+      PhaserEventBus.emit(
+        INVENTORY_EVENTS.GET_GOLD,
+        this.player.inventory.gold
+      );
+      PhaserEventBus.emit(MERCHANT_EVENTS.TRANSACTION_RESULT, {
+        success: true,
+        message: "Purchase successful",
+      });
+
+      // // Emit event to check player's gold
+      // PhaserEventBus.emit(MERCHANT_EVENTS.CHECK_PLAYER_GOLD, {
+      //     requiredGold: totalCost,
+      //     callback: (hasEnoughGold: boolean) => {
+      //         if (!hasEnoughGold) {
+      //             PhaserEventBus.emit(MERCHANT_EVENTS.PURCHASE_RESULT, {
+      //                 success: false,
+      //                 message: this.dialogue.playerNoGold[
+      //                     Math.floor(Math.random() * this.dialogue.playerNoGold.length)
+      //                 ]
+      //             });
+      //             return;
+      //         }
+
+      //         // Process the purchase
+      //         if (this.sellToPlayer(itemId, quantity)) {
+      //             // Add gold to merchant
+      //             this.gold += totalCost;
+
+      //             // Emit events to update player's inventory and gold
+      //             PhaserEventBus.emit(MERCHANT_EVENTS.DEDUCT_PLAYER_GOLD, totalCost);
+      //             PhaserEventBus.emit(MERCHANT_EVENTS.ADD_TO_PLAYER_INVENTORY, {
+      //                 itemId,
+      //                 quantity
+      //             });
+
+      //             // Emit success result
+      //             PhaserEventBus.emit(MERCHANT_EVENTS.PURCHASE_RESULT, {
+      //                 success: true,
+      //                 message: "Purchase successful"
+      //             });
+      //         }
+      //     }
+      // });
+    });
+
+    // Listen for sell requests
+    // PhaserEventBus.on(MERCHANT_EVENTS.SELL_ITEM,
+    // ({ itemId, quantity }: { itemId: string; quantity: number }) => {
+    //     const item = this.possibleItems.find(i => i.id === itemId);
+
+    //     if (!item) {
+    //         PhaserEventBus.emit(MERCHANT_EVENTS.SELL_RESULT, {
+    //             success: false,
+    //             message: "Merchant doesn't accept this item"
+    //         });
+    //         return;
+    //     }
+
+    //     const sellPrice = Math.floor(item.price * 0.5); // Typically merchants buy at half price
+    //     const totalPrice = sellPrice * quantity;
+
+    //     if (this.gold < totalPrice) {
+    //         PhaserEventBus.emit(MERCHANT_EVENTS.SELL_RESULT, {
+    //             success: false,
+    //             message: this.dialogue.noGold[
+    //                 Math.floor(Math.random() * this.dialogue.noGold.length)
+    //             ]
+    //         });
+    //         return;
+    //     }
+
+    //     // Check if player has the items
+    //     PhaserEventBus.emit(MERCHANT_EVENTS.CHECK_PLAYER_INVENTORY, {
+    //         itemId,
+    //         quantity,
+    //         callback: (hasItems: boolean) => {
+    //             if (!hasItems) {
+    //                 PhaserEventBus.emit(MERCHANT_EVENTS.SELL_RESULT, {
+    //                     success: false,
+    //                     message: "You don't have enough items to sell"
+    //                 });
+    //                 return;
+    //             }
+
+    //             // Process the sale
+    //             if (this.buyFromPlayer(itemId, quantity, totalPrice)) {
+    //                 // Add item to merchant inventory
+    //                 const existingItem = this.inventory.find(i => i.id === itemId);
+    //                 if (existingItem) {
+    //                     existingItem.quantity += quantity;
+    //                 } else {
+    //                     this.inventory.push({
+    //                         ...item,
+    //                         quantity
+    //                     });
+    //                 }
+
+    //                 // Emit events to update player's inventory and gold
+    //                 PhaserEventBus.emit(MERCHANT_EVENTS.REMOVE_FROM_PLAYER_INVENTORY, {
+    //                     itemId,
+    //                     quantity
+    //                 });
+    //                 PhaserEventBus.emit(MERCHANT_EVENTS.ADD_PLAYER_GOLD, totalPrice);
+
+    //                 // Emit success result
+    //                 PhaserEventBus.emit(MERCHANT_EVENTS.SELL_RESULT, {
+    //                     success: true,
+    //                     message: "Sale successful"
+    //                 });
+    //             }
+    //         }
+    //     });
+    // });
   }
 
   destroy() {

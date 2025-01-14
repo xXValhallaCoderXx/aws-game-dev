@@ -96,7 +96,7 @@ export class TownMap extends BaseScene {
     const alchemistMerchant = new Merchant(
       this,
       {
-        id: "weapon-smith",
+        id: "alchemist",
         name: "Marcus the Blacksmith",
         type: "merchant-blacksmith",
         x: 345,
@@ -147,7 +147,7 @@ export class TownMap extends BaseScene {
     const blacksmithMerchant = new Merchant(
       this,
       {
-        id: "weapon-smith",
+        id: "merchant-blacksmith",
         name: "Marcus the Blacksmith",
         type: "merchant-blacksmith",
         x: 265,
@@ -198,7 +198,7 @@ export class TownMap extends BaseScene {
     const generalMerchant = new Merchant(
       this,
       {
-        id: "weapon-smith",
+        id: "food",
         name: "Marcus the Blacksmith",
         type: "merchant-blacksmith",
         x: 425,

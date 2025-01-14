@@ -23,13 +23,15 @@ export class Inventory {
     // Default capacity
     this.maxCapacity = config.maxCapacity ?? 100;
     this.scene = config.scene;
-    this.gold = config.initialGold ?? 0;
+    this.gold = 4000;
 
     if (config.initialItems && config.initialItems.length > 0) {
       config.initialItems.forEach((item) => {
         this.inventoryItems.set(item.id, item);
       });
     }
+
+    PhaserEventBus.emit(INVENTORY_EVENTS.GET_GOLD, this.gold);
   }
 
   public static getInstance(config?: InventoryConfig): Inventory {

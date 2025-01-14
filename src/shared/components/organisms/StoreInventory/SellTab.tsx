@@ -6,6 +6,8 @@ import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 import { ITEM_REGISTRY } from "@/slices/items/item-registry";
 import { useSelector } from "react-redux";
 import { RootState } from "@/shared/services/redux-store.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
+import { MERCHANT_EVENTS } from "@/slices/events/phaser-events.types";
 
 interface SelectedItem {
   id: string;
@@ -20,8 +22,12 @@ const MerchantBuyTab: React.FC = () => {
 
   const handlePurchase = (items: any[]) => {
     // Handle purchase logic here
-    console.log("Purchasing items:", items);
+    console.log("Selling Items:", items);
     // You can emit events or dispatch Redux actions here
+    PhaserEventBus.emit(MERCHANT_EVENTS.SELL_ITEMS, {
+      items,
+      id: "merchant-blacksmith",
+    });
   };
 
   const handleItemClick = (item: any) => {

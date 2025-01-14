@@ -5,7 +5,9 @@ import styles from "./store-inventory.module.css";
 import { SpriteIconNew } from "../../atoms/SpriteIconNew";
 import { ITEM_REGISTRY } from "@/slices/items/item-registry";
 import { useSelector } from "react-redux";
+import { MERCHANT_EVENTS } from "@/slices/events/phaser-events.types";
 import { RootState } from "@/shared/services/redux-store.service";
+import { PhaserEventBus } from "@/shared/services/phaser-event.service";
 
 interface SelectedItem {
   id: string;
@@ -19,11 +21,15 @@ const MerchantBuyTab: React.FC = () => {
   const merchantItems = useSelector(
     (state: RootState) => state.platform.merchantItems
   );
-  console.log("MERCHANT ITEMS: ", merchantItems);
+
   const handlePurchase = (items: any[]) => {
     // Handle purchase logic here
-    console.log("Purchasing items:", items);
+    console.log("MERCHANT: PLAYER BUY ITEMS:", items);
     // You can emit events or dispatch Redux actions here
+    PhaserEventBus.emit(MERCHANT_EVENTS.BUY_ITEMS, {
+      items,
+      id: "merchant-blacksmith",
+    });
   };
 
   const handleItemClick = (item: any) => {

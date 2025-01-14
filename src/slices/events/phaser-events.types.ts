@@ -23,6 +23,10 @@ export enum PLAYER_EVENTS {
 
 export enum MERCHANT_EVENTS {
   GET_ITEMS = "merchant:get-items",
+  BUY_ITEMS = "merchant:buy-items",
+  SELL_ITEMS = "merchant:sell-items",
+  GET_GOLD = "merchant:get-gold",
+  TRANSACTION_RESULT = "merchant:transaction-result",
 }
 
 
