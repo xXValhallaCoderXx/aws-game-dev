@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="35" height="35" tilewidth="16" tileheight="16" infinite="0" nextlayerid="19" nextobjectid="6">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="35" height="35" tilewidth="16" tileheight="16" infinite="0" nextlayerid="19" nextobjectid="7">
  <editorsettings>
   <export target="home-map.json" format="json"/>
  </editorsettings>
@@ -848,8 +848,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5113,5114,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5098,5144,5144,5144,5144,5144,5144,5144,
 0,0,0,0,0,0,0,0,0,0,5089,5090,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5098,5145,5124,5124,5124,5124,5124,5124,5124,
-0,0,0,0,5089,5090,0,0,0,0,5113,5114,0,0,0,0,0,0,0,0,0,0,0,0,0,5098,5145,5124,5124,5124,5124,5124,5124,5124,5124,
-0,0,0,0,5113,5114,0,0,0,0,0,5124,0,0,0,0,0,0,0,0,0,0,0,0,5098,5145,5124,5124,5167,5096,5096,5096,5096,5096,5096,
+0,0,0,0,5089,5090,0,0,0,0,5113,5114,0,0,0,11839,11840,0,0,0,0,0,0,0,0,5098,5145,5124,5124,5124,5124,5124,5124,5124,5124,
+0,0,0,0,5113,5114,0,0,0,0,0,5124,0,0,0,11877,11878,0,0,0,0,0,0,0,5098,5145,5124,5124,5167,5096,5096,5096,5096,5096,5096,
 0,0,0,0,0,0,0,0,0,0,5121,5124,5124,5119,0,0,0,0,0,0,0,0,0,5098,5217,5124,5124,5167,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,5193,5124,5124,5143,5144,5144,5216,5144,5144,5144,5216,5144,5216,5145,5124,5124,5167,5123,0,0,0,0,0,5089,5090,
 0,0,0,0,0,0,0,0,0,0,5122,5169,5124,5124,5124,5124,5124,5124,5124,5124,5124,5124,5124,5124,5124,5167,5123,0,0,0,0,0,0,5113,5114,
@@ -1176,6 +1176,15 @@
     <property name="interactable" type="bool" value="true"/>
     <property name="message" value="This well has a curious aura about it."/>
     <property name="name" value="Magic Well"/>
+   </properties>
+  </object>
+  <object id="6" x="239.5" y="128.5" width="32.25" height="30.75">
+   <properties>
+    <property name="collision" type="bool" value="true"/>
+    <property name="id" value="quest-board"/>
+    <property name="interactable" type="bool" value="true"/>
+    <property name="message" value="Feeling lost? Check out the quest board"/>
+    <property name="name" value="Quest Board"/>
    </properties>
   </object>
  </objectgroup>

@@ -22,8 +22,8 @@
             "scale": 1.274017857142857,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 248.81911836849113,
-                "y": 286.8876585605158
+                "x": 280.2158525474806,
+                "y": 279.82339337024314
             }
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/home-map.tmx#buildings-main": {
@@ -58,11 +58,17 @@
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 186.66666666666666,
-                "y": 270.3333333333333
+                "x": 442,
+                "y": 436.99999999999994
             }
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#buildings-main": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#market-canopies": {
+            "scaleInDock": 1
+        },
+        "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#market-objects": {
             "scaleInDock": 1
         },
         "/home/odin/Dungeon/Github/aws-game-dev/public/maps/town-map.tmx#terrain-city": {

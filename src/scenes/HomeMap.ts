@@ -134,7 +134,11 @@ export class HomeMap extends BaseScene {
     this.map.createLayer("GrassBaseLayer", terrainVillage1Tileset, 0, 0);
     this.grassLayerAccessories = this.map.createLayer(
       "GrassAccessoriesLayer",
-      [terrainVillage1Tileset, villageNatureObjectsTileset],
+      [
+        terrainVillage1Tileset,
+        villageNatureObjectsTileset,
+        villageObjectsTileset,
+      ],
       0,
       0
     );
